@@ -506,7 +506,7 @@ export async function mockEstimatePackages(
 
 export async function mockReset(): Promise<ResetResponse> {
   await sleep(700);
-  return { status: "ok", projects_count: 60 };
+  return { status: "ok", projects_count: 240 };
 }
 
 export async function mockEstimateStream(
@@ -534,7 +534,7 @@ export function mockHealth(): Health {
     status: "ok",
     model_loaded: true,
     llm_provider: "stub",
-    projects_count: 60,
+    projects_count: 240,
   };
 }
 

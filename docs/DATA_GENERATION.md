@@ -2,9 +2,9 @@
 
 Deterministic recipe for `data/synthetic_history.csv` + validation-only
 `data/ground_truth.json` (the estimator never reads the latter). Generator:
-`python -m app.data_gen.generate_history` (defaults: 60 projects, seed 42).
-P001–P052 done, P053–P060 open; dates 2024-10-10 … 2026-10-10; same seed ⇒
-byte-identical outputs.
+`python -m app.data_gen.generate_history` (defaults: 240 projects, seed 42).
+P001–P228 done, P229–P240 open (12 most recent: 7 `in_progress` / 5 `pending`);
+dates 2024-10-10 … 2026-10-10; same seed ⇒ byte-identical outputs.
 
 ## Hidden effort model (actual_days)
 
@@ -32,7 +32,7 @@ byte-identical outputs.
 | cross_team_coordination | 1.25      | 0.25       |
 
 Interactions (extra joint multipliers; small enough that the Ridge learning
-loop recovers every main effect within 20% on n=52, worst 18.1% = pci_dss):
+loop recovers every main effect within 20% on n=228, worst 12.5% = mobile_app):
 
 | pair                                | multiplier |
 |-------------------------------------|------------|
@@ -41,13 +41,16 @@ loop recovers every main effect within 20% on n=52, worst 18.1% = pci_dss):
 | data_migration & legacy_tech_stack  | 1.12       |
 
 Drift — from **2026-02-01** actual effort × **1.22** (company grew, heavier
-scope); 13/52 done projects are post-switch. The team formula ignores drift,
-so post-drift team estimates degrade while the walk-forward model re-learns
-(last 10 replay steps: system MAE 15.7 vs team MAE 33.3 days; coverage 83%).
+scope); 71/228 done projects are post-switch (157 pre-switch). The team formula
+ignores drift, so post-drift team estimates degrade while the walk-forward
+model re-learns (last 10 replay steps: system MAE 31.05 vs team MAE 52.90 days;
+coverage 7/10).
 
-Outliers — seeded choice of **3 projects (5% of 60)**, U[2.0, 3.0]:
-P012 ×2.75, P021 ×2.91, P034 ×2.35 (dedicated `"{seed}:outliers"` RNG, so
-tuning outliers never shifts the main stream).
+Outliers — seeded choice of **12 projects (5% of 240)**, U[2.0, 3.0]:
+P031 ×2.75, P045 ×2.88, P056 ×2.52, P061 ×2.78, P082 ×2.40, P084 ×2.15,
+P089 ×2.99, P113 ×2.14, P135 ×2.27, P191 ×2.40, P224 ×2.47, P228 ×2.83
+(dedicated `"{seed}:outliers"` RNG, so tuning outliers never shifts the main
+stream).
 
 ## Team estimate (the optimist under test)
 
@@ -56,15 +59,16 @@ tuning outliers never shifts the main stream).
                        data_migration 1.60^0.6 = 1.325 (blind spots)
 
 No interactions, drift or outlier knowledge; mean team/actual ratio on the
-done projects is 0.62 (0.59 with third_party_api vs 0.64 without).
+done projects is 0.61 (0.57 with third_party_api vs 0.64 without).
 
 ## Emails, omissions, negations
 
 One client email per project, 120–350 words, keyword-rich sentences per
 present feature (`email_writer.py`). ~30% of projects omit 1–2 present
-features; ~8% of absent features are explicitly negated; mix ~70% EN / 15%
-VI / 15% mixed (VI keeps the EN keyword). Features are drawn independently —
-no co-occurrence structure is injected; joint effects must be learned.
+features (this corpus: 76/240 = 31.7%); ~8% of absent features are explicitly
+negated (this corpus: 218 negated cells); mix ~70% EN / 15% VI / 15% mixed
+(VI keeps the EN keyword). Features are drawn independently — no co-occurrence
+structure is injected; joint effects must be learned.
 
 ## Ground truth blocks (validation only)
 
@@ -76,5 +80,5 @@ bias, omission/negation rates, drift direction + magnitude, outlier rate,
 interaction uplift (6-seed pool) and main-effect recoverability.
 ## Checksums (seed 42)
 
-    data/synthetic_history.csv  sha1 e9e0a0969febbbdaa2ff84b6ff7b649bc2bbf5be
-    data/ground_truth.json      sha1 7700d6d74b078cc6dc084e74f9cfc320b35247b7
+    data/synthetic_history.csv  sha1 b1df6f1b6712602c2989710e7ca1570fe6cb71ee
+    data/ground_truth.json      sha1 a0791e85a5de09fb5b57242425b71e65f8d0af9d

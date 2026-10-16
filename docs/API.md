@@ -40,7 +40,7 @@ feat_legacy_tech_stack,feat_cross_team_coordination
 ### GET /api/health
 
 ```json
-{ "status": "ok", "model_loaded": true, "llm_provider": "stub|deepseek|gemini|openai", "projects_count": 60 }
+{ "status": "ok", "model_loaded": true, "llm_provider": "stub|deepseek|gemini|openai", "projects_count": 240 }
 ```
 
 ### POST /api/estimate
@@ -49,7 +49,7 @@ Body: `{ "email_text": "..." }`
 
 ```json
 {
-  "project_id": "P061",
+  "project_id": "P241",
   "findings": [
     { "name": "data_migration", "value": 1, "confidence": 0.9, "evidence_quote": "..." },
     { "name": "pci_dss", "value": null, "confidence": 0.2, "evidence_quote": null }
@@ -153,7 +153,7 @@ Body may include an optional override map:
 Reseeds the demo database to the pristine synthetic history (retrains model + refreshes replay cache). Frame in the UI as "Reset demo data".
 
 ```json
-{ "status": "ok", "projects_count": 60 }
+{ "status": "ok", "projects_count": 240 }
 ```
 
 ### POST /api/packages

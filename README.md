@@ -44,47 +44,47 @@ flowchart LR
 
 Design notes:
 
-- **One service, one URL** — FastAPI serves the statically-exported frontend and the API on the same port: no CORS, no split deploy. A **"Reset demo data"** button reseeds the 60-project demo DB atomically (judges never corrupt each other's runs).
+- **One service, one URL** — FastAPI serves the statically-exported frontend and the API on the same port: no CORS, no split deploy. A **"Reset demo data"** button reseeds the 240-project demo DB atomically (judges never corrupt each other's runs).
 - **LLM extracts, math estimates** — same input → same output, auditable coefficients, no anchoring bias.
 - **Replay is computed once at startup** (walk-forward over all history) and cached for the History and Proof screens.
 - **SSE streaming** shows the pipeline steps live on the Estimate screen.
 
 ## Measured results (real runs, not marketing)
 
-Walk-forward replay on the seeded 60-project history (52 done, 42 replay steps), LLM = DeepSeek V4.1 Flash:
+Walk-forward replay on the seeded 240-project history (228 done, 218 replay steps), LLM = DeepSeek V4.1 Flash:
 
-| Baseline | MAE (days) | Notes |
-|---|---|---|
-| **System (calibrated P50)** | **23.50** | coverage 35/42 (83.3%) |
-| Team estimate | 30.40 | ignores the mid-history drift |
-| LLM + company history in prompt | 35.96 | the fair "LLM with context" strawman |
-| LLM-only | 242.98 | confuses calendar time with effort (e.g. answers "360" for a 56-day project) |
+| Baseline | MAE (days) | Rows | Notes |
+|---|---|---|---|
+| **System (calibrated P50)** | **17.36** | 218 | full walk-forward; coverage 189/218 (86.7%) |
+| Team estimate | 32.93 | 218 | full walk-forward; ignores the mid-history drift |
+| LLM + company history in prompt | 35.27 | 42 | most recent steps; the fair "LLM with context" strawman |
+| LLM-only | 258.12 | 42 | most recent steps; confuses calendar time with effort (e.g. answers "240" for a 76-day project) |
 
-Post-drift window (last 10 steps): **System 15.65 vs Team 33.30 MAE** — the model re-learns after the productivity shift; the humans keep the old habits. Full report: [docs/AB_MEASUREMENT.md](docs/AB_MEASUREMENT.md).
+Post-drift window (last 10 steps): **System 31.05 vs Team 52.90 MAE** — the model re-learns after the productivity shift; the humans keep the old habits. Full report: [docs/AB_MEASUREMENT.md](docs/AB_MEASUREMENT.md).
 
 Variance probe: the same email asked 5× at temperature 0 returned identical numbers (std = 0.000) — the LLM's problem at temperature 0 is **calibration, not variance**. The system's edge is calibration, auditability and learning.
 
-Extraction quality (60 emails with known ground truth, 900 cells):
+Extraction quality (240 emails with known ground truth, 3600 cells):
 
 | Metric (micro) | Stub (offline) | DeepSeek |
 |---|---|---|
-| Precision | 0.833 | **0.975** |
-| Recall | 0.848 | 0.877 |
-| F1 | 0.841 | **0.923** |
-| Negation handling ("no mobile app") | 35% | **100%** |
+| Precision | 0.825 | **0.986** |
+| Recall | 0.867 | 0.886 |
+| F1 | 0.845 | **0.933** |
+| Negation handling ("no mobile app") | 43.1% | **100%** |
 
-Full report: [docs/EXTRACTION_EVAL.md](docs/EXTRACTION_EVAL.md). Cost: the whole 60-email batch costs ≈ **$0.03** on `deepseek-flash`.
+Full report: [docs/EXTRACTION_EVAL.md](docs/EXTRACTION_EVAL.md). Cost: the whole 240-email batch costs ≈ **$0.20** peak / **$0.10** off-peak on `deepseek-flash`.
 
 ## Why this is not "just an LLM wrapper"
 
 | Criterion | LLM-only (measured) | This system |
 |---|---|---|
 | Consistency | Deterministic at T=0, but wrong scale | Same input → same output, calibrated scale |
-| Uncertainty | A single number | P10/P50/P90; measured coverage 83.3% |
+| Uncertainty | A single number | P10/P50/P90; measured coverage 86.7% |
 | Missing info | Silently guesses | MC-widened range + ranked questions; answers shrink it live |
-| Learning | None | Retrains on actuals; adapts after drift (15.7 vs 33.3 MAE) |
+| Learning | None | Retrains on actuals; adapts after drift (31.05 vs 52.90 MAE) |
 | Auditability | Opaque | Coefficients, evidence quotes, similar projects |
-| Cost | ~$0.03/batch | LLM only for extraction; estimation is free math |
+| Cost | ~$0.20/batch | LLM only for extraction; estimation is free math |
 
 ## The 15 features
 
@@ -114,12 +114,12 @@ Three realistic RFPs ship with the app (Onboarding → **Load Sample Data**): **
 
 ## Proof screens
 
-- **Replay** — walk-forward MAE chart (System / Team / LLM-only), coverage `35/42 (83.3%)`, per-step P10/P50/P90 vs actual.
+- **Replay** — walk-forward MAE chart (System / Team / LLM-only), coverage `189/218 (86.7%)`, per-step P10/P50/P90 vs actual.
 - **A/B** — 10 repeated LLM-only runs vs **LLM + company history** vs system, with a "simulated" badge whenever the offline stub is used.
 
 ## Tests
 
-**140 backend tests** — offline, deterministic, stub-forced:
+**165 backend tests** — offline, deterministic, stub-forced:
 
 ```bash
 cd backend && python -m pytest tests/ -q
@@ -129,10 +129,10 @@ cd backend && python -m pytest tests/ -q
 
 1. **Demo data is synthetic** — regenerated with interactions, mid-history drift (+22% from 2026-02) and 5% outliers; ground truth is excluded from all services and used only for evaluation.
 2. **Story point ≠ person-day** — the TAWOS cross-dataset check showed no signal under the offline stub (documented negative result: [docs/TAWOS_VALIDATION.md](docs/TAWOS_VALIDATION.md)).
-3. **Extraction can err** — measured: F1 0.923 (DeepSeek) / 0.841 (stub); weak spots are indirect features (`cross_team_coordination`, `audit_logging`).
+3. **Extraction can err** — measured: F1 0.933 (DeepSeek) / 0.845 (stub); weak spots are indirect features (`cross_team_coordination`, `audit_logging`).
 4. **Conformal prediction assumes exchangeability** — distribution shift can degrade coverage.
 5. **No Jira/GitHub integration** — demo imports CSV only.
-6. **No auth / multi-user** — the demo DB is shared; the **Reset demo data** button restores the pristine 60-project state.
+6. **No auth / multi-user** — the demo DB is shared; the **Reset demo data** button restores the pristine 240-project state.
 7. **Baselines labeled honestly** — the LLM-only replay baseline is simulated when no key is present; the LLM+history baseline and the A/B run are real with a key (see badges in the UI).
 8. **Similar projects retrieval** uses BM25 + TF-IDF (no embeddings) to keep the on-device build light.
 9. **Free-tier hosting** — on Render the SQLite file is ephemeral: the demo reseeds on every restart; entered actuals are lost on cold start (use Reset to restore deliberately).

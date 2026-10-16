@@ -8,8 +8,8 @@ so the extractor's noise can be isolated from model error.
 
 Run from ``backend/`` with ``PYTHONPATH=.`` and the project venv:
 
-    /root/venvs/estimator/bin/python scripts/extraction_eval.py --provider stub --limit 60 --write
-    /root/venvs/estimator/bin/python scripts/extraction_eval.py --provider deepseek --limit 60 --write
+    /root/venvs/estimator/bin/python scripts/extraction_eval.py --provider stub --limit 240 --write
+    /root/venvs/estimator/bin/python scripts/extraction_eval.py --provider deepseek --limit 240 --write
 
 ``--write`` merges the current provider's result block into
 ``docs/EXTRACTION_EVAL.md``; earlier blocks are recovered from an HTML comment
@@ -355,6 +355,7 @@ def render_markdown(
     blocks: dict[str, Any], data_notes: dict[str, Any], include_payload: bool
 ) -> str:
     providers = [p for p in ("stub", "deepseek") if p in blocks]
+    cells_total = data_notes["n_gt_projects"] * len(FEATURES)
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     lines: list[str] = [
         "# Extraction Quality vs Ground Truth",
@@ -386,7 +387,7 @@ def render_markdown(
         "",
         f"- Inputs: {data_notes['n_gt_projects']} ground-truth projects joined with "
         f"`data/synthetic_history.csv` emails (feature cells disagreeing with ground "
-        f"truth: {data_notes['csv_gt_mismatch_cells']}/900). For each email the production path",
+        f"truth: {data_notes['csv_gt_mismatch_cells']}/{cells_total}). For each email the production path",
         "  `extract_features(email, provider=(p, name))` predicts `1 | 0 | null` per feature.",
         "- Present detection: predicted `1` vs truth `features == 1`. `null` counts as a miss",
         "  (not an assertion), so precision penalises asserted-but-absent claims, recall counts hits.",
@@ -411,7 +412,7 @@ def render_markdown(
         row("macro recall", lambda b: _f(b["metrics"]["macro"]["recall"])),
         row("macro F1", lambda b: _f(b["metrics"]["macro"]["f1"])),
         row(
-            "TP / FP / FN (900 cells)",
+            f"TP / FP / FN ({cells_total} cells)",
             lambda b: f"{b['metrics']['micro']['tp']} / {b['metrics']['micro']['fp']} / "
             f"{b['metrics']['micro']['fn']}",
         ),
