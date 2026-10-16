@@ -624,6 +624,19 @@ def get_provider(name: str | None = None) -> tuple[LLMProvider, str]:
         logger.warning("DEEPSEEK_API_KEY is not set - falling back to the offline stub provider")
         return StubProvider(), "stub"
 
+    if requested == "distilled":
+        # Lazy import: keeps the model artifact optional and providers.py importable
+        # even without joblib. See docs/DISTILLATION_EXPERIMENT.md.
+        from app.services.distilled import DistilledProvider
+
+        try:
+            return DistilledProvider(), "distilled"
+        except ValueError as exc:
+            logger.warning(
+                "Distilled model unavailable (%s) - falling back to the offline stub provider", exc
+            )
+            return StubProvider(), "stub"
+
     if requested not in ("stub", ""):
         logger.warning("Unknown LLM_PROVIDER %r - falling back to the offline stub provider", requested)
     return StubProvider(), "stub"
