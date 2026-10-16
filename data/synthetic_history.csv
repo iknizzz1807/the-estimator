@@ -96,7 +96,7 @@ Feel free to ask clarifying questions - we can arrange a call this week. Please 
 Kind regards,
 James Okafor
 COO, Pacific Freight",0,1,0,1,0,0,0,1,0,1,0,0,0,0,0
-P012,2025-02-28,90,50,done,1,"Chào team,
+P012,2025-02-28,247,50,done,1,"Chào team,
 
 Edulab Group đang tìm đối tác triển khai hệ thống quản lý đặt chỗ. Quy mô ban đầu khoảng 80,000 người dùng, ngân sách dự kiến 15,000 USD, deadline khoảng 9 tháng. Cần multi-tenancy với cấu hình riêng cho từng tenant. Có khách hàng tại EU nên phải tuân thủ GDPR (privacy compliance) và quyền xóa dữ liệu. Chúng tôi kinh doanh nhiều thị trường nên cần hỗ trợ multi-currency và tỷ giá cập nhật hằng ngày. Phải bao gồm migration dữ liệu (data migration) từ hệ thống cũ, khoảng 4 triệu bản ghi, có kiểm tra đối chiếu. Hệ thống cần tích hợp API (third-party API) với CRM hiện tại của chúng tôi, bao gồm REST API và webhooks. Cơ quan quản lý yêu cầu audit log đầy đủ cho mọi thay đổi dữ liệu.
 
@@ -171,7 +171,7 @@ We are flexible on the technical stack as long as the solution is maintainable.
 Regards,
 Sarah Mitchell
 Head of Operations, NovaMart",1,0,0,0,0,0,1,1,0,0,0,1,1,0,0
-P021,2025-06-11,41,36,done,1,"Greetings,
+P021,2025-06-11,138,36,done,1,"Greetings,
 
 We are Titan Manufacturing, currently evaluating partners for a booking management platform. The solution should serve about 12,000 users initially, the budget is around 60,000 USD, and we would like delivery within 9 months. We need to comply with PCI-DSS for storing and processing cardholder data. Operators need a real-time dashboard where status updates appear instantly, ideally under 100ms, using WebSockets. The checkout flow must process payments through an external gateway and handle refunds and chargebacks. Field technicians often work in basements and rural areas, so offline mode with local storage is essential. Multi-tenant architecture is not required for this deployment.
 
@@ -207,7 +207,7 @@ Please send an indicative timeline together with the commercial proposal. We wou
 Regards,
 Laura Kim
 Head of Engineering, Citywide Insurance",0,0,1,0,0,0,0,1,0,0,1,0,0,0,0
-P025,2025-08-05,100,58,done,1,"Hi team,
+P025,2025-08-05,110,58,done,1,"Hi team,
 
 I'm Tom Becker from Titan Manufacturing. We're planning a customer self-service portal and would like your team to build it. We expect around 2,500 active users in the first year, and the approved budget is about 60,000 USD. Our target launch is roughly 4 months from kick-off. Field staff need native mobile apps for both iOS and Android, not just a responsive web page. The UI must update in real time as events arrive, without manual refresh. Customers will pay online, so we need a payment gateway that supports cards and e-wallets. Field technicians often work in basements and rural areas, so offline mode with local storage is essential. The core platform runs on a COBOL mainframe and an on-prem Oracle database, so experience with legacy technology is important. Privacy regulation scope is minimal here; no GDPR obligations apply.
 
@@ -257,7 +257,7 @@ Tôi là Lê Thu Hà từ BlueRiver Energy. Chúng tôi đang chuẩn bị công
 Thân mến,
 Lê Thu Hà
 Quản lý sản phẩm, BlueRiver Energy",0,1,0,0,0,1,0,0,0,0,0,0,0,1,1
-P031,2025-10-16,82,40,done,1,"Hi team,
+P031,2025-10-16,92,40,done,1,"Hi team,
 
 My name is Priya Nair and I represent Saigon Digital Bank. The project is an order management system, expected to onboard about 80,000 users in year one. Budget: approximately 60,000 USD. Timing: 12 months. Field technicians often work in basements and rural areas, so offline mode with local storage is essential. Please plan for migrating roughly 4 million rows from our current spreadsheets and previous database. The core platform runs on a COBOL mainframe and an on-prem Oracle database, so experience with legacy technology is important. Regulators require a full audit trail: every change must be logged with who, when and what. The service should pull updates from partner systems regularly and keep records in sync whenever they differ. PCI-DSS compliance is out of scope because we never store card data.
 
@@ -280,14 +280,14 @@ I'm Tom Becker from Orbit Telecom. We're planning a customer self-service portal
 Kind regards,
 Tom Becker
 Procurement Lead, Orbit Telecom",0,0,1,0,0,0,1,0,0,1,0,1,0,0,0
-P034,2025-11-25,41,47,done,1,"Hello,
+P034,2025-11-25,96,47,done,1,"Hello,
 
 We are Citywide Insurance, currently evaluating partners for a booking management platform. The solution should serve about 25,000 users initially, the budget is around 40,000 USD, and we would like delivery within 6 months. The service should pull updates from partner systems regularly and keep records in sync whenever they differ. Privacy compliance with GDPR is mandatory because of our European customers. Field staff need native mobile apps for both iOS and Android, not just a responsive web page. Because we handle card data, PCI-DSS compliance is mandatory, including encryption and tokenization. There is no migration work - only new records will be created. We are not integrating any external API in this phase.
 
 Best regards,
 Priya Nair
 Program Manager, Citywide Insurance",0,0,0,1,0,0,0,0,1,0,1,1,0,0,0
-P035,2025-12-03,31,27,done,1,"Kính gửi anh/chị,
+P035,2025-12-03,34,27,done,1,"Kính gửi anh/chị,
 
 Tôi là Trần Quốc Bảo từ Hanoi Fintech JSC. Chúng tôi đang chuẩn bị dashboard vận hành nội bộ và muốn nhận báo giá từ đội của bạn. Dự kiến khoảng 40,000 người dùng trong năm đầu, ngân sách khoảng 180,000 USD, thời gian mong muốn khoảng 9 tháng. Field technicians often work in basements and rural areas, so offline mode with local storage is essential. The platform must integrate with our existing CRM through its REST API, and the integration should handle rate limits gracefully. We are not processing online payments, so no payment support is required.
 
@@ -296,7 +296,7 @@ Kinh nghiệm của đội bạn với các hệ thống tương tự là một 
 Thân mến,
 Trần Quốc Bảo
 Trưởng phòng IT, Hanoi Fintech JSC",1,0,0,0,0,0,0,0,1,1,0,0,0,0,0
-P036,2025-12-23,63,41,done,1,"Greetings,
+P036,2025-12-23,73,41,done,1,"Greetings,
 
 My name is Emma Rodriguez and I represent Hanoi Fintech JSC. The project is a customer self-service portal, expected to onboard about 5,000 users in year one. Budget: approximately 180,000 USD. Timing: 9 months. We need an integration with a third-party ERP system using the vendor's API and webhooks. Because we handle card data, PCI-DSS compliance is mandatory, including encryption and tokenization. A migration of existing customer and order data from the previous database must be included in scope.
 
@@ -326,7 +326,7 @@ Tôi là Phạm Đức Huy từ GreenFarm Co. Chúng tôi đang chuẩn bị quy
 Thân mến,
 Phạm Đức Huy
 CTO, GreenFarm Co",0,0,0,0,1,0,0,1,0,0,0,1,0,0,1
-P040,2026-02-01,37,17,done,1,"Greetings,
+P040,2026-02-01,45,17,done,1,"Greetings,
 
 I'm Laura Kim from Titan Manufacturing. We're planning a customer self-service portal and would like your team to build it. We expect around 450 active users in the first year, and the approved budget is about 120,000 USD. Our target launch is roughly 9 months from kick-off. A native mobile application for iOS and Android is required for field technicians. There is a third-party API integration with our logistics provider that the new system has to consume. We are not handling cardholder data, so PCI-DSS does not apply.
 
@@ -335,7 +335,7 @@ Please include a rough breakdown by phase and the key assumptions in your propos
 Regards,
 Laura Kim
 Head of Engineering, Titan Manufacturing",1,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-P041,2026-02-22,37,25,done,1,"Xin chào đội ngũ,
+P041,2026-02-22,45,25,done,1,"Xin chào đội ngũ,
 
 Saigon Digital Bank đang tìm đối tác triển khai công cụ báo cáo và phân tích. Quy mô ban đầu khoảng 2,500 người dùng, ngân sách dự kiến 180,000 USD, deadline khoảng 5 tháng. Dữ liệu phải đồng bộ (data sync) hai chiều với hệ thống kho vận, chạy tự động mỗi 15 phút và có xử lý xung đột. Phải bao gồm migration dữ liệu (data migration) từ hệ thống cũ, khoảng 4 triệu bản ghi, có kiểm tra đối chiếu. Cần hỗ trợ payment: thanh toán một lần và subscription hằng tháng qua cổng thanh toán bên thứ ba.
 
@@ -344,7 +344,7 @@ Nếu cần thêm thông tin, anh/chị cứ hỏi, bên tôi có thể sắp x�
 Thân mến,
 Võ Thanh Mai
 Giám đốc chương trình, Saigon Digital Bank",0,1,0,1,1,0,0,0,0,0,0,0,0,0,0
-P042,2026-03-01,53,29,done,1,"Chào team,
+P042,2026-03-01,65,29,done,1,"Chào team,
 
 Tôi là Võ Thanh Mai từ Pacific Freight. Chúng tôi đang chuẩn bị công cụ báo cáo và phân tích và muốn nhận báo giá từ đội của bạn. Dự kiến khoảng 5,000 người dùng trong năm đầu, ngân sách khoảng 180,000 USD, thời gian mong muốn khoảng 6 tháng. There is a third-party API integration with our logistics provider that the new system has to consume.
 
@@ -353,7 +353,7 @@ Mong nhận được báo giá chi tiết trong tuần này để kịp trình b
 Thân mến,
 Võ Thanh Mai
 Giám đốc chương trình, Pacific Freight",1,0,0,1,0,0,0,0,0,0,0,0,0,1,0
-P043,2026-03-13,38,36,done,1,"Dear team,
+P043,2026-03-13,46,36,done,1,"Dear team,
 
 I'm Michael Turner from MedCore Health. We're planning an internal operations dashboard and would like your team to build it. We expect around 40,000 active users in the first year, and the approved budget is about 40,000 USD. Our target launch is roughly 5 months from kick-off. The core platform runs on a COBOL mainframe and an on-prem Oracle database, so experience with legacy technology is important. The application should remain usable without internet access, buffering changes on the device until connectivity returns. Please include support for one-time payments and monthly subscriptions through a payment provider. We need detailed audit logging across the platform with a searchable history.
 
@@ -362,21 +362,21 @@ Your team's experience with similar systems in our industry would be a plus.
 Thanks in advance,
 Michael Turner
 IT Director, MedCore Health",0,1,0,0,0,0,0,0,0,1,0,0,1,1,0
-P044,2026-03-24,110,61,done,1,"Hello,
+P044,2026-03-24,135,61,done,1,"Hello,
 
 I'm Tom Becker from Titan Manufacturing. We're planning a customer self-service portal and would like your team to build it. We expect around 1,500 active users in the first year, and the approved budget is about 90,000 USD. Our target launch is roughly 3 months from kick-off. Delivery will require cross-team coordination with our internal IT department and a second supplier managing the network. Prices and invoices must support multiple currencies, with daily FX rates. Please plan for migrating roughly 4 million rows from our current spreadsheets and previous database. Multi-tenancy with per-tenant configuration and role-based access is part of the requirements. No third-party API integration is needed - everything stays in our own systems. We will not use an external identity provider - local username/password login is fine.
 
 Thanks in advance,
 Tom Becker
 Procurement Lead, Titan Manufacturing",0,0,0,0,1,1,1,0,1,0,0,0,1,0,1
-P045,2026-04-03,70,44,done,1,"Greetings,
+P045,2026-04-03,85,44,done,1,"Greetings,
 
 I'm Emma Rodriguez from Saigon Digital Bank. We're planning an order management system and would like your team to build it. We expect around 800 active users in the first year, and the approved budget is about 40,000 USD. Our target launch is roughly 4 months from kick-off. The application should remain usable without internet access, buffering changes on the device until connectivity returns. We process personal data of EU residents, so GDPR compliance, consent tracking and the right to deletion are required. Single sign-on (SSO) against our internal IdP is a hard requirement. Live notifications and real-time charts are important for the control room screen. A migration of existing customer and order data from the previous database must be included in scope.
 
 Regards,
 Emma Rodriguez
 Product Manager, Saigon Digital Bank",0,0,1,0,1,0,0,1,0,1,0,1,0,0,0
-P046,2026-04-17,16,13,done,1,"Dear team,
+P046,2026-04-17,19,13,done,1,"Dear team,
 
 I'm Emma Rodriguez from Edulab Group. We're planning a partner onboarding workflow and would like your team to build it. We expect around 2,500 active users in the first year, and the approved budget is about 25,000 USD. Our target launch is roughly 5 months from kick-off. The product should handle multi-currency billing for customers in Asia and Europe. Real-time updates are not needed; refreshing the page manually is acceptable. The tool does not need to stay in sync with any other system.
 
@@ -385,14 +385,14 @@ Feel free to ask clarifying questions - we can arrange a call this week. A secur
 Thanks in advance,
 Emma Rodriguez
 Product Manager, Edulab Group",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
-P047,2026-05-08,97,58,done,1,"Greetings,
+P047,2026-05-08,130,58,done,1,"Greetings,
 
 Citywide Insurance is looking for a vendor to deliver a booking management platform. Roughly 1,500 people will use it daily, the budget is about 90,000 USD, and the planned timeline is 12 months. Offline capability is required for the inspection workflow when devices lose their connection. We need detailed audit logging across the platform with a searchable history. Field staff need native mobile apps for both iOS and Android, not just a responsive web page. The service should pull updates from partner systems regularly and keep records in sync whenever they differ. Please include support for one-time payments and monthly subscriptions through a payment provider. There is a third-party API integration with our logistics provider that the new system has to consume.
 
 Kind regards,
 Laura Kim
 Head of Engineering, Citywide Insurance",1,1,0,1,0,0,0,0,1,1,0,0,1,0,0
-P048,2026-05-14,23,23,done,1,"Greetings,
+P048,2026-05-14,29,23,done,1,"Greetings,
 
 We are Pacific Freight, currently evaluating partners for a customer self-service portal. The solution should serve about 1,500 users initially, the budget is around 25,000 USD, and we would like delivery within 6 months. The project involves several stakeholder teams, so regular coordination across teams is expected. Multi-tenancy with per-tenant configuration and role-based access is part of the requirements.
 
@@ -401,14 +401,14 @@ We would appreciate a firm quote with a validity period of 30 days. A short plan
 Best regards,
 Priya Nair
 Program Manager, Pacific Freight",0,0,0,0,0,0,1,0,0,0,0,0,0,0,1
-P049,2026-05-22,57,34,done,1,"Xin chào đội ngũ,
+P049,2026-05-22,79,34,done,1,"Xin chào đội ngũ,
 
 Tôi là Lê Thu Hà từ Lotus Travel. Chúng tôi đang chuẩn bị công cụ theo dõi dịch vụ hiện trường và muốn nhận báo giá từ đội của bạn. Dự kiến khoảng 120 người dùng trong năm đầu, ngân sách khoảng 180,000 USD, thời gian mong muốn khoảng 4 tháng. Phải làm việc với legacy tech stack cũ, khó tuyển developer. Hóa đơn phải hỗ trợ nhiều loại tiền tệ (multi-currency). Phải bao gồm migration dữ liệu (data migration) từ hệ thống cũ, khoảng 4 triệu bản ghi, có kiểm tra đối chiếu. Cần đạt chuẩn PCI-DSS cho dữ liệu thẻ. Không yêu cầu GDPR/HIPAA cho công cụ nội bộ này.
 
 Thân mến,
 Lê Thu Hà
 Quản lý sản phẩm, Lotus Travel",0,0,0,0,1,1,0,0,0,0,1,0,0,1,0
-P050,2026-06-03,28,16,done,1,"Hi team,
+P050,2026-06-03,34,16,done,1,"Hi team,
 
 We are Acme Logistics, currently evaluating partners for a field service tracking tool. The solution should serve about 5,000 users initially, the budget is around 250,000 USD, and we would like delivery within 12 months. We have around 12 years of records in the previous system, so data migration with validation is a significant workstream. We only work in USD, so multi-currency support is not required. We are not integrating any external API in this phase.
 
@@ -417,7 +417,7 @@ Your team's experience with similar systems in our industry would be a plus. Ple
 Best regards,
 Priya Nair
 Program Manager, Acme Logistics",0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
-P051,2026-06-21,58,36,done,1,"Greetings,
+P051,2026-06-21,70,36,done,1,"Greetings,
 
 We are Lotus Travel, currently evaluating partners for an internal operations dashboard. The solution should serve about 25,000 users initially, the budget is around 25,000 USD, and we would like delivery within 4 months. Field technicians often work in basements and rural areas, so offline mode with local storage is essential. The core platform runs on a COBOL mainframe and an on-prem Oracle database, so experience with legacy technology is important. Operators need a real-time dashboard where status updates appear instantly, ideally under 100ms, using WebSockets. We will not use an external identity provider - local username/password login is fine.
 
@@ -426,7 +426,7 @@ The procurement process is straightforward; we can sign within two weeks.
 Regards,
 Sarah Mitchell
 Head of Operations, Lotus Travel",0,0,0,0,0,0,0,1,0,1,1,0,0,1,0
-P052,2026-06-28,46,29,done,1,"Dear team,
+P052,2026-06-28,56,29,done,1,"Dear team,
 
 My name is Laura Kim and I represent Saigon Digital Bank. The project is a supplier collaboration hub, expected to onboard about 5,000 users in year one. Budget: approximately 120,000 USD. Timing: 6 months. The system will be multi-tenant, serving several client organizations from a single deployment with strict data isolation. The checkout flow must process payments through an external gateway and handle refunds and chargebacks. Please plan for migrating roughly 4 million rows from our current spreadsheets and previous database.
 

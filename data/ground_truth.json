@@ -34,6 +34,38 @@
     "legacy_tech_stack": 0.2,
     "cross_team_coordination": 0.25
   },
+  "interaction_multipliers": [
+    {
+      "features": [
+        "payment_gateway",
+        "pci_dss"
+      ],
+      "multiplier": 1.15
+    },
+    {
+      "features": [
+        "mobile_app",
+        "offline_mode"
+      ],
+      "multiplier": 1.1
+    },
+    {
+      "features": [
+        "data_migration",
+        "legacy_tech_stack"
+      ],
+      "multiplier": 1.12
+    }
+  ],
+  "drift": {
+    "switch_date": "2026-02-01",
+    "factor": 1.22
+  },
+  "outliers": {
+    "P012": 2.75,
+    "P021": 2.91,
+    "P034": 2.35
+  },
   "projects": {
     "P001": {
       "features": {
@@ -62,7 +94,10 @@
       ],
       "negated": [],
       "actual_days": 23,
-      "team_estimate": 20
+      "team_estimate": 20,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P002": {
       "features": {
@@ -93,7 +128,10 @@
       ],
       "negated": [],
       "actual_days": 64,
-      "team_estimate": 39
+      "team_estimate": 39,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P003": {
       "features": {
@@ -120,7 +158,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": 28,
-      "team_estimate": 19
+      "team_estimate": 19,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P004": {
       "features": {
@@ -149,7 +190,10 @@
         "third_party_api"
       ],
       "actual_days": 27,
-      "team_estimate": 19
+      "team_estimate": 19,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P005": {
       "features": {
@@ -180,7 +224,10 @@
         "cross_team_coordination"
       ],
       "actual_days": 46,
-      "team_estimate": 36
+      "team_estimate": 36,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P006": {
       "features": {
@@ -212,7 +259,10 @@
         "privacy_compliance"
       ],
       "actual_days": 47,
-      "team_estimate": 40
+      "team_estimate": 40,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P007": {
       "features": {
@@ -241,7 +291,10 @@
         "mobile_app"
       ],
       "actual_days": 25,
-      "team_estimate": 16
+      "team_estimate": 16,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P008": {
       "features": {
@@ -268,7 +321,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": 29,
-      "team_estimate": 16
+      "team_estimate": 16,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P009": {
       "features": {
@@ -298,7 +354,10 @@
         "audit_logging"
       ],
       "actual_days": 40,
-      "team_estimate": 25
+      "team_estimate": 25,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P010": {
       "features": {
@@ -330,7 +389,10 @@
         "external_data_sync"
       ],
       "actual_days": 87,
-      "team_estimate": 52
+      "team_estimate": 52,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P011": {
       "features": {
@@ -359,7 +421,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": 52,
-      "team_estimate": 39
+      "team_estimate": 39,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P012": {
       "features": {
@@ -389,8 +454,11 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 90,
-      "team_estimate": 50
+      "actual_days": 247,
+      "team_estimate": 50,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": 2.75
     },
     "P013": {
       "features": {
@@ -418,7 +486,10 @@
         "multi_currency"
       ],
       "actual_days": 16,
-      "team_estimate": 13
+      "team_estimate": 13,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P014": {
       "features": {
@@ -451,7 +522,10 @@
         "pci_dss"
       ],
       "actual_days": 49,
-      "team_estimate": 43
+      "team_estimate": 43,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P015": {
       "features": {
@@ -480,7 +554,10 @@
         "multi_currency"
       ],
       "actual_days": 34,
-      "team_estimate": 27
+      "team_estimate": 27,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P016": {
       "features": {
@@ -510,7 +587,10 @@
       ],
       "negated": [],
       "actual_days": 70,
-      "team_estimate": 30
+      "team_estimate": 30,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P017": {
       "features": {
@@ -542,7 +622,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": 128,
-      "team_estimate": 75
+      "team_estimate": 75,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P018": {
       "features": {
@@ -571,7 +654,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": 48,
-      "team_estimate": 33
+      "team_estimate": 33,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P019": {
       "features": {
@@ -604,7 +690,10 @@
         "external_data_sync"
       ],
       "actual_days": 58,
-      "team_estimate": 39
+      "team_estimate": 39,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P020": {
       "features": {
@@ -635,7 +724,10 @@
       ],
       "negated": [],
       "actual_days": 70,
-      "team_estimate": 36
+      "team_estimate": 36,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P021": {
       "features": {
@@ -665,8 +757,11 @@
       "negated": [
         "multi_tenancy"
       ],
-      "actual_days": 41,
-      "team_estimate": 36
+      "actual_days": 138,
+      "team_estimate": 36,
+      "interaction_multiplier": 1.15,
+      "drift_factor": 1.0,
+      "outlier_shock": 2.91
     },
     "P022": {
       "features": {
@@ -694,7 +789,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": 38,
-      "team_estimate": 27
+      "team_estimate": 27,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P023": {
       "features": {
@@ -723,7 +821,10 @@
       ],
       "negated": [],
       "actual_days": 43,
-      "team_estimate": 22
+      "team_estimate": 22,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P024": {
       "features": {
@@ -751,7 +852,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": 29,
-      "team_estimate": 28
+      "team_estimate": 28,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P025": {
       "features": {
@@ -782,8 +886,11 @@
       "negated": [
         "privacy_compliance"
       ],
-      "actual_days": 100,
-      "team_estimate": 58
+      "actual_days": 110,
+      "team_estimate": 58,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P026": {
       "features": {
@@ -814,7 +921,10 @@
       ],
       "negated": [],
       "actual_days": 67,
-      "team_estimate": 40
+      "team_estimate": 40,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P027": {
       "features": {
@@ -844,7 +954,10 @@
         "pci_dss"
       ],
       "actual_days": 26,
-      "team_estimate": 21
+      "team_estimate": 21,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P028": {
       "features": {
@@ -873,7 +986,10 @@
         "mobile_app"
       ],
       "actual_days": 31,
-      "team_estimate": 21
+      "team_estimate": 21,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P029": {
       "features": {
@@ -904,7 +1020,10 @@
         "data_migration"
       ],
       "actual_days": 38,
-      "team_estimate": 28
+      "team_estimate": 28,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P030": {
       "features": {
@@ -935,7 +1054,10 @@
         "pci_dss"
       ],
       "actual_days": 37,
-      "team_estimate": 32
+      "team_estimate": 32,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P031": {
       "features": {
@@ -966,8 +1088,11 @@
       "negated": [
         "pci_dss"
       ],
-      "actual_days": 82,
-      "team_estimate": 40
+      "actual_days": 92,
+      "team_estimate": 40,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P032": {
       "features": {
@@ -997,7 +1122,10 @@
       ],
       "negated": [],
       "actual_days": 56,
-      "team_estimate": 31
+      "team_estimate": 31,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P033": {
       "features": {
@@ -1026,7 +1154,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": 47,
-      "team_estimate": 39
+      "team_estimate": 39,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P034": {
       "features": {
@@ -1057,8 +1188,11 @@
         "third_party_api",
         "data_migration"
       ],
-      "actual_days": 41,
-      "team_estimate": 47
+      "actual_days": 96,
+      "team_estimate": 47,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": 2.35
     },
     "P035": {
       "features": {
@@ -1088,8 +1222,11 @@
       "negated": [
         "payment_gateway"
       ],
-      "actual_days": 31,
-      "team_estimate": 27
+      "actual_days": 34,
+      "team_estimate": 27,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P036": {
       "features": {
@@ -1118,8 +1255,11 @@
         "payment_gateway"
       ],
       "negated": [],
-      "actual_days": 63,
-      "team_estimate": 41
+      "actual_days": 73,
+      "team_estimate": 41,
+      "interaction_multiplier": 1.15,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P037": {
       "features": {
@@ -1150,7 +1290,10 @@
         "multi_tenancy"
       ],
       "actual_days": 61,
-      "team_estimate": 37
+      "team_estimate": 37,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P038": {
       "features": {
@@ -1182,7 +1325,10 @@
         "audit_logging"
       ],
       "actual_days": 39,
-      "team_estimate": 25
+      "team_estimate": 25,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P039": {
       "features": {
@@ -1211,7 +1357,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": 50,
-      "team_estimate": 32
+      "team_estimate": 32,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
     },
     "P040": {
       "features": {
@@ -1239,8 +1388,11 @@
       "negated": [
         "pci_dss"
       ],
-      "actual_days": 37,
-      "team_estimate": 17
+      "actual_days": 45,
+      "team_estimate": 17,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P041": {
       "features": {
@@ -1267,8 +1419,11 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 37,
-      "team_estimate": 25
+      "actual_days": 45,
+      "team_estimate": 25,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P042": {
       "features": {
@@ -1296,8 +1451,11 @@
         "legacy_tech_stack"
       ],
       "negated": [],
-      "actual_days": 53,
-      "team_estimate": 29
+      "actual_days": 65,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P043": {
       "features": {
@@ -1325,8 +1483,11 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 38,
-      "team_estimate": 36
+      "actual_days": 46,
+      "team_estimate": 36,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P044": {
       "features": {
@@ -1360,8 +1521,11 @@
         "third_party_api",
         "identity_provider"
       ],
-      "actual_days": 110,
-      "team_estimate": 61
+      "actual_days": 135,
+      "team_estimate": 61,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P045": {
       "features": {
@@ -1390,8 +1554,11 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 70,
-      "team_estimate": 44
+      "actual_days": 85,
+      "team_estimate": 44,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P046": {
       "features": {
@@ -1419,8 +1586,11 @@
         "external_data_sync",
         "realtime_ui"
       ],
-      "actual_days": 16,
-      "team_estimate": 13
+      "actual_days": 19,
+      "team_estimate": 13,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P047": {
       "features": {
@@ -1450,8 +1620,11 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 97,
-      "team_estimate": 58
+      "actual_days": 130,
+      "team_estimate": 58,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P048": {
       "features": {
@@ -1477,8 +1650,11 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 23,
-      "team_estimate": 23
+      "actual_days": 29,
+      "team_estimate": 23,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P049": {
       "features": {
@@ -1508,8 +1684,11 @@
       "negated": [
         "privacy_compliance"
       ],
-      "actual_days": 57,
-      "team_estimate": 34
+      "actual_days": 79,
+      "team_estimate": 34,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P050": {
       "features": {
@@ -1537,8 +1716,11 @@
         "third_party_api",
         "multi_currency"
       ],
-      "actual_days": 28,
-      "team_estimate": 16
+      "actual_days": 34,
+      "team_estimate": 16,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P051": {
       "features": {
@@ -1569,8 +1751,11 @@
       "negated": [
         "identity_provider"
       ],
-      "actual_days": 58,
-      "team_estimate": 36
+      "actual_days": 70,
+      "team_estimate": 36,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P052": {
       "features": {
@@ -1597,8 +1782,11 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 46,
-      "team_estimate": 29
+      "actual_days": 56,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P053": {
       "features": {
@@ -1628,7 +1816,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": null,
-      "team_estimate": 71
+      "team_estimate": 71,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P054": {
       "features": {
@@ -1660,7 +1851,10 @@
         "privacy_compliance"
       ],
       "actual_days": null,
-      "team_estimate": 53
+      "team_estimate": 53,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P055": {
       "features": {
@@ -1694,7 +1888,10 @@
         "legacy_tech_stack"
       ],
       "actual_days": null,
-      "team_estimate": 46
+      "team_estimate": 46,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P056": {
       "features": {
@@ -1726,7 +1923,10 @@
         "multi_currency"
       ],
       "actual_days": null,
-      "team_estimate": 40
+      "team_estimate": 40,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P057": {
       "features": {
@@ -1757,7 +1957,10 @@
         "mobile_app"
       ],
       "actual_days": null,
-      "team_estimate": 32
+      "team_estimate": 32,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P058": {
       "features": {
@@ -1789,7 +1992,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": null,
-      "team_estimate": 97
+      "team_estimate": 97,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P059": {
       "features": {
@@ -1817,7 +2023,10 @@
       "omitted": [],
       "negated": [],
       "actual_days": null,
-      "team_estimate": 23
+      "team_estimate": 23,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     },
     "P060": {
       "features": {
@@ -1845,7 +2054,10 @@
       ],
       "negated": [],
       "actual_days": null,
-      "team_estimate": 18
+      "team_estimate": 18,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
     }
   }
 }

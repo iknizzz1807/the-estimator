@@ -7,13 +7,22 @@ ground truth used only for validation:
   probability table (spec §5.4 correlations are intentionally NOT modelled -
   the estimation model should learn interactions from the data itself).
 * ``actual_days`` from a hidden multiplicative formula over per-feature
-  coefficients plus lognormal noise (owned here, never read by the estimator).
+  coefficients, extra *joint* multipliers for co-occurring feature pairs
+  (e.g. payment_gateway & pci_dss), a mid-history scope/productivity *drift*
+  factor and occasional blow-up *outliers* (~5% of projects, x2.0-x3.0),
+  plus lognormal noise (owned here, never read by the estimator).
 * ``team_estimate`` from the same formula with weakened integration/migration
   coefficients and a systematic optimism factor (the classic Tech Lead bias
   described in the checklist: "team hay quên third_party, data_migration").
+  It does NOT know about interactions, drift or outliers: after the drift
+  switch date the team keeps pricing with pre-drift perceptions, so its
+  estimates get worse while the walk-forward model can re-learn.
 * One client email per project (see ``email_writer``) that mentions most
   present features, omits 1-2 of them in ~30% of projects and explicitly
   negates ~8% of absent features.
+
+The full recipe (coefficient table + all hidden parameters) is documented in
+``docs/DATA_GENERATION.md``; keep both in sync.
 
 Template-based, offline and fully deterministic: the same ``--seed`` always
 produces byte-identical CSV and JSON outputs.
@@ -92,6 +101,32 @@ TEAM_BIAS_FACTOR = 0.75
 ACTUAL_NOISE_SIGMA = 0.18
 TEAM_NOISE_SIGMA = 0.08
 
+# --- Added realism: interactions, mid-history drift, outliers ---------------
+# (see docs/DATA_GENERATION.md for the rationale and the recovered values)
+
+#: Extra joint multipliers when both features co-occur (integration/rework
+#: overhead on top of the independent main effects). Kept small (~1.1) so the
+#: main effects stay recoverable from the 52-project training corpus
+#: (Ridge log-space coefficient error <= 20%, checked in the test suite).
+INTERACTION_MULTIPLIERS: dict[tuple[str, str], float] = {
+    ("payment_gateway", "pci_dss"): 1.15,
+    ("mobile_app", "offline_mode"): 1.10,
+    ("data_migration", "legacy_tech_stack"): 1.12,
+}
+
+#: Mid-history drift: the company grew and scope got heavier. From this date
+#: on, hidden actual effort is multiplied by DRIFT_FACTOR. ``team_estimate``
+#: keeps the old formula (old perceptions) - post-drift team estimates get
+#: worse while the walk-forward model can re-learn from post-drift actuals.
+DRIFT_SWITCH_DATE = date(2026, 2, 1)
+DRIFT_FACTOR = 1.22
+
+#: Real blow-ups: ~5% of done projects get an extra multiplicative shock on
+#: actual_days, uniform in [OUTLIER_SHOCK_MIN, OUTLIER_SHOCK_MAX].
+OUTLIER_RATE = 0.05
+OUTLIER_SHOCK_MIN = 2.0
+OUTLIER_SHOCK_MAX = 3.0
+
 OMISSION_RATE = 0.30  # share of projects that omit 1-2 present features in the email
 NEGATION_RATE = 0.08  # share of absent features explicitly negated in the email
 
@@ -148,6 +183,34 @@ def effort_days(features: Mapping[str, int], coefficients: Mapping[str, float] |
     return BASE_DAYS * _coefficient_product(features, coefficients or HIDDEN_COEFFICIENTS)
 
 
+def interaction_multiplier(features: Mapping[str, int]) -> float:
+    """Joint multiplier product for co-occurring feature pairs (1.0 when none)."""
+    multiplier = 1.0
+    for (first, second), value in INTERACTION_MULTIPLIERS.items():
+        if features.get(first) and features.get(second):
+            multiplier *= value
+    return multiplier
+
+
+def drift_factor(project_date: str) -> float:
+    """DRIFT_FACTOR for projects dated on/after the switch date, else 1.0."""
+    return DRIFT_FACTOR if date.fromisoformat(project_date) >= DRIFT_SWITCH_DATE else 1.0
+
+
+def _outlier_shocks(rng: random.Random, n: int, done_count: int) -> dict[int, float]:
+    """Seeded blow-up shocks: ``{project index: factor}`` for ~5% of done rows.
+
+    Sampled from the done projects only (shocks on open projects would never
+    surface: open rows have no ``actual_days``). Uses a dedicated RNG so the
+    main generator stream stays stable when this feature is tuned.
+    """
+    if done_count <= 0:
+        return {}
+    count = min(done_count, max(1, round(n * OUTLIER_RATE)))
+    chosen = sorted(rng.sample(range(done_count), k=count))
+    return {i: round(rng.uniform(OUTLIER_SHOCK_MIN, OUTLIER_SHOCK_MAX), 2) for i in chosen}
+
+
 def _project_dates(rng: random.Random, n: int) -> list[str]:
     """``n`` ISO dates spread evenly across the 24-month window, plus jitter."""
     span = (DATE_END - DATE_START).days
@@ -177,6 +240,9 @@ def generate(n: int = 60, seed: int = 42) -> tuple[list[ProjectRecord], dict[str
         raise ValueError("n must be >= 1")
     rng = random.Random(seed)
     dates = _project_dates(rng, n)
+    # Dedicated RNG: choosing/applying outliers does not shift the main stream.
+    outlier_rng = random.Random(f"{seed}:outliers")
+    outliers = _outlier_shocks(outlier_rng, n, max(n - RECENT_PROJECT_COUNT, 0))
     records: list[ProjectRecord] = []
     gt_projects: dict[str, dict[str, Any]] = {}
 
@@ -186,10 +252,24 @@ def generate(n: int = 60, seed: int = 42) -> tuple[list[ProjectRecord], dict[str
             name: int(rng.random() < FEATURE_PROBABILITIES[name]) for name in FEATURES
         }
 
-        effort = effort_days(features)
-        # The noise is drawn even for open projects so the RNG stream stays
-        # identical no matter how statuses are later re-split.
-        actual_days = max(MIN_DAYS, round(effort * rng.lognormvariate(0.0, ACTUAL_NOISE_SIGMA)))
+        interactions = interaction_multiplier(features)
+        drift = drift_factor(dates[i])
+        shock = outliers.get(i)
+        shock_factor = 1.0 if shock is None else shock
+        # The noise draw stays the first (and only) RNG call in this block so
+        # the stream order - and therefore features/emails - is unchanged.
+        actual_days = max(
+            MIN_DAYS,
+            round(
+                effort_days(features)
+                * interactions
+                * drift
+                * shock_factor
+                * rng.lognormvariate(0.0, ACTUAL_NOISE_SIGMA)
+            ),
+        )
+        # Team estimate keeps the pre-drift perception: no interactions, no
+        # drift, no outlier knowledge (weakened coefficients + optimism only).
         team_estimate = max(
             MIN_DAYS,
             round(
@@ -241,12 +321,21 @@ def generate(n: int = 60, seed: int = 42) -> tuple[list[ProjectRecord], dict[str
             "negated": list(negated),
             "actual_days": actual_days,
             "team_estimate": team_estimate,
+            "interaction_multiplier": interactions,
+            "drift_factor": drift,
+            "outlier_shock": shock,
         }
 
     ground_truth: dict[str, Any] = {
         "seed": seed,
         "hidden_coefficients": dict(HIDDEN_COEFFICIENTS),
         "feature_probabilities": dict(FEATURE_PROBABILITIES),
+        "interaction_multipliers": [
+            {"features": list(pair), "multiplier": value}
+            for pair, value in INTERACTION_MULTIPLIERS.items()
+        ],
+        "drift": {"switch_date": DRIFT_SWITCH_DATE.isoformat(), "factor": DRIFT_FACTOR},
+        "outliers": {f"P{i + 1:03d}": shock for i, shock in outliers.items()},
         "projects": gt_projects,
     }
     return records, ground_truth
