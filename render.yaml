@@ -1,0 +1,24 @@
+# Render blueprint — backend API (free tier).
+# Deploy: Render dashboard → New + → Blueprint → pick this repo.
+services:
+  - type: web
+    name: estimator-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: HOST=0.0.0.0 bash scripts/run_api.sh
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.5"
+      # "stub" works with zero keys (offline rule-based extractor).
+      # Switch to "gemini" + set GEMINI_API_KEY for real LLM extraction.
+      - key: LLM_PROVIDER
+        value: stub
+      - key: GEMINI_API_KEY
+        sync: false
+      # Set this to your Vercel URL after the frontend is deployed
+      # (comma-separated list is supported).
+      - key: CORS_ORIGINS
+        value: http://localhost:3000

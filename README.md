@@ -92,6 +92,19 @@ npm install && npm run dev
 
 No API key required: without one the app uses the deterministic **stub extractor** and labels it in the UI. For real LLM extraction, set `GEMINI_API_KEY` in `.env` (see `.env.example`).
 
+## Deploy (production)
+
+**Backend → Render** (free tier): create a Blueprint from this repo — [`render.yaml`](render.yaml) configures the service (rootDir `backend`, health check `/api/health`). Set env vars in the dashboard:
+
+- `CORS_ORIGINS` = your Vercel URL (e.g. `https://your-app.vercel.app`)
+- optionally `LLM_PROVIDER=gemini` + `GEMINI_API_KEY` for real LLM extraction (stub otherwise)
+
+> Note: on the free tier the SQLite file is ephemeral — the demo reseeds its 60 synthetic projects on every restart, so "entered actuals" are lost after a cold start. Expected for a demo.
+
+**Frontend → Vercel**: import the same repo, set **Root Directory** to `frontend`, add env var `NEXT_PUBLIC_API_URL=https://your-backend.onrender.com`. Build settings are auto-detected (Next.js).
+
+Alternative: `backend/Dockerfile` builds a self-contained API image for any container host (`docker build -f backend/Dockerfile .`).
+
 ## Demo scenarios (1-click)
 
 Three realistic RFPs ship with the app (Onboarding → **Load Sample Data**):
