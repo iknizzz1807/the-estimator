@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import DataHealthBadge from "./DataHealthBadge";
+import ResetDemoButton from "./ResetDemoButton";
 import { api } from "@/lib/api";
 
 const NAV = [
@@ -86,6 +87,9 @@ export default function Sidebar() {
       </nav>
 
       <div className="hidden md:block">
+        <div className="mx-3 mb-2">
+          <ResetDemoButton />
+        </div>
         <DataHealthBadge />
       </div>
       <div className="px-3 pb-3 pt-1 text-[10px] text-[var(--faint)]">

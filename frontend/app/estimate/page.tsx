@@ -4,17 +4,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api, estimateStream } from "@/lib/api";
 import { errMessage, useAsyncData } from "@/lib/hooks";
 import { readPrefillEmail, readStoredEstimate } from "@/lib/session";
-import { STREAM_STEPS, type EstimateResponse, type StreamEvent } from "@/lib/types";
+import {
+  STREAM_STEPS,
+  type AnswersMap,
+  type EstimateResponse,
+  type StreamEvent,
+} from "@/lib/types";
 import { fmtInt, humanDuration } from "@/lib/format";
 import { EmailInput } from "@/components/EmailInput";
 import { ScenarioPicker } from "@/components/ImportCSVModal";
-import { EstimateChart, ModeBadge } from "@/components/EstimateChart";
+import { EstimateChart, MethodBadge, ModeBadge } from "@/components/EstimateChart";
 import { FeatureGrid } from "@/components/FeatureCard";
 import { SimilarProjectsList } from "@/components/SimilarProjectsList";
 import {
   RankedQuestionsList,
   formatQuestions,
 } from "@/components/RankedQuestionsList";
+import { RangeCompare } from "@/components/RangeCompare";
+import { ContributionBar } from "@/components/ContributionBar";
+import { PackageBuilder } from "@/components/PackageBuilder";
 import { CoefficientsTable } from "@/components/CoefficientsTable";
 import { ProposalPrintView } from "@/components/ProposalPrintView";
 import { EmptyState, Panel, Spinner } from "@/components/ui";
@@ -62,6 +70,16 @@ export default function EstimatePage() {
   const [generatedAt, setGeneratedAt] = useState("");
   const abortRef = useRef<AbortController | null>(null);
 
+  // Interactive answers (contract v0.2): derived estimate + original result.
+  const [baseEstimate, setBaseEstimate] = useState<EstimateResponse | null>(null);
+  const [estimateEmail, setEstimateEmail] = useState("");
+  const [answers, setAnswers] = useState<AnswersMap>({});
+  const [answering, setAnswering] = useState(false);
+  const [answerError, setAnswerError] = useState<string | null>(null);
+  const answersRef = useRef<AnswersMap>({});
+  const confirmedAnswersRef = useRef<AnswersMap>({});
+  const answerSeqRef = useRef(0);
+
   const health = useAsyncData(() => api.health());
   const scenarios = useAsyncData(() => api.scenarios());
 
@@ -70,14 +88,27 @@ export default function EstimatePage() {
     const stored = readStoredEstimate();
     if (stored) {
       setEstimate(stored.estimate);
+      setBaseEstimate(stored.estimate);
       setScenarioTitle(stored.scenarioTitle ?? null);
       setCompletedSteps([...STREAM_STEPS]);
     }
     const prefill = readPrefillEmail();
-    if (prefill) setEmail(prefill);
+    if (prefill) {
+      setEmail(prefill);
+      setEstimateEmail(prefill);
+    }
     setColdNote(new URLSearchParams(window.location.search).get("cold") === "1");
     setGeneratedAt(new Date().toLocaleString());
   }, []);
+
+  const resetAnswerState = () => {
+    answerSeqRef.current += 1;
+    answersRef.current = {};
+    confirmedAnswersRef.current = {};
+    setAnswers({});
+    setAnswering(false);
+    setAnswerError(null);
+  };
 
   const runEstimate = async () => {
     const text = email.trim();
@@ -88,8 +119,10 @@ export default function EstimatePage() {
     setValidationError(null);
     setStreamError(null);
     setEstimate(null);
+    setBaseEstimate(null);
     setScenarioTitle(null);
     setDurationMs(null);
+    resetAnswerState();
     setRunning(true);
     setCompletedSteps([]);
     setActiveStep(STREAM_STEPS[0]);
@@ -107,6 +140,8 @@ export default function EstimatePage() {
           }
         } else if (event.type === "result" && event.result) {
           setEstimate(event.result);
+          setBaseEstimate(event.result);
+          setEstimateEmail(text);
           setCompletedSteps([...STREAM_STEPS]);
           setActiveStep(null);
           setDurationMs(performance.now() - startedAt);
@@ -125,6 +160,41 @@ export default function EstimatePage() {
     } finally {
       setRunning(false);
     }
+  };
+
+  /**
+   * Answer-refinement (contract v0.2): re-call POST /api/estimate with the
+   * accumulated `answers` map. Side-effect free on the backend — no new
+   * project row — so the interval can be refined as often as needed.
+   */
+  const applyAnswers = async (feature: string, value: 0 | 1) => {
+    if (!estimateEmail.trim() || answering) return;
+    const current = answersRef.current;
+    if (current[feature] === value) return;
+    const next: AnswersMap = { ...current, [feature]: value };
+    answersRef.current = next;
+    setAnswers(next);
+    setAnswerError(null);
+    setAnswering(true);
+    const seq = ++answerSeqRef.current;
+    try {
+      const refined = await api.estimate(estimateEmail, next);
+      if (seq !== answerSeqRef.current) return;
+      setEstimate(refined);
+      confirmedAnswersRef.current = next;
+    } catch (err) {
+      if (seq !== answerSeqRef.current) return;
+      answersRef.current = confirmedAnswersRef.current;
+      setAnswers(confirmedAnswersRef.current);
+      setAnswerError(errMessage(err));
+    } finally {
+      if (seq === answerSeqRef.current) setAnswering(false);
+    }
+  };
+
+  const clearAnswers = () => {
+    resetAnswerState();
+    if (baseEstimate) setEstimate(baseEstimate);
   };
 
   const cancelRun = () => {
@@ -166,6 +236,11 @@ export default function EstimatePage() {
   };
 
   const topScore = estimate?.similar_projects[0]?.score ?? null;
+  const baseQuestions = baseEstimate?.questions ?? estimate?.questions ?? [];
+  const answeredCount = Object.keys(answers).length;
+  const unknownCount = estimate
+    ? estimate.findings.filter((f) => f.value === null).length
+    : 0;
 
   return (
     <div className="space-y-5">
@@ -326,7 +401,15 @@ export default function EstimatePage() {
 
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
             <Panel
-              title={<span className="flex items-center gap-2">Effort estimate <ModeBadge mode={estimate.estimate.mode} /></span>}
+              title={
+                <span className="flex flex-wrap items-center gap-2">
+                  Effort estimate <ModeBadge mode={estimate.estimate.mode} />{" "}
+                  <MethodBadge
+                    method={estimate.estimate.method}
+                    unknownCount={unknownCount}
+                  />
+                </span>
+              }
               subtitle="P10/P50/P90 in days — the range is the answer, not a single number."
               right={
                 <div className="no-print flex gap-2">
@@ -349,6 +432,23 @@ export default function EstimatePage() {
                 similarCount={estimate.similar_projects.length}
                 topScore={topScore}
               />
+              {baseEstimate && answeredCount > 0 && (
+                <div className="mt-4">
+                  <RangeCompare
+                    before={baseEstimate.estimate}
+                    after={estimate.estimate}
+                    unknownCount={unknownCount}
+                    busy={answering}
+                  />
+                </div>
+              )}
+              {baseEstimate && answeredCount === 0 && baseQuestions.length > 0 && (
+                <p className="mt-3 text-[11px] text-[var(--faint)]">
+                  Answer the ranked questions (Có / Không) → this range is
+                  re-estimated in place and a before/after comparison appears
+                  here.
+                </p>
+              )}
             </Panel>
 
             <Panel
@@ -362,9 +462,28 @@ export default function EstimatePage() {
                   </Term>
                 </span>
               }
-              subtitle="Ranked by impact; each answer can shift the P50 by the shown amount."
+              subtitle="Ranked by impact; each Có/Không answer re-runs the estimate and shrinks the range. Answering stores nothing."
             >
-              <RankedQuestionsList questions={estimate.questions} />
+              <RankedQuestionsList
+                questions={baseQuestions}
+                answers={answers}
+                onAnswer={(feature, value) => void applyAnswers(feature, value)}
+                onClearAnswers={clearAnswers}
+                busy={answering}
+              />
+              {answerError && (
+                <div className="banner banner-red mt-3 no-print" role="alert">
+                  <span aria-hidden>⚠</span>
+                  <div className="flex-1 text-xs">
+                    <div className="font-medium">Couldn&apos;t apply that answer</div>
+                    <div className="opacity-90">{answerError}</div>
+                    <div className="opacity-80">
+                      The shown range keeps the last successful answers — check
+                      the backend and try again.
+                    </div>
+                  </div>
+                </div>
+              )}
             </Panel>
           </div>
 
@@ -386,9 +505,19 @@ export default function EstimatePage() {
               title="Learned coefficients"
               subtitle="What the model learned from history — multiplier per feature."
             >
+              <ContributionBar
+                estimate={estimate.estimate}
+                coefficients={estimate.coefficients}
+                findings={estimate.findings}
+              />
               <CoefficientsTable coefficients={estimate.coefficients} />
             </Panel>
           </div>
+
+          <PackageBuilder
+            email={estimateEmail || email}
+            suggestedBudget={Math.max(1, Math.round(estimate.estimate.p50 * 0.9))}
+          />
 
           <p className="text-[11px] text-[var(--faint)]">
             Method: Ridge regression on log(days) + conformal intervals. The LLM

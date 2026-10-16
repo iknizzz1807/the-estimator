@@ -25,6 +25,37 @@ export function ModeBadge({ mode }: { mode: string }) {
   );
 }
 
+/**
+ * Interval method badge (contract v0.2): "mc" is amber because a Monte-Carlo
+ * interval is honestly widened by the remaining unknown features; "point"
+ * means the vector was fully known. Renders nothing on v0.1 payloads.
+ */
+export function MethodBadge({
+  method,
+  unknownCount,
+}: {
+  method?: string;
+  unknownCount: number;
+}) {
+  if (!method) return null;
+  if (method === "mc") {
+    return (
+      <span
+        className="chip chip-unknown"
+        title={GLOSSARY.mc}
+        aria-label={`Monte Carlo interval, widened by ${unknownCount} unknown features`}
+      >
+        MC — widened by {unknownCount} unknown{unknownCount === 1 ? "" : "s"}
+      </span>
+    );
+  }
+  return (
+    <span className="chip" title={GLOSSARY.point} aria-label="Point estimate, all features known">
+      point
+    </span>
+  );
+}
+
 interface RangeRow {
   name: string;
   range: [number, number];

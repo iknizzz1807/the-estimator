@@ -15,23 +15,28 @@
 import {
   mockAb,
   mockEstimate,
+  mockEstimatePackages,
   mockEstimateStream,
   mockHealth,
   mockImport,
   mockLoadScenario,
   mockProjects,
   mockReplay,
+  mockReset,
   mockScenarios,
   mockSubmitActual,
 } from "./mock";
 import type {
   ABResponse,
   ActualUpdateResponse,
+  AnswersMap,
   EstimateResponse,
   Health,
   ImportResponse,
+  PackagesResponse,
   ProjectRow,
   ReplayResponse,
+  ResetResponse,
   Scenario,
   StreamEvent,
 } from "./types";
@@ -308,12 +313,27 @@ export const api = {
       () => mockLoadScenario(id)
     ),
 
-  estimate: (emailText: string) =>
+  estimate: (emailText: string, answers?: AnswersMap) =>
     apiCall<EstimateResponse>(
       "/api/estimate",
-      jsonInit({ email_text: emailText }),
-      () => mockEstimate(emailText)
+      jsonInit({
+        email_text: emailText,
+        // Answer-refinement calls carry accumulated yes/no answers and are
+        // side-effect free (contract v0.2); no answers → a normal estimate.
+        ...(answers && Object.keys(answers).length > 0 ? { answers } : {}),
+      }),
+      () => mockEstimate(emailText, answers)
     ),
+
+  estimatePackages: (emailText: string, budgetDays: number) =>
+    apiCall<PackagesResponse>(
+      "/api/packages",
+      jsonInit({ email_text: emailText, budget_days: budgetDays }),
+      () => mockEstimatePackages(emailText, budgetDays)
+    ),
+
+  resetDemo: () =>
+    apiCall<ResetResponse>("/api/reset", { method: "POST" }, mockReset),
 
   projects: () =>
     apiCall<ProjectRow[]>("/api/projects", undefined, mockProjects),

@@ -11,15 +11,19 @@ import { FEATURES } from "./features";
 import type {
   ABResponse,
   ActualUpdateResponse,
+  AnswersMap,
   Coefficient,
+  EstimateRange,
   EstimateResponse,
   Finding,
   FeatureValue,
   Health,
   ImportResponse,
+  PackagesResponse,
   ProjectRow,
   ReplayResponse,
   ReplayStep,
+  ResetResponse,
   Scenario,
   SimilarProject,
   StreamEvent,
@@ -243,15 +247,33 @@ const MOCK_COEFFICIENTS: Coefficient[] = [
   { feature: "privacy_compliance", multiplier: 1.11, sample_count: 34 },
 ];
 
-export function mockEstimate(emailText: string): EstimateResponse {
-  const findings = mockExtractFindings(emailText);
+export function mockEstimate(
+  emailText: string,
+  answers?: AnswersMap
+): EstimateResponse {
+  const resolved = answers ?? {};
+  const findings = mockExtractFindings(emailText).map((finding) => {
+    const answer = resolved[finding.name];
+    if (answer === undefined) return finding;
+    // A direct answer overrides extraction; no evidence quote is invented.
+    return { ...finding, value: answer as FeatureValue, confidence: 0.95 };
+  });
+  const initialUnknown = mockExtractFindings(emailText).filter(
+    (f) => f.value === null
+  ).length;
   const present = findings.filter((f) => f.value === 1);
   const unknown = findings.filter((f) => f.value === null);
   const base = 17 + present.length * 4.2;
   const jitter = ((hashText(emailText) % 7) - 3) / 100;
   const p50 = Math.max(10, Math.round(base * (1 + jitter)));
-  const p10 = Math.max(5, Math.round(p50 * 0.66));
-  const p90 = Math.round(p50 * 1.38);
+  // Offline emulation of the backend Monte-Carlo interval: the range widens
+  // with every unknown feature and shrinks by ~18% per answered question
+  // (contract v0.2 "answer a question → interval shrinks").
+  const answeredCount = Math.max(0, initialUnknown - unknown.length);
+  const spread =
+    (0.3 + 0.035 * initialUnknown) * Math.pow(0.82, answeredCount);
+  const p10 = Math.max(5, Math.round(p50 * (1 - spread)));
+  const p90 = Math.round(p50 * (1 + spread * 1.12));
 
   const questions: VoIQuestion[] = unknown
     .map((f) => ({
@@ -300,12 +322,155 @@ export function mockEstimate(emailText: string): EstimateResponse {
       p90,
       unit: "days",
       mode: "calibrated",
+      method: unknown.length > 0 ? "mc" : "point",
     },
     similar_projects: similar,
     questions,
     coefficients: MOCK_COEFFICIENTS,
     warnings,
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* Budget-fit quote packages (contract v0.2)                           */
+/* ------------------------------------------------------------------ */
+
+/** Standard normal CDF (Zelen & Severo approximation, |error| < 7.5e-8). */
+function normalCdf(z: number): number {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const density = 0.3989422804014327 * Math.exp((-z * z) / 2);
+  const tail =
+    density *
+    t *
+    (0.319381530 +
+      t *
+        (-0.356563782 +
+          t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+  return z >= 0 ? 1 - tail : tail;
+}
+
+/** Lognormal over-budget probability — same approximation as the backend. */
+function overBudgetProb(
+  estimate: EstimateRange,
+  budgetDays: number
+): number {
+  const { p10, p50, p90 } = estimate;
+  let probability: number;
+  if (budgetDays > 0 && p10 > 0 && p90 > p10 && p50 > 0) {
+    const sigma = (Math.log(p90) - Math.log(p10)) / (2 * 1.2816);
+    const z = (Math.log(budgetDays) - Math.log(p50)) / sigma;
+    probability = 1 - normalCdf(z);
+  } else {
+    probability = budgetDays < p50 ? 1 : 0;
+  }
+  return Number(Math.min(0.999, Math.max(0.001, probability)).toFixed(3));
+}
+
+const PACKAGE_CUTTABLES = [
+  "offline_mode",
+  "mobile_app",
+  "realtime_ui",
+  "multi_currency",
+  "external_data_sync",
+  "audit_logging",
+];
+const TIER_CUTS: Record<string, number> = { core: 2, standard: 1, full: 0 };
+const TIER_LABELS: Record<string, string> = {
+  core: "Essential",
+  standard: "Standard",
+  full: "Full scope",
+};
+const RISK_NOTE =
+  "all packages exceed the 25% over-budget threshold; Essential (core) is the minimum-risk scope — renegotiate the budget or timeline";
+
+export async function mockEstimatePackages(
+  emailText: string,
+  budgetDays: number
+): Promise<PackagesResponse> {
+  await sleep(850);
+  const base = mockEstimate(emailText);
+  const multiplier = new Map(
+    MOCK_COEFFICIENTS.map((coefficient) => [
+      coefficient.feature,
+      coefficient.multiplier,
+    ])
+  );
+  const order = new Map(PACKAGE_CUTTABLES.map((name, index) => [name, index]));
+  const ranked = PACKAGE_CUTTABLES.filter(
+    (name) => base.findings.find((f) => f.name === name)?.value === 1
+  ).sort((a, b) => {
+    const diff =
+      (multiplier.get(b) ?? 1) - (multiplier.get(a) ?? 1);
+    return diff !== 0 ? diff : (order.get(a) ?? 0) - (order.get(b) ?? 0);
+  });
+
+  const unknownCount = base.findings.filter((f) => f.value === null).length;
+  const spread = 0.3 + 0.035 * unknownCount;
+
+  const packages = (["core", "standard", "full"] as const).map((tier) => {
+    const cut = ranked.slice(0, TIER_CUTS[tier]);
+    const factor = cut.reduce(
+      (acc, name) => acc * (1 / (multiplier.get(name) ?? 1.2)),
+      1
+    );
+    const p50 = Math.max(6, Math.round(base.estimate.p50 * factor));
+    const estimate: EstimateRange = {
+      p10: Math.max(3, Math.round(p50 * (1 - spread))),
+      p50,
+      p90: Math.round(p50 * (1 + spread * 1.12)),
+      unit: "days",
+      mode: "calibrated",
+      method: unknownCount > 0 ? "mc" : "point",
+    };
+    const features_included: Record<string, FeatureValue> = {};
+    for (const name of FEATURES) {
+      const value =
+        base.findings.find((f) => f.name === name)?.value ?? null;
+      features_included[name] = cut.includes(name) ? 0 : value;
+    }
+    const notes =
+      cut.length === 0
+        ? tier === "full"
+          ? "full scope: nothing phased out"
+          : "no phaseable optional capabilities detected; equivalent to Full scope"
+        : `phased scope: drop the ${
+            cut.length === 1 ? "highest-impact" : `top-${cut.length} highest-impact`
+          } optional ${cut.length === 1 ? "capability" : "capabilities"} (${cut.join(", ")})`;
+    return {
+      tier,
+      label: TIER_LABELS[tier],
+      estimate,
+      over_budget_prob: overBudgetProb(estimate, budgetDays),
+      features_included,
+      excluded: cut,
+      notes,
+    };
+  });
+
+  let recommendation = "core";
+  let recommendationNote: string | undefined;
+  for (const pkg of [...packages].reverse()) {
+    if (pkg.over_budget_prob !== null && pkg.over_budget_prob <= 0.25) {
+      recommendation = pkg.tier;
+      recommendationNote = undefined;
+      break;
+    }
+    recommendationNote = RISK_NOTE;
+  }
+
+  const response: PackagesResponse = {
+    budget_days: budgetDays,
+    packages,
+    recommendation,
+    method: unknownCount > 0 ? "mc" : "point",
+  };
+  if (recommendationNote) response.recommendation_note = recommendationNote;
+  return response;
+}
+
+export async function mockReset(): Promise<ResetResponse> {
+  await sleep(700);
+  return { status: "ok", projects_count: 60 };
 }
 
 export async function mockEstimateStream(
@@ -548,6 +713,7 @@ export async function mockReplay(): Promise<ReplayResponse> {
       mae_llm_only: 13.1,
       coverage_pct: Number(((inBand / steps.length) * 100).toFixed(1)),
       llm_only_mode: "simulated",
+      n_steps: steps.length,
     },
   };
 }
@@ -562,6 +728,20 @@ export async function mockAb(emailText: string, n: number): Promise<ABResponse> 
   const mean = Number((values.reduce((a, b) => a + b, 0) / values.length).toFixed(1));
   const variance =
     values.reduce((acc, v) => acc + (v - mean) ** 2, 0) / Math.max(1, values.length - 1);
+
+  // "LLM + company history" strawman (contract v0.2): a slightly-high, low-
+  // variance spread — history nudges a raw LLM up and stabilises it a bit.
+  const historyOffsets = [0.11, 0.04, 0.08];
+  const historyValues = historyOffsets.map((offset) =>
+    Math.max(5, Math.round(base * (1 + offset)))
+  );
+  const historyMean = Number(
+    (historyValues.reduce((a, b) => a + b, 0) / historyValues.length).toFixed(1)
+  );
+  const historyVariance =
+    historyValues.reduce((acc, v) => acc + (v - historyMean) ** 2, 0) /
+    Math.max(1, historyValues.length - 1);
+
   return {
     mode: "simulated",
     values,
@@ -573,6 +753,21 @@ export async function mockAb(emailText: string, n: number): Promise<ABResponse> 
     delta_pct: Number((((mean - base) / base) * 100).toFixed(1)),
     note:
       "Simulated: offline stub provider — run-to-run variance is emulated with seeded noise (no API key configured).",
+    n: values.length,
+    errors: 0,
+    provider: "stub",
+    baseline_history: {
+      values: historyValues,
+      mean: historyMean,
+      std: Number(Math.sqrt(historyVariance).toFixed(2)),
+      n: historyValues.length,
+      mode: "simulated",
+      min: Math.min(...historyValues),
+      max: Math.max(...historyValues),
+      errors: 0,
+      note:
+        "SIMULATED LLM-with-history baseline: stub provider, the history block is emulated offline.",
+    },
   };
 }
 

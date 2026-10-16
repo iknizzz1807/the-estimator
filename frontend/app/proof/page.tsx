@@ -46,6 +46,33 @@ function CoverageBand({ coverage }: { coverage: number }) {
   );
 }
 
+/**
+ * In-band counts "+ 33/42 (78.6%)" — shown when the summary carries n_steps
+ * (contract v0.2); falls back to nothing on older payloads.
+ */
+function CoverageCounts({
+  summary,
+  steps,
+}: {
+  summary: ReplayResponse["summary"];
+  steps: ReplayResponse["steps"];
+}) {
+  const nSteps = summary.n_steps;
+  if (typeof nSteps !== "number" || nSteps <= 0) return null;
+  const inBand =
+    steps.length === nSteps
+      ? steps.filter((step) => step.in_interval).length
+      : Math.round((summary.coverage_pct / 100) * nSteps);
+  return (
+    <div
+      className="num mt-1 text-[11px] text-[var(--dim)]"
+      title="Projects whose actual duration fell inside the predicted [P10, P90]"
+    >
+      + {inBand}/{nSteps} ({fmtPct(summary.coverage_pct)})
+    </div>
+  );
+}
+
 export default function ProofPage() {
   const health = useAsyncData(() => api.health());
   const scenarios = useAsyncData(() => api.scenarios());
@@ -202,6 +229,10 @@ export default function ProofPage() {
                 >
                   {fmtPct(replay.summary.coverage_pct)}
                 </div>
+                <CoverageCounts
+                  summary={replay.summary}
+                  steps={replay.steps}
+                />
                 <div className="mt-2">
                   <CoverageBand coverage={replay.summary.coverage_pct} />
                 </div>
@@ -265,7 +296,7 @@ export default function ProofPage() {
 
       <Panel
         title="A/B — same email, LLM-only ×10"
-        subtitle={`Exposes run-to-run variance of a raw LLM. Current provider: ${provider}${
+        subtitle={`Exposes run-to-run variance of a raw LLM — plus the fair "LLM + company history" strawman (contract v0.2). Current provider: ${provider}${
           provider === "stub" ? " (offline — variance simulated and labelled)" : ""
         }.`}
         right={
