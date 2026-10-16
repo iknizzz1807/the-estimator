@@ -1,0 +1,425 @@
+@import "tailwindcss";
+
+/*
+ * The Estimator — dark, cyberpunk/Palantir tone (spec §10).
+ * Near-black background, cyan/lime accents, tabular numbers for data.
+ */
+
+:root {
+  color-scheme: dark;
+  --bg: #0a0e14;
+  --bg-soft: #0d1420;
+  --panel: #0f1725;
+  --panel-2: #121c2c;
+  --border: #1d2b3f;
+  --border-strong: #2b415e;
+  --text: #dbe6f3;
+  --dim: #8ea3bb;
+  --faint: #5c7189;
+  --cyan: #22d3ee;
+  --lime: #a3e635;
+  --amber: #fbbf24;
+  --orange: #fb923c;
+  --red: #f87171;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1100px 560px at 82% -12%, rgba(34, 211, 238, 0.07), transparent 62%),
+    radial-gradient(900px 520px at -12% 18%, rgba(163, 230, 53, 0.05), transparent 58%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.3);
+}
+
+*:focus-visible {
+  outline: 2px solid rgba(34, 211, 238, 0.65);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Thin scrollbars for dense data areas */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* ---------------- Layout primitives ---------------- */
+
+.panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0) 45%),
+    var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.panel-2 {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.num {
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- Buttons ---------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease,
+    box-shadow 120ms ease;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  border-color: rgba(34, 211, 238, 0.5);
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.2), rgba(34, 211, 238, 0.07));
+  color: #eafcff;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.12) inset;
+}
+
+.btn-primary:hover:not(:disabled) {
+  border-color: rgba(34, 211, 238, 0.8);
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.3), rgba(34, 211, 238, 0.12));
+}
+
+.btn-lime {
+  border-color: rgba(163, 230, 53, 0.45);
+  background: rgba(163, 230, 53, 0.08);
+  color: #f0ffd8;
+}
+
+.btn-lime:hover:not(:disabled) {
+  border-color: rgba(163, 230, 53, 0.75);
+}
+
+.btn-warn {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: rgba(251, 191, 36, 0.07);
+  color: #fff4d6;
+}
+
+.btn-warn:hover:not(:disabled) {
+  border-color: rgba(251, 191, 36, 0.75);
+}
+
+/* ---------------- Inputs ---------------- */
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #0b1220;
+  color: var(--text);
+  padding: 0.5rem 0.7rem;
+  font-size: 0.875rem;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--faint);
+}
+
+.textarea {
+  min-height: 150px;
+  line-height: 1.5;
+  resize: vertical;
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+}
+
+.select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--dim) 50%),
+    linear-gradient(135deg, var(--dim) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2rem;
+  cursor: pointer;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: rgba(34, 211, 238, 0.6);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.12);
+}
+
+/* ---------------- Chips & badges ---------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  padding: 0.1rem 0.5rem;
+  font-size: 11px;
+  line-height: 1.35rem;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.chip-ok {
+  border-color: rgba(163, 230, 53, 0.4);
+  background: rgba(163, 230, 53, 0.08);
+  color: #d9f99d;
+}
+
+.chip-off {
+  border-color: #26374e;
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--dim);
+}
+
+.chip-unknown {
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.08);
+  color: #fde68a;
+}
+
+.chip-info {
+  border-color: rgba(34, 211, 238, 0.4);
+  background: rgba(34, 211, 238, 0.08);
+  color: #a5f3fc;
+}
+
+/* ---------------- Banners ---------------- */
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.banner-amber {
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.07);
+  color: #fde68a;
+}
+
+.banner-red {
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.08);
+  color: #fecaca;
+}
+
+.banner-cyan {
+  border-color: rgba(34, 211, 238, 0.35);
+  background: rgba(34, 211, 238, 0.06);
+  color: #a5f3fc;
+}
+
+.banner-lime {
+  border-color: rgba(163, 230, 53, 0.35);
+  background: rgba(163, 230, 53, 0.06);
+  color: #e4ffc0;
+}
+
+/* ---------------- Tables ---------------- */
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+.data-table th {
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--dim);
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--bg-soft);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.data-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(29, 43, 63, 0.55);
+  vertical-align: top;
+}
+
+.data-table tbody tr:hover td {
+  background: rgba(34, 211, 238, 0.03);
+}
+
+/* ---------------- Skeleton ---------------- */
+
+.skeleton {
+  background: linear-gradient(90deg, #121c2c 25%, #1b2739 37%, #121c2c 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+/* ---------------- Term tooltips (P10/P50/P90, MAE, ...) ---------------- */
+
+.term {
+  position: relative;
+  border-bottom: 1px dotted var(--faint);
+  cursor: help;
+}
+
+.term-tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  z-index: 60;
+  background: #0b1322;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.term:hover .term-tip,
+.term:focus-within .term-tip {
+  display: block;
+}
+
+/* ---------------- Print (proposal export) ---------------- */
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+    background-image: none !important;
+  }
+
+  /* Only the proposal view is visible on paper, whatever the layout nesting. */
+  body * {
+    visibility: hidden;
+  }
+
+  .print-proposal,
+  .print-proposal * {
+    visibility: visible;
+  }
+
+  .print-proposal {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    padding: 8px 4px;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-proposal {
+    color: #111;
+    font-size: 12px;
+  }
+
+  .print-proposal h1 {
+    font-size: 18px;
+    margin: 0 0 4px;
+  }
+
+  .print-proposal h2 {
+    font-size: 13px;
+    margin: 14px 0 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .print-proposal table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0;
+  }
+
+  .print-proposal th,
+  .print-proposal td {
+    border: 1px solid #999;
+    padding: 4px 6px;
+    text-align: left;
+    font-size: 11.5px;
+  }
+
+  .print-proposal .disclaimer {
+    margin-top: 14px;
+    border-top: 1px solid #999;
+    padding-top: 6px;
+    font-style: italic;
+  }
+}
