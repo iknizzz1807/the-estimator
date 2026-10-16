@@ -26,3 +26,10 @@ Two agents build Phase 1 (data + DB) and Phase 2 (core services) in parallel wit
 
 FastAPI endpoints implemented exactly per docs/API.md (10 routes + SSE stream). Startup computes the walk-forward replay once, persists it (`model_version "replay-v1"`) and caches it in memory; History/Proof read from this cache so the UI stays fast. Conformal tail quantiles widened ×1.10 → seeded replay coverage 73.8% → 78.6% (target 75–85%), MAE unchanged. Demo DB note: `data/estimator.db` accumulates smoke projects (P061+) on this device — delete the file to auto-reseed 60 pristine projects on next startup.
 
+## D7 — Wave 3: live integration verification (2026-10-16)
+
+Both servers verified together, live: CORS `access-control-allow-origin: http://localhost:3000` on preflight + real requests; `POST /api/scenarios/{id}/load` returns the full EstimateResponse (Scenario A detects payments/PCI/mobile/realtime/3rd-party); `/api/projects` rows carry `system_p10/p50/p90`; actuals flow returns `coefficient_updates` + `accuracy`; invalid actuals → 422 with Vietnamese detail string; SSE emits 6 steps + result. Demo DB reset to a pristine 60-project state (auto-seeded on startup).
+
+Ops caveat (this device only): building `frontend/` in place on `/sdcard` fails on FUSE (no symlinks; Node cannot mmap native `.node` binaries from the mount). Workaround: build in a rootfs copy (`/root/est-build/frontend`) and copy `.next` back; npm scripts invoke the Next CLI via `node ./node_modules/next/dist/bin/next` (portable); on-device installs need `--no-bin-links`. Standard machines (and Vercel CI) are unaffected.
+
+
