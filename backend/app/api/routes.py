@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 from typing import Any, AsyncIterator
 
 from fastapi import APIRouter, File, HTTPException, Query, Request, UploadFile
@@ -55,9 +56,21 @@ MAX_AB_CALLS = 50
 
 
 class EstimateRequest(BaseModel):
-    """Body of ``POST /api/estimate`` and ``POST /api/estimate/stream``."""
+    """Body of ``POST /api/estimate`` and ``POST /api/estimate/stream``.
+
+    Contract v0.2: optional ``answers`` ({feature: 0|1}) overlay the extracted
+    findings; answer-refinement calls are side-effect free (no new project row).
+    """
 
     email_text: str = ""
+    answers: dict[str, int] | None = None
+
+
+class PackagesRequest(BaseModel):
+    """Body of ``POST /api/packages`` (contract v0.2)."""
+
+    email_text: str = ""
+    budget_days: float | None = None
 
 
 class ActualRequest(BaseModel):
@@ -67,10 +80,14 @@ class ActualRequest(BaseModel):
 
 
 class AbRequest(BaseModel):
-    """Body of ``POST /api/ab`` (spec §4.5, default n=10)."""
+    """Body of ``POST /api/ab`` (spec §4.5, default n=10).
+
+    ``history_n`` sizes the v0.2 LLM-with-history baseline (default 3).
+    """
 
     email_text: str = ""
     n: int = 10
+    history_n: int = 3
 
 
 # --------------------------------------------------------------------------- #
@@ -116,6 +133,23 @@ def _parse_feature_filters(raw_filters: list[str] | None) -> list[tuple[str, int
     return parsed
 
 
+def _parse_answers(answers: dict[str, int] | None) -> dict[str, int]:
+    """Validate/normalize the v0.2 ``answers`` map (canonical names, values 0/1)."""
+    if not answers:
+        return {}
+    parsed: dict[str, int] = {}
+    for name, value in answers.items():
+        if name not in FEATURES:
+            raise HTTPException(status_code=422, detail=f"Feature không hợp lệ: {name}")
+        if int(value) not in (0, 1):
+            raise HTTPException(
+                status_code=422,
+                detail=f"answers[{name}] phải là 0 hoặc 1 (nhận được {value!r})",
+            )
+        parsed[name] = int(value)
+    return parsed
+
+
 # --------------------------------------------------------------------------- #
 # Health
 # --------------------------------------------------------------------------- #
@@ -143,17 +177,30 @@ def health(request: Request) -> dict[str, Any]:
 
 @router.post("/estimate")
 def estimate_endpoint(payload: EstimateRequest, request: Request) -> dict[str, Any]:
-    """Full pipeline: extract -> estimate -> similar -> questions -> persist."""
+    """Full pipeline: extract -> answers overlay -> estimate -> similar -> questions.
+
+    Contract v0.2: a direct call without ``answers`` persists a new project
+    row; answer-refinement calls (non-empty ``answers``) are side-effect free.
+    """
     state = get_state(request)
     email_text = _require_email(payload.email_text)
-    return state_mod.run_estimate_pipeline(state, email_text, persist=True)
+    answers = _parse_answers(payload.answers)
+    return state_mod.run_estimate_pipeline(
+        state, email_text, persist=not answers, answers=answers
+    )
 
 
-async def _stream_estimate(state: state_mod.AppState, email_text: str) -> AsyncIterator[str]:
+async def _stream_estimate(
+    state: state_mod.AppState,
+    email_text: str,
+    answers: dict[str, int] | None = None,
+    persist: bool = True,
+) -> AsyncIterator[str]:
     """Yield ``step`` events in contract order, then the final ``result``."""
     try:
         yield _sse("step", {"step": "extracting", "message": STEP_MESSAGES["extracting"]})
         extraction, _provider = await run_in_threadpool(state_mod.extract_stage, state, email_text)
+        extraction = state_mod.apply_answers(extraction, answers)
         await asyncio.sleep(STREAM_STEP_PAUSE_SECONDS)
 
         yield _sse("step", {"step": "validating", "message": STEP_MESSAGES["validating"]})
@@ -177,9 +224,11 @@ async def _stream_estimate(state: state_mod.AppState, email_text: str) -> AsyncI
 
         yield _sse("step", {"step": "done", "message": STEP_MESSAGES["done"]})
         coefficient_rows = state_mod.coefficient_view(state)
-        project_id = await run_in_threadpool(
-            state_mod.persist_estimate, state, email_text, extraction, prediction
-        )
+        project_id: str | None = None
+        if persist:
+            project_id = await run_in_threadpool(
+                state_mod.persist_estimate, state, email_text, extraction, prediction
+            )
         payload = state_mod.build_estimate_payload(
             extraction, prediction, similar, questions, coefficient_rows, warnings, project_id
         )
@@ -191,11 +240,12 @@ async def _stream_estimate(state: state_mod.AppState, email_text: str) -> AsyncI
 
 @router.post("/estimate/stream")
 async def estimate_stream_endpoint(payload: EstimateRequest, request: Request) -> StreamingResponse:
-    """SSE variant of ``/api/estimate`` (fetch + ReadableStream on the client)."""
+    """SSE variant of ``/api/estimate`` (same input, incl. v0.2 ``answers``)."""
     state = get_state(request)
     email_text = _require_email(payload.email_text)
+    answers = _parse_answers(payload.answers)
     return StreamingResponse(
-        _stream_estimate(state, email_text),
+        _stream_estimate(state, email_text, answers=answers, persist=not answers),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
@@ -203,6 +253,18 @@ async def estimate_stream_endpoint(payload: EstimateRequest, request: Request) -
             "X-Accel-Buffering": "no",
         },
     )
+
+
+# --------------------------------------------------------------------------- #
+# Demo data reset (contract v0.2)
+# --------------------------------------------------------------------------- #
+
+
+@router.post("/reset")
+def reset_endpoint(request: Request) -> dict[str, Any]:
+    """Reseed the demo DB to the pristine synthetic history (retrain + cache)."""
+    state = get_state(request)
+    return state_mod.reset_demo_db(state)
 
 
 # --------------------------------------------------------------------------- #
@@ -261,6 +323,31 @@ def submit_actual(project_id: str, payload: ActualRequest, request: Request) -> 
 
 
 # --------------------------------------------------------------------------- #
+# Packages (budget-fit scope, contract v0.2)
+# --------------------------------------------------------------------------- #
+
+
+@router.post("/packages")
+def packages_endpoint(payload: PackagesRequest, request: Request) -> dict[str, Any]:
+    """Budget-fit scope packages from the extracted features (no persistence)."""
+    state = get_state(request)
+    email_text = _require_email(payload.email_text)
+    budget_days = payload.budget_days
+    if (
+        budget_days is None
+        or not math.isfinite(float(budget_days))
+        or float(budget_days) <= 0
+    ):
+        raise HTTPException(status_code=422, detail="budget_days phải là số ngày lớn hơn 0")
+    if state.model is None:
+        raise HTTPException(status_code=409, detail=state_mod.PACKAGES_COLD_START_DETAIL)
+    try:
+        return state_mod.run_packages(state, email_text, float(budget_days))
+    except ValueError as exc:  # defensive: cold start between the check and the call
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+# --------------------------------------------------------------------------- #
 # Replay
 # --------------------------------------------------------------------------- #
 
@@ -287,17 +374,24 @@ def get_replay(
 
 @router.post("/ab")
 def ab_endpoint(payload: AbRequest, request: Request) -> dict[str, Any]:
-    """LLM-only run-to-run spread vs the calibrated system estimate (spec §4.5)."""
+    """LLM-only spread vs the system estimate + v0.2 LLM-with-history baseline."""
     state = get_state(request)
     email_text = _require_email(payload.email_text)
     calls = max(1, min(int(payload.n or 10), MAX_AB_CALLS))
+    history_calls = max(1, min(int(payload.history_n or 3), MAX_AB_CALLS))
 
     extraction = extract_features(email_text, provider=(state.provider, state.llm_provider_name))
     features = state_mod.resolve_features(extraction)
     system = state_mod.predict(state, features)
+    history_rows = state_mod.recent_done_rows(state)
     try:
         result = ab_compare(
-            email_text, provider=state.provider, system_estimate=system["p50"], n=calls
+            email_text,
+            provider=state.provider,
+            system_estimate=system["p50"],
+            n=calls,
+            history_rows=history_rows,
+            history_n=history_calls,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc

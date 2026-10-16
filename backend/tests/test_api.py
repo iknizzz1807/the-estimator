@@ -480,3 +480,234 @@ def test_cold_start_health_estimate_and_actual(
         payload = actual.json()
         assert payload["accuracy"]["mae_before"] is None
         assert payload["accuracy"]["mae_after"] is not None
+
+
+# --------------------------------------------------------------------------- #
+# Contract v0.2: answers + MC intervals
+# --------------------------------------------------------------------------- #
+
+
+def test_estimate_with_answers_refines_interval_without_persisting(
+    client: TestClient,
+) -> None:
+    email_text = get_scenario("A")["email_text"]
+    direct = client.post("/api/estimate", json={"email_text": email_text})
+    assert direct.status_code == 200
+    body = direct.json()
+    missing = [finding["name"] for finding in body["findings"] if finding["value"] is None]
+    assert missing  # the stub leaves scenario A unknowns open
+    assert body["missing"] == missing
+    assert body["project_id"] is not None  # direct call persists (v0.1 behaviour)
+
+    first_estimate = body["estimate"]
+    assert first_estimate["method"] == "mc"  # unknowns remain -> Monte Carlo
+    assert first_estimate["mode"] == "calibrated"
+    width_before = round(first_estimate["p90"] - first_estimate["p10"], 1)
+
+    count_before = client.get("/api/health").json()["projects_count"]
+
+    # Partial answer: the feature becomes known, missing shrinks, still MC.
+    first = missing[0]
+    partial = client.post(
+        "/api/estimate", json={"email_text": email_text, "answers": {first: 1}}
+    ).json()
+    assert partial["project_id"] is None
+    assert first not in partial["missing"]
+    assert len(partial["missing"]) == len(missing) - 1
+    by_name = {finding["name"]: finding["value"] for finding in partial["findings"]}
+    assert by_name[first] == 1
+    assert partial["estimate"]["method"] == "mc"
+
+    # Full answers: every feature known -> point estimate whose interval is
+    # narrower than the MC interval computed with the unknowns open.
+    answers = {name: 0 for name in missing}
+    full = client.post(
+        "/api/estimate", json={"email_text": email_text, "answers": answers}
+    ).json()
+    assert full["project_id"] is None
+    assert full["missing"] == []
+    assert full["estimate"]["method"] == "point"
+    assert full["estimate"]["mode"] == "calibrated"
+    width_after = round(full["estimate"]["p90"] - full["estimate"]["p10"], 1)
+    assert width_after <= width_before
+
+    # v0.1 contract keys survive on every variant.
+    assert ESTIMATE_CONTRACT_KEYS <= set(body)
+    assert ESTIMATE_CONTRACT_KEYS <= set(partial)
+    assert ESTIMATE_CONTRACT_KEYS <= set(full)
+
+    # Neither refinement call persisted a project row (side-effect free).
+    assert client.get("/api/health").json()["projects_count"] == count_before
+
+
+def test_estimate_answers_validation(client: TestClient) -> None:
+    email_text = get_scenario("A")["email_text"]
+    bad_name = client.post(
+        "/api/estimate", json={"email_text": email_text, "answers": {"not_a_feature": 1}}
+    )
+    assert bad_name.status_code == 422
+    assert "not_a_feature" in bad_name.json()["detail"]
+
+    bad_value = client.post(
+        "/api/estimate", json={"email_text": email_text, "answers": {"pci_dss": 2}}
+    )
+    assert bad_value.status_code == 422
+    assert "pci_dss" in bad_value.json()["detail"]
+
+
+def test_estimate_stream_accepts_answers_without_persisting(client: TestClient) -> None:
+    email_text = get_scenario("B")["email_text"]
+    direct = client.post("/api/estimate", json={"email_text": email_text}).json()
+    count_before = client.get("/api/health").json()["projects_count"]
+
+    answers = {name: 0 for name in direct["missing"]}
+    with client.stream(
+        "POST", "/api/estimate/stream", json={"email_text": email_text, "answers": answers}
+    ) as response:
+        assert response.status_code == 200
+        payload = "".join(response.iter_text())
+
+    results = [data for event, data in parse_sse(payload) if event == "result"]
+    assert len(results) == 1
+    result = results[0]
+    assert result["missing"] == []
+    assert result["estimate"]["method"] == "point"
+    assert result["project_id"] is None
+    assert client.get("/api/health").json()["projects_count"] == count_before
+
+
+# --------------------------------------------------------------------------- #
+# Contract v0.2: budget-fit packages
+# --------------------------------------------------------------------------- #
+
+
+def test_packages_contract_shape_and_tier_ordering(client: TestClient) -> None:
+    response = client.post(
+        "/api/packages",
+        json={"email_text": get_scenario("A")["email_text"], "budget_days": 200},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["budget_days"] == 200
+    assert body["method"] in {"mc", "point"}
+    assert body["recommendation"] in {"core", "standard", "full"}
+    assert body["provider"] == "stub"
+
+    packages = body["packages"]
+    assert [package["tier"] for package in packages] == ["core", "standard", "full"]
+    for package in packages:
+        assert {
+            "tier",
+            "label",
+            "estimate",
+            "over_budget_prob",
+            "features_included",
+            "excluded",
+            "notes",
+        } <= set(package)
+        estimate = package["estimate"]
+        assert {"p10", "p50", "p90", "mode", "unit", "method"} <= set(estimate)
+        assert estimate["p10"] <= estimate["p50"] <= estimate["p90"]
+        assert estimate["unit"] == "days"
+        assert 0.0 <= package["over_budget_prob"] <= 1.0
+        assert set(package["features_included"]) == set(FEATURES)
+        assert all(
+            value in (0, 1, None) for value in package["features_included"].values()
+        )
+        assert isinstance(package["excluded"], list)
+        assert package["notes"]
+
+    # More scope -> never fewer estimated days (floors may tie tiers).
+    p50s = [package["estimate"]["p50"] for package in packages]
+    assert p50s == sorted(p50s)
+
+
+def test_packages_budget_validation(client: TestClient) -> None:
+    payload_base = {"email_text": get_scenario("A")["email_text"]}
+    for bad_budget in (0, -25):
+        response = client.post("/api/packages", json={**payload_base, "budget_days": bad_budget})
+        assert response.status_code == 422
+        assert "lớn hơn 0" in response.json()["detail"]
+
+    missing_budget = client.post("/api/packages", json=payload_base)
+    assert missing_budget.status_code == 422
+    assert "lớn hơn 0" in missing_budget.json()["detail"]
+
+
+def test_packages_cold_start_returns_conflict(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("ESTIMATOR_DB_PATH", str(tmp_path / "cold_packages.db"))
+    monkeypatch.setenv("ESTIMATOR_AUTO_SEED", "0")
+    from app.main import create_app
+
+    with TestClient(create_app()) as cold:
+        response = cold.post(
+            "/api/packages",
+            json={"email_text": SCENARIOS[0]["email_text"], "budget_days": 60},
+        )
+        assert response.status_code == 409
+        assert "cold start" in response.json()["detail"].lower()
+
+
+# --------------------------------------------------------------------------- #
+# Contract v0.2: AB history baseline
+# --------------------------------------------------------------------------- #
+
+
+def test_ab_includes_history_baseline(client: TestClient) -> None:
+    scenario_email = get_scenario("C")["email_text"]
+    response = client.post(
+        "/api/ab", json={"email_text": scenario_email, "n": 4, "history_n": 3}
+    )
+    assert response.status_code == 200
+    body = response.json()
+    # All v0.1 keys are unchanged.
+    assert {
+        "mode",
+        "values",
+        "mean",
+        "std",
+        "min",
+        "max",
+        "system_estimate",
+        "delta_pct",
+        "note",
+    } <= set(body)
+
+    baseline = body["baseline_history"]
+    assert baseline["mode"] == "simulated"  # stub provider stays flagged
+    assert baseline["n"] == 3
+    assert len(baseline["values"]) == 3
+    assert baseline["mean"] > 0 and baseline["std"] >= 0
+    assert baseline["min"] <= baseline["mean"] <= baseline["max"]
+    assert "SIMULATED" in baseline["note"]
+
+    # history_n defaults to 3 when the body omits it.
+    default = client.post(
+        "/api/ab", json={"email_text": scenario_email, "n": 2}
+    ).json()
+    assert default["baseline_history"]["n"] == 3
+
+
+# --------------------------------------------------------------------------- #
+# Contract v0.2: demo data reset
+# --------------------------------------------------------------------------- #
+
+
+def test_reset_restores_pristine_demo_db(client: TestClient) -> None:
+    extra = client.post("/api/estimate", json={"email_text": get_scenario("C")["email_text"]})
+    assert extra.status_code == 200 and extra.json()["project_id"]
+    assert client.get("/api/health").json()["projects_count"] > 60
+
+    response = client.post("/api/reset")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok", "projects_count": 60}
+
+    health = client.get("/api/health").json()
+    assert health["projects_count"] == 60
+    assert health["model_loaded"] is True
+    assert len(client.get("/api/projects").json()) == 60
+
+    # Idempotent: a second reset also lands on the pristine 60.
+    assert client.post("/api/reset").json() == {"status": "ok", "projects_count": 60}

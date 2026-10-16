@@ -19,8 +19,10 @@ from __future__ import annotations
 
 import io
 import logging
+import os
 import re
 import sys
+import threading
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
@@ -36,6 +38,7 @@ from app.services.estimation import (
     coefficients,
     cold_start_estimate,
     estimate,
+    estimate_mc,
     train_model,
 )
 from app.services.extraction import (
@@ -46,6 +49,7 @@ from app.services.extraction import (
     extract_features,
 )
 from app.services.learning import accuracy_metrics, update_coefficients
+from app.services.packages import build_packages
 from app.services.providers import get_provider
 from app.services.replay import replay
 from app.services.similarity import find_similar
@@ -58,6 +62,14 @@ DEFAULT_MIN_TRAIN = 10
 REPLAY_MODEL_VERSION = "replay-v1"
 LIVE_MODEL_VERSION = "live-v1"
 SEED_CSV_PATH = REPO_ROOT / "data" / "synthetic_history.csv"
+#: How many recent finished projects feed the LLM-with-history baseline (v0.2).
+HISTORY_ROWS_LIMIT = 15
+#: 409 detail when ``/api/packages`` is called before any model can be trained.
+PACKAGES_COLD_START_DETAIL = (
+    "Chưa có model được train (cold start): cần nạp dữ liệu lịch sử trước khi gợi ý gói dự án"
+)
+#: Serializes demo-DB rebuilds (``/api/reset``) across concurrent requests.
+_RESET_LOCK = threading.Lock()
 VALID_STATUSES = {"done", "in_progress", "pending"}
 FEATURE_COLUMNS = [f"feat_{name}" for name in FEATURES]
 IMPORT_REQUIRED_COLUMNS = [
@@ -142,6 +154,32 @@ def ensure_seeded(db_path: Path) -> int:
     return count
 
 
+def reset_demo_db(state: AppState) -> dict[str, Any]:
+    """Delete + reseed the demo DB from the synthetic CSV; retrain + refresh caches.
+
+    Contract v0.2 ``POST /api/reset``. The whole rebuild runs behind a
+    process-wide lock so concurrent reset requests cannot interleave. The new
+    database is built in a sibling temp file and swapped in with
+    ``os.replace`` (same-directory rename), so a reader opening the DB during
+    the reset never observes a half-created schema.
+    """
+    with _RESET_LOCK:
+        tmp_path = state.db_path.with_name(state.db_path.name + ".reset-tmp")
+        tmp_path.unlink(missing_ok=True)
+        try:
+            seed_from_csv(SEED_CSV_PATH, tmp_path, reset=False)
+            os.replace(tmp_path, state.db_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)  # no-op after a successful replace
+        rows = load_rows(state.db_path)
+        fit_model(state, rows, keep_old=False)
+        state.replay_cache.clear()
+        refresh_replay(state, min_train=DEFAULT_MIN_TRAIN, persist=True)
+        count = state.project_count()
+    logger.info("Demo DB reset: %d projects, model_loaded=%s", count, state.model_loaded)
+    return {"status": "ok", "projects_count": count}
+
+
 def bootstrap(state: AppState) -> None:
     """Prepare caches for serving: seed, train, replay (once), persist."""
     projects = ensure_seeded(state.db_path)
@@ -218,6 +256,22 @@ def done_rows(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
         if actual > 0:
             usable.append(dict(row))
     return usable
+
+
+def recent_done_rows(
+    state: AppState, limit: int = HISTORY_ROWS_LIMIT
+) -> list[dict[str, Any]]:
+    """The most recent finished projects, newest first (AB history baseline v0.2).
+
+    Same ordering the LLM history table uses (date desc, project_id desc), so
+    capping here keeps the rendered prompt identical to passing every row.
+    """
+    rows = done_rows(load_rows(state.db_path))
+    rows.sort(
+        key=lambda row: (str(row.get("date") or ""), str(row.get("project_id") or "")),
+        reverse=True,
+    )
+    return rows[: max(0, int(limit))]
 
 
 def fit_model(
@@ -366,6 +420,35 @@ def resolve_features(extraction: ExtractionResult) -> dict[str, bool | None]:
     return {finding.name: finding.value for finding in extraction.findings}
 
 
+def apply_answers(
+    extraction: ExtractionResult, answers: Mapping[str, Any] | None
+) -> ExtractionResult:
+    """Overlay user answers (0/1) on the extracted findings (contract v0.2).
+
+    The answer wins and the feature becomes known; answered findings carry
+    confidence 1.0 (user-provided) and keep the extraction's evidence quote.
+    ``missing`` is recomputed. ``None``/empty ``answers`` return the extraction
+    untouched.
+    """
+    if not answers:
+        return extraction
+    findings = [
+        (
+            finding.model_copy(
+                update={
+                    "value": bool(int(answers[finding.name])),
+                    "confidence": 1.0,
+                }
+            )
+            if finding.name in answers
+            else finding
+        )
+        for finding in extraction.findings
+    ]
+    missing = [finding.name for finding in findings if finding.value is None]
+    return extraction.model_copy(update={"findings": findings, "missing": missing})
+
+
 def extract_stage(state: AppState, email_text: str) -> tuple[ExtractionResult, str]:
     """Run the extraction service with the provider resolved at startup."""
     if state.provider is None:  # defensive: lifespan normally sets this
@@ -375,10 +458,32 @@ def extract_stage(state: AppState, email_text: str) -> tuple[ExtractionResult, s
 
 
 def predict(state: AppState, features: Mapping[str, Any] | None) -> dict[str, Any]:
-    """Calibrated prediction when a model exists, cold start otherwise."""
-    if state.model is not None:
-        return estimate(state.model, features)
-    return cold_start_estimate(features)
+    """Calibrated prediction when a model exists, cold start otherwise.
+
+    Contract v0.2: while the calibrated model still sees unknown (``None``)
+    features the interval comes from :func:`estimate_mc`
+    (``method="mc"``, unknown features sampled at their training prevalence);
+    fully-known vectors and warm-up/cold-start models use the deterministic
+    point estimator (``method="point"``). ``unit``/``method`` are always
+    present.
+    """
+    source = features or {}
+    unknowns = [
+        name
+        for name in (state.model.feature_names if state.model is not None else ())
+        if name in source and source[name] is None
+    ]
+    if state.model is not None and state.model.calibrated and unknowns:
+        return estimate_mc(state.model, source)
+
+    prediction = (
+        estimate(state.model, source)
+        if state.model is not None
+        else cold_start_estimate(source)
+    )
+    prediction.setdefault("unit", "days")
+    prediction["method"] = "point"
+    return prediction
 
 
 def similar_projects(
@@ -501,12 +606,21 @@ def build_estimate_payload(
     }
 
 
-def run_estimate_pipeline(state: AppState, email_text: str, persist: bool = True) -> dict[str, Any]:
+def run_estimate_pipeline(
+    state: AppState,
+    email_text: str,
+    persist: bool = True,
+    answers: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
     """Full estimate pipeline for ``/api/estimate`` and scenario loading.
 
-    extract -> estimate -> similar -> questions -> (persist new project row).
+    extract -> (answers overlay) -> estimate -> similar -> questions ->
+    (persist new project row). ``persist`` is False for answer-refinement
+    calls: contract v0.2 only creates a new P0nn row for a direct estimate
+    call without ``answers``.
     """
     extraction, _provider_name = extract_stage(state, email_text)
+    extraction = apply_answers(extraction, answers)
     features = resolve_features(extraction)
     prediction = predict(state, features)
     similar = similar_projects(state, email_text, features, k=3)
@@ -520,6 +634,22 @@ def run_estimate_pipeline(state: AppState, email_text: str, persist: bool = True
     return build_estimate_payload(
         extraction, prediction, similar, questions, coefficient_rows, warnings, project_id
     )
+
+
+def run_packages(state: AppState, email_text: str, budget_days: float) -> dict[str, Any]:
+    """Extraction pipeline -> budget-fit scope packages (no persistence).
+
+    Uses the same extraction/feature resolution as ``/api/estimate`` so the
+    packages are built from exactly the features the UI shows; unknown
+    features stay unknown in every tier (see ``app.services.packages``).
+    """
+    if state.model is None:
+        raise ValueError(PACKAGES_COLD_START_DETAIL)
+    extraction, _provider_name = extract_stage(state, email_text)
+    features = resolve_features(extraction)
+    result = build_packages(state.model, features, float(budget_days))
+    result["provider"] = extraction.provider
+    return result
 
 
 # --------------------------------------------------------------------------- #
