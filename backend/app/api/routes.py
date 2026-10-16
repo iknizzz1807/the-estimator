@@ -60,10 +60,13 @@ class EstimateRequest(BaseModel):
 
     Contract v0.2: optional ``answers`` ({feature: 0|1}) overlay the extracted
     findings; answer-refinement calls are side-effect free (no new project row).
+    Optional ``repo`` ("demo_a" | "demo_b" | "self") attaches the Codebase Lab
+    block and makes the top-level ``estimate`` the ADJUSTED estimate.
     """
 
     email_text: str = ""
     answers: dict[str, int] | None = None
+    repo: str | None = None
 
 
 class PackagesRequest(BaseModel):
@@ -150,6 +153,21 @@ def _parse_answers(answers: dict[str, int] | None) -> dict[str, int]:
     return parsed
 
 
+def _parse_repo(repo: str | None) -> str | None:
+    """Validate the v0.2 ``repo`` selector (absent passes through unchanged)."""
+    if repo is None:
+        return None
+    if repo not in state_mod.CODEBASE_REPO_CHOICES:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"repo không hợp lệ: {repo!r} "
+                "(chỉ chấp nhận demo_a, demo_b, self)"
+            ),
+        )
+    return repo
+
+
 # --------------------------------------------------------------------------- #
 # Health
 # --------------------------------------------------------------------------- #
@@ -181,13 +199,18 @@ def estimate_endpoint(payload: EstimateRequest, request: Request) -> dict[str, A
 
     Contract v0.2: a direct call without ``answers`` persists a new project
     row; answer-refinement calls (non-empty ``answers``) are side-effect free.
+    Optional ``repo`` attaches the Codebase Lab block (adjusted estimate).
     """
     state = get_state(request)
     email_text = _require_email(payload.email_text)
     answers = _parse_answers(payload.answers)
-    return state_mod.run_estimate_pipeline(
-        state, email_text, persist=not answers, answers=answers
-    )
+    repo = _parse_repo(payload.repo)
+    try:
+        return state_mod.run_estimate_pipeline(
+            state, email_text, persist=not answers, answers=answers, repo=repo
+        )
+    except RuntimeError as exc:  # demo-repo build / unreadable checkout
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 async def _stream_estimate(
@@ -195,6 +218,7 @@ async def _stream_estimate(
     email_text: str,
     answers: dict[str, int] | None = None,
     persist: bool = True,
+    repo: str | None = None,
 ) -> AsyncIterator[str]:
     """Yield ``step`` events in contract order, then the final ``result``."""
     try:
@@ -216,6 +240,12 @@ async def _stream_estimate(
 
         yield _sse("step", {"step": "estimating", "message": STEP_MESSAGES["estimating"]})
         prediction = state_mod.predict(state, features)
+        codebase: dict[str, Any] | None = None
+        if repo:
+            codebase = await run_in_threadpool(
+                state_mod.build_codebase_block, repo, features, prediction
+            )
+            prediction = dict(codebase["adjusted_estimate"])
         await asyncio.sleep(STREAM_STEP_PAUSE_SECONDS)
 
         yield _sse("step", {"step": "questions", "message": STEP_MESSAGES["questions"]})
@@ -232,6 +262,8 @@ async def _stream_estimate(
         payload = state_mod.build_estimate_payload(
             extraction, prediction, similar, questions, coefficient_rows, warnings, project_id
         )
+        if codebase is not None:
+            payload["codebase"] = codebase
         yield _sse("result", payload)
     except Exception as exc:  # keep the stream well-formed even on failure
         logger.exception("SSE estimate failed")
@@ -240,12 +272,13 @@ async def _stream_estimate(
 
 @router.post("/estimate/stream")
 async def estimate_stream_endpoint(payload: EstimateRequest, request: Request) -> StreamingResponse:
-    """SSE variant of ``/api/estimate`` (same input, incl. v0.2 ``answers``)."""
+    """SSE variant of ``/api/estimate`` (same input, incl. v0.2 ``answers``/``repo``)."""
     state = get_state(request)
     email_text = _require_email(payload.email_text)
     answers = _parse_answers(payload.answers)
+    repo = _parse_repo(payload.repo)
     return StreamingResponse(
-        _stream_estimate(state, email_text, answers=answers, persist=not answers),
+        _stream_estimate(state, email_text, answers=answers, persist=not answers, repo=repo),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

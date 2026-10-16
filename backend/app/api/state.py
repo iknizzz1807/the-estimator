@@ -21,10 +21,11 @@ import io
 import logging
 import os
 import re
+import subprocess
 import sys
 import threading
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -32,6 +33,13 @@ import pandas as pd
 
 from app.db.database import connect, init_db
 from app.features import FEATURES
+from app.services.codebase import (
+    apply_friction,
+    collect_signals,
+    compute_friction,
+    estimate_invasiveness,
+    find_similar_changes,
+)
 from app.services.estimation import (
     COLD_START_MULTIPLIERS,
     EstimatorModel,
@@ -84,6 +92,58 @@ IMPORT_REQUIRED_COLUMNS = [
 ]
 
 WARN_BIG_ACTUAL = "Giá trị bất thường, vui lòng kiểm tra lại"
+
+# --------------------------------------------------------------------------- #
+# Codebase Lab (contract v0.2, docs/API.md "optional codebase context")
+# --------------------------------------------------------------------------- #
+
+#: ``repo`` values accepted on ``POST /api/estimate``; the two demo repos are
+#: built on demand into ``data/demo_repos/`` (gitignored), "self" analyzes the
+#: server's own checkout.
+CODEBASE_REPO_CHOICES: tuple[str, ...] = ("demo_a", "demo_b", "self")
+#: ``repo`` -> demo-repo directory name produced by scripts/build_demo_repos.py.
+CODEBASE_DEMO_REPOS: dict[str, str] = {
+    "demo_a": "payment_plugin",
+    "demo_b": "payment_spaghetti",
+}
+#: Documented feature -> path-keyword mapping for ``find_similar_changes``
+#: (docs/API.md v0.2: "Keywords ... are derived from the extracted features").
+#: Only features extracted as PRESENT (value == 1) contribute keywords.
+CODEBASE_FEATURE_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "third_party_api": ("api", "client", "integration"),
+    "payment_gateway": ("payment", "billing", "checkout"),
+    "identity_provider": ("auth", "sso", "login"),
+    "external_data_sync": ("sync", "connector"),
+    "data_migration": ("migration", "database"),
+    "multi_currency": ("currency",),
+    "multi_tenancy": ("tenant",),
+    "realtime_ui": ("realtime", "websocket", "stream"),
+    "mobile_app": ("mobile", "ios", "android"),
+    "offline_mode": ("offline",),
+    "pci_dss": ("pci", "card"),
+    "privacy_compliance": ("privacy", "gdpr"),
+    "audit_logging": ("audit", "log"),
+    "legacy_tech_stack": ("legacy",),
+    "cross_team_coordination": ("coord",),
+}
+#: Documented fallback when the extraction found NO present feature: generic
+#: source paths keep the structural signals meaningful, while similar-changes
+#: stays evidence-free (no match -> invasiveness ``None`` -> median unchanged).
+CODEBASE_FALLBACK_KEYWORDS: tuple[str, ...] = ("src", "app", "core", "main", "utils")
+#: Env override for the demo-repos directory (tests point it at a tmp dir).
+CODEBASE_DEMO_REPOS_DIR_ENV = "ESTIMATOR_DEMO_REPOS_DIR"
+#: Timeout for the on-demand demo-repo builder subprocess.
+CODEBASE_BUILD_TIMEOUT_SECONDS = 300.0
+#: Contract note surfaced verbatim in every ``codebase`` block (docs/API.md v0.2).
+CODEBASE_NOTE = (
+    "DEMO-ASSUMED coefficients; the similar-past-changes mechanism is validated "
+    "on 29k real commits (docs/CODEBASE_HISTORY_VALIDATION.md); no "
+    "text-prediction accuracy claim (docs/CODEBASE_VALIDATION.md). "
+    "One-directional by design: surcharge only, never a discount."
+)
+#: Serializes on-demand demo-repo builds across concurrent requests.
+_DEMO_REPOS_LOCK = threading.Lock()
+
 
 # ``scripts/seed_db.py`` lives outside the ``app`` package — make it importable
 # regardless of the process working directory.
@@ -582,6 +642,131 @@ def serialize_findings(extraction: ExtractionResult) -> list[dict[str, Any]]:
     ]
 
 
+# --------------------------------------------------------------------------- #
+# Codebase Lab helpers (contract v0.2 ``repo`` -> ``codebase`` block)
+# --------------------------------------------------------------------------- #
+
+
+def demo_repos_dir() -> Path:
+    """Directory holding the built demo repos (``ESTIMATOR_DEMO_REPOS_DIR`` wins).
+
+    Read at call time (never cached at import) so tests can redirect it.
+    """
+    override = os.environ.get(CODEBASE_DEMO_REPOS_DIR_ENV)
+    if override and override.strip():
+        return Path(override.strip()).expanduser()
+    return REPO_ROOT / "data" / "demo_repos"
+
+
+def codebase_repo_path(repo: str) -> Path:
+    """Filesystem path for a validated ``repo`` value; builds demo repos on demand.
+
+    The deterministic builder (``scripts/build_demo_repos.py``) runs once, in a
+    subprocess with this interpreter and ``cwd=backend``, guarded by a
+    process-wide lock so concurrent first requests cannot interleave git
+    commands. Raises ``RuntimeError`` (Vietnamese detail) when it fails.
+    """
+    if repo == "self":
+        return REPO_ROOT
+    name = CODEBASE_DEMO_REPOS[repo]
+    target = demo_repos_dir()
+    path = target / name
+    if path.exists():
+        return path
+    with _DEMO_REPOS_LOCK:
+        if path.exists():  # another request built it while we waited
+            return path
+        script = _BACKEND_ROOT / "scripts" / "build_demo_repos.py"
+        proc = subprocess.run(
+            [sys.executable, str(script), "--target", str(target)],
+            cwd=str(_BACKEND_ROOT),
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=CODEBASE_BUILD_TIMEOUT_SECONDS,
+        )
+        if proc.returncode != 0 or not path.exists():
+            detail = (proc.stderr or proc.stdout or "").strip()
+            message = f"Không thể dựng repo demo {repo!r}"
+            raise RuntimeError(f"{message}: {detail}" if detail else message)
+    return path
+
+
+def codebase_keywords(features: Mapping[str, Any] | None) -> list[str]:
+    """Path keywords for ``find_similar_changes`` from PRESENT features (== 1).
+
+    Documented mapping :data:`CODEBASE_FEATURE_KEYWORDS`; canonical feature
+    order, first-seen de-duplication. When no feature is present the documented
+    fallback set :data:`CODEBASE_FALLBACK_KEYWORDS` is used.
+    """
+    source = features or {}
+    keywords: list[str] = []
+    for name in FEATURES:
+        if int(source.get(name) or 0) != 1:
+            continue
+        for keyword in CODEBASE_FEATURE_KEYWORDS.get(name, ()):
+            if keyword not in keywords:
+                keywords.append(keyword)
+    return keywords or list(CODEBASE_FALLBACK_KEYWORDS)
+
+
+def build_codebase_block(
+    repo: str,
+    features: Mapping[str, Any] | None,
+    base_estimate: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Contract v0.2 ``codebase`` block (docs/API.md) for one estimate.
+
+    Collects leakage-guarded structural signals as of today, matches similar
+    past commits on the feature-derived keywords, and applies friction (tail
+    widening) + invasiveness (median shift) to a COPY of ``base_estimate``.
+    Similar-change items are capped at the 5 newest and projected to the exact
+    contract keys; when no commit matches, invasiveness is ``None`` and the
+    median is unchanged (no evidence -> no fabricated shift).
+    """
+    repo_path = codebase_repo_path(repo)
+    keywords = codebase_keywords(features)
+    at_date = datetime.now(timezone.utc).date().isoformat()
+
+    signals = collect_signals(repo_path, at_date=at_date)
+    friction = compute_friction(signals)
+    commits = find_similar_changes(repo_path, keywords, at_date=at_date, limit=10)
+    invasiveness = estimate_invasiveness(commits)
+    applied = apply_friction(base_estimate, friction, invasiveness)
+
+    return {
+        "repo": repo,
+        "friction": {
+            "score": friction["score"],
+            "level": friction["level"],
+            "components": friction["components"],
+        },
+        "invasiveness": (
+            {
+                "modified_ratio": invasiveness["modified_ratio"],
+                "mean_files_touched": invasiveness["mean_files_touched"],
+                "based_on_commits": invasiveness["based_on_commits"],
+            }
+            if invasiveness is not None
+            else None
+        ),
+        "similar_changes": [
+            {
+                "commit": str(commit.get("commit") or "")[:7],
+                "date": commit.get("date"),
+                "files_touched": int(commit.get("files_touched") or 0),
+                "new_files": int(commit.get("new_files") or 0),
+                "modified_files": int(commit.get("modified_files") or 0),
+            }
+            for commit in commits[:5]
+        ],
+        "base_estimate": {**base_estimate, "unit": "days"},
+        "adjusted_estimate": {**applied["estimate"], "unit": "days"},
+        "adjustments": [dict(item) for item in applied["adjustments"]],
+        "note": CODEBASE_NOTE,
+    }
+
+
 def build_estimate_payload(
     extraction: ExtractionResult,
     prediction: Mapping[str, Any],
@@ -611,18 +796,29 @@ def run_estimate_pipeline(
     email_text: str,
     persist: bool = True,
     answers: Mapping[str, Any] | None = None,
+    repo: str | None = None,
 ) -> dict[str, Any]:
     """Full estimate pipeline for ``/api/estimate`` and scenario loading.
 
-    extract -> (answers overlay) -> estimate -> similar -> questions ->
-    (persist new project row). ``persist`` is False for answer-refinement
-    calls: contract v0.2 only creates a new P0nn row for a direct estimate
-    call without ``answers``.
+    extract -> (answers overlay) -> estimate -> (codebase adjustment) ->
+    similar -> questions -> (persist new project row). ``persist`` is False for
+    answer-refinement calls: contract v0.2 only creates a new P0nn row for a
+    direct estimate call without ``answers``.
+
+    With ``repo`` set (contract v0.2, Codebase Lab) the response gains the
+    ``codebase`` block and the top-level ``estimate`` becomes the ADJUSTED
+    estimate; answer-refinement calls re-apply the same repo logic.
     """
     extraction, _provider_name = extract_stage(state, email_text)
     extraction = apply_answers(extraction, answers)
     features = resolve_features(extraction)
     prediction = predict(state, features)
+
+    codebase: dict[str, Any] | None = None
+    if repo:
+        codebase = build_codebase_block(repo, features, prediction)
+        prediction = dict(codebase["adjusted_estimate"])
+
     similar = similar_projects(state, email_text, features, k=3)
     questions = rank_questions(state.model, extraction.findings, top_k=5)
     coefficient_rows = coefficient_view(state)
@@ -631,9 +827,12 @@ def run_estimate_pipeline(
     project_id: str | None = None
     if persist:
         project_id = persist_estimate(state, email_text, extraction, prediction)
-    return build_estimate_payload(
+    payload = build_estimate_payload(
         extraction, prediction, similar, questions, coefficient_rows, warnings, project_id
     )
+    if codebase is not None:
+        payload["codebase"] = codebase
+    return payload
 
 
 def run_packages(state: AppState, email_text: str, budget_days: float) -> dict[str, Any]:

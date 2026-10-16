@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -756,3 +757,225 @@ def test_reset_restores_pristine_demo_db(client: TestClient) -> None:
 
     # Idempotent: a second reset also lands on the pristine 240.
     assert client.post("/api/reset").json() == {"status": "ok", "projects_count": 240}
+
+
+# --------------------------------------------------------------------------- #
+# Contract v0.2: codebase context (Codebase Lab, docs/API.md)
+# --------------------------------------------------------------------------- #
+
+#: Exact contract keys of the `codebase` block (docs/API.md v0.2).
+CODEBASE_CONTRACT_KEYS = {
+    "repo",
+    "friction",
+    "invasiveness",
+    "similar_changes",
+    "base_estimate",
+    "adjusted_estimate",
+    "adjustments",
+    "note",
+}
+FRICTION_COMPONENT_KEYS = {
+    "churn",
+    "fan_in",
+    "complexity",
+    "coverage_gap",
+    "author_concentration",
+}
+SIMILAR_CHANGE_KEYS = {"commit", "date", "files_touched", "new_files", "modified_files"}
+#: Verbatim honest-limitations note frozen in docs/API.md v0.2.
+CODEBASE_NOTE = (
+    "DEMO-ASSUMED coefficients; the similar-past-changes mechanism is validated "
+    "on 29k real commits (docs/CODEBASE_HISTORY_VALIDATION.md); no "
+    "text-prediction accuracy claim (docs/CODEBASE_VALIDATION.md). "
+    "One-directional by design: surcharge only, never a discount."
+)
+
+
+@pytest.fixture(scope="module")
+def demo_repos_env(tmp_path_factory: pytest.TempPathFactory):
+    """Build both demo repos once per session into a tmp dir (no real data/).
+
+    ``ESTIMATOR_DEMO_REPOS_DIR`` points the API at this directory; the module
+    teardown restores the previous value. Repos are built with the deterministic
+    builder (identical commit hashes on every rebuild).
+    """
+    from scripts.build_demo_repos import build_demo_repos
+
+    root = tmp_path_factory.mktemp("demo_repos")
+    build_demo_repos(root)
+    previous = os.environ.get("ESTIMATOR_DEMO_REPOS_DIR")
+    os.environ["ESTIMATOR_DEMO_REPOS_DIR"] = str(root)
+    try:
+        yield root
+    finally:
+        if previous is None:
+            os.environ.pop("ESTIMATOR_DEMO_REPOS_DIR", None)
+        else:
+            os.environ["ESTIMATOR_DEMO_REPOS_DIR"] = previous
+
+
+def _assert_estimate_shape(estimate: dict) -> None:
+    assert {"p10", "p50", "p90", "unit", "mode", "method"} <= set(estimate)
+    assert estimate["unit"] == "days"
+    assert estimate["p10"] <= estimate["p50"] <= estimate["p90"]
+
+
+def test_estimate_repo_demo_a_codebase_block_shape(
+    client: TestClient, demo_repos_env: Path
+) -> None:
+    email_text = get_scenario("A")["email_text"]
+    response = client.post("/api/estimate", json={"email_text": email_text, "repo": "demo_a"})
+    assert response.status_code == 200
+    body = response.json()
+    assert ESTIMATE_CONTRACT_KEYS <= set(body)
+
+    codebase = body["codebase"]
+    assert set(codebase) == CODEBASE_CONTRACT_KEYS
+    assert codebase["repo"] == "demo_a"
+
+    friction = codebase["friction"]
+    assert set(friction) == {"score", "level", "components"}
+    assert 0.0 <= friction["score"] <= 1.0
+    assert friction["level"] in {"low", "medium", "high"}
+    assert set(friction["components"]) == FRICTION_COMPONENT_KEYS
+
+    invasiveness = codebase["invasiveness"]
+    assert set(invasiveness) == {"modified_ratio", "mean_files_touched", "based_on_commits"}
+    assert invasiveness["based_on_commits"] >= 1
+    assert 0.0 <= invasiveness["modified_ratio"] <= 1.0
+    assert invasiveness["mean_files_touched"] >= 1
+
+    changes = codebase["similar_changes"]
+    assert 1 <= len(changes) <= 5  # capped at the 5 newest for the UI
+    today = datetime.now(timezone.utc).date().isoformat()
+    for change in changes:
+        assert set(change) == SIMILAR_CHANGE_KEYS
+        assert len(change["commit"]) == 7
+        assert change["date"] < today  # leakage guard: strictly before at_date
+        assert change["new_files"] + change["modified_files"] <= change["files_touched"]
+
+    _assert_estimate_shape(codebase["base_estimate"])
+    _assert_estimate_shape(codebase["adjusted_estimate"])
+    # The top-level estimate IS the adjusted estimate (contract v0.2).
+    assert body["estimate"] == codebase["adjusted_estimate"]
+    # One-directional: never a discount (p10 down-or-equal, p90 up-or-equal).
+    assert codebase["adjusted_estimate"]["p10"] <= codebase["base_estimate"]["p10"]
+    assert codebase["adjusted_estimate"]["p90"] >= codebase["base_estimate"]["p90"]
+
+    adjustments = codebase["adjustments"]
+    assert adjustments
+    for adjustment in adjustments:
+        assert {"what", "factor", "why"} <= set(adjustment)
+        assert adjustment["factor"] > 0
+        assert adjustment["why"]
+    assert codebase["note"] == CODEBASE_NOTE
+
+
+def test_estimate_repo_demo_b_adjusts_more_than_demo_a(
+    client: TestClient, demo_repos_env: Path
+) -> None:
+    email_text = get_scenario("A")["email_text"]
+    a = client.post("/api/estimate", json={"email_text": email_text, "repo": "demo_a"}).json()
+    b = client.post("/api/estimate", json={"email_text": email_text, "repo": "demo_b"}).json()
+
+    a_block = a["codebase"]
+    b_block = b["codebase"]
+    # Same email + same model state -> identical base estimate for both repos.
+    assert b_block["base_estimate"] == a_block["base_estimate"]
+
+    # Spaghetti is structurally messier than the plugin repo.
+    assert b_block["friction"]["score"] > a_block["friction"]["score"]
+    assert b_block["invasiveness"]["modified_ratio"] > a_block["invasiveness"]["modified_ratio"]
+
+    # demo_b really moves the estimate (invasiveness shifts the median) ...
+    assert b_block["adjusted_estimate"] != b_block["base_estimate"]
+    assert b_block["adjusted_estimate"]["p50"] > b_block["base_estimate"]["p50"]
+    # ... and its upper tail is at least as wide as demo_a's.
+    assert b_block["adjusted_estimate"]["p90"] >= a_block["adjusted_estimate"]["p90"]
+    assert b["estimate"]["p90"] == b_block["adjusted_estimate"]["p90"]
+
+
+def test_estimate_unknown_repo_rejected_with_vietnamese_detail(client: TestClient) -> None:
+    email_text = get_scenario("A")["email_text"]
+    response = client.post("/api/estimate", json={"email_text": email_text, "repo": "demo_c"})
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert "demo_c" in detail
+    assert "demo_a" in detail and "demo_b" in detail and "self" in detail
+
+    stream = client.post(
+        "/api/estimate/stream", json={"email_text": email_text, "repo": "nope"}
+    )
+    assert stream.status_code == 422
+
+
+def test_estimate_without_repo_has_no_codebase_block(client: TestClient) -> None:
+    """Backward compatibility: `repo` absent -> the response shape is unchanged."""
+    email_text = get_scenario("B")["email_text"]
+    body = client.post("/api/estimate", json={"email_text": email_text}).json()
+    assert ESTIMATE_CONTRACT_KEYS <= set(body)
+    assert "codebase" not in body
+
+
+def test_estimate_repo_refinement_reapplies_codebase(
+    client: TestClient, demo_repos_env: Path
+) -> None:
+    email_text = get_scenario("A")["email_text"]
+    direct = client.post(
+        "/api/estimate", json={"email_text": email_text, "repo": "demo_b"}
+    ).json()
+    missing = [finding["name"] for finding in direct["findings"] if finding["value"] is None]
+    assert missing
+    answers = {name: 0 for name in missing}
+    count_before = client.get("/api/health").json()["projects_count"]
+
+    refined = client.post(
+        "/api/estimate",
+        json={"email_text": email_text, "repo": "demo_b", "answers": answers},
+    ).json()
+    assert refined["project_id"] is None  # answer-refinement stays side-effect free
+    assert refined["missing"] == []
+    assert refined["estimate"]["method"] == "point"
+    assert refined["codebase"]["repo"] == "demo_b"
+    assert refined["estimate"] == refined["codebase"]["adjusted_estimate"]
+    assert refined["codebase"]["adjusted_estimate"] != refined["codebase"]["base_estimate"]
+    assert client.get("/api/health").json()["projects_count"] == count_before
+
+
+def test_estimate_stream_with_repo_includes_codebase(
+    client: TestClient, demo_repos_env: Path
+) -> None:
+    email_text = get_scenario("A")["email_text"]
+    with client.stream(
+        "POST", "/api/estimate/stream", json={"email_text": email_text, "repo": "demo_b"}
+    ) as response:
+        assert response.status_code == 200
+        payload = "".join(response.iter_text())
+
+    events = parse_sse(payload)
+    steps = [data["step"] for event, data in events if event == "step"]
+    assert steps == ["extracting", "validating", "similar", "estimating", "questions", "done"]
+    results = [data for event, data in events if event == "result"]
+    assert len(results) == 1
+    result = results[0]
+    assert set(result["codebase"]) == CODEBASE_CONTRACT_KEYS
+    assert result["codebase"]["repo"] == "demo_b"
+    assert result["estimate"] == result["codebase"]["adjusted_estimate"]
+
+
+def test_estimate_repo_builds_demo_repos_on_demand(
+    client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A missing demo repo is built by the API itself (subprocess + lock)."""
+    fresh = tmp_path / "fresh_demo_repos"
+    monkeypatch.setenv("ESTIMATOR_DEMO_REPOS_DIR", str(fresh))
+    assert not fresh.exists()
+
+    response = client.post(
+        "/api/estimate", json={"email_text": get_scenario("A")["email_text"], "repo": "demo_b"}
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["codebase"]["repo"] == "demo_b"
+    assert (fresh / "payment_spaghetti").is_dir()
+    assert body["codebase"]["similar_changes"]  # the built repo has matching history
