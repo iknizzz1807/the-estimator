@@ -8,8 +8,14 @@ the interval from out-of-fold conformal residual quantiles.
 Cold start (no history) uses documented conservative industry multipliers with
 a deliberately wider interval than a calibrated model.
 
+Unknown features (``None`` in the mapping) are honest missing information:
+:func:`estimate_mc` samples them from the training-set prevalence and adds
+bootstrapped conformal residuals, so missing answers widen the interval instead
+of silently shifting the estimate down toward the all-zeros vector.
+
 Everything here is pure and deterministic: same rows + same features -> same
-numbers (spec §7.2, std < 5%).
+numbers (spec §7.2, std < 5%). The Monte Carlo sampler is seeded
+(``np.random.default_rng(seed)``) and therefore deterministic too.
 """
 
 from __future__ import annotations
@@ -42,6 +48,23 @@ FALLBACK_RESIDUAL_QUANTILES = {"q10": -0.55, "q50": 0.0, "q90": 0.55}
 #: replay on the seeded corpus (73.8%); x1.10 lands coverage at ~78.6%, inside
 #: the spec §7.1 target band (75-85%). Trade-off: slightly wider intervals.
 RESIDUAL_TAIL_WIDENING = 1.10
+
+#: Fallback p(feature == 1) used by :func:`estimate_mc` when the trained model
+#: stores no prevalence for a feature (e.g. models pickled before the MC
+#: upgrade, or manually built models). ~0.3 is the mean prevalence of the
+#: canonical corpus (docs/SPEC.md §5.2, 15 features at Bernoulli(0.35)-ish).
+DEFAULT_FEATURE_PREVALENCE = 0.3
+
+#: Extra widening of the residual spread for uncalibrated (warm-up) models in
+#: :func:`estimate_mc`. Without out-of-fold residuals there is nothing to
+#: bootstrap, so the residual distribution is approximated by a Normal whose
+#: 10/90 quantiles match the fallback quantiles scaled by this factor. Spec §9
+#: ("< 10 dự án" -> warm-up mode) wants visibly wider intervals while learning.
+MC_UNCALIBRATED_WIDENING = 1.5
+
+#: z-score of the standard-normal 90th percentile; converts the [q10, q90]
+#: span into a sigma for the fallback residual draws.
+_NORMAL_90_Z = 1.2815515655446004
 
 #: Cold-start defaults (documented, not learned): base person-days multiplied
 #: by one conservative factor per present feature. Values are pragmatic
@@ -81,6 +104,13 @@ class EstimatorModel:
     )
     n_train: int = 0
     calibrated: bool = False  # True when quantiles come from out-of-fold residuals
+    #: Fraction of training rows with feature == 1, per feature. Used by
+    #: estimate_mc as the Bernoulli prior for unknown features; missing keys
+    #: fall back to DEFAULT_FEATURE_PREVALENCE.
+    feature_prevalence: dict[str, float] = field(default_factory=dict)
+    #: Out-of-fold conformal residuals in log space, kept for bootstrap
+    #: sampling in estimate_mc. None when the model is uncalibrated.
+    oof_residuals: NDArray[np.float64] | None = None
 
 
 # --------------------------------------------------------------------------- #
@@ -130,6 +160,38 @@ def _residual_quantiles(residuals: NDArray[np.float64]) -> dict[str, float]:
     }
 
 
+def _residual_draws(
+    model: EstimatorModel, rng: np.random.Generator, n: int
+) -> NDArray[np.float64]:
+    """Draw ``n`` residuals (log space) for the Monte Carlo predictive step.
+
+    Preferred path: bootstrap the stored out-of-fold conformal residuals
+    (empirical distribution, keeps skew/asymmetry) and re-apply
+    ``RESIDUAL_TAIL_WIDENING`` about the conformal median so the MC marginals
+    match the quantile logic used by :func:`estimate`.
+
+    Documented fallbacks, both deliberately wider than a calibrated MC:
+    * calibrated model without stored residuals (legacy pickle): Gaussian with
+      sigma implied by the stored 10/90 quantiles (already widened);
+    * uncalibrated warm-up model: the same Gaussian construction on the
+      fallback quantiles, widened further by ``MC_UNCALIBRATED_WIDENING``.
+    """
+    residuals = getattr(model, "oof_residuals", None)
+    if residuals is not None and len(residuals) > 0:
+        draws = rng.choice(np.asarray(residuals, dtype=float), size=n, replace=True)
+        center = float(model.residual_quantiles["q50"])
+        return center + (draws - center) * RESIDUAL_TAIL_WIDENING
+
+    q10 = float(model.residual_quantiles["q10"])
+    q50 = float(model.residual_quantiles["q50"])
+    q90 = float(model.residual_quantiles["q90"])
+    if not model.calibrated:
+        q10 = q50 - (q50 - q10) * MC_UNCALIBRATED_WIDENING
+        q90 = q50 + (q90 - q50) * MC_UNCALIBRATED_WIDENING
+    sigma = max((q90 - q10) / (2.0 * _NORMAL_90_Z), 1e-9)
+    return rng.normal(loc=q50, scale=sigma, size=n)
+
+
 def _finish(p10: float, p50: float, p90: float, mode: str) -> dict[str, Any]:
     """Floor, round and enforce ordering for a prediction interval."""
     p10 = max(MIN_DAYS, round(p10, 1))
@@ -167,9 +229,15 @@ def train_model(rows: Sequence[Mapping[str, Any]]) -> EstimatorModel:
         oof = cross_val_predict(Ridge(alpha=RIDGE_ALPHA), x, y, cv=folds)
         quantiles = _residual_quantiles(y - oof)
         calibrated = True
+        oof_residuals: NDArray[np.float64] | None = y - oof
     else:
         quantiles = dict(FALLBACK_RESIDUAL_QUANTILES)
         calibrated = False
+        oof_residuals = None
+
+    # p(feature == 1) over the usable training rows: the Bernoulli prior that
+    # estimate_mc uses for features the extraction could not resolve.
+    prevalence = {name: float(x[:, i].mean()) for i, name in enumerate(FEATURES)}
 
     return EstimatorModel(
         model=model,
@@ -177,6 +245,8 @@ def train_model(rows: Sequence[Mapping[str, Any]]) -> EstimatorModel:
         residual_quantiles=quantiles,
         n_train=n,
         calibrated=calibrated,
+        feature_prevalence=prevalence,
+        oof_residuals=oof_residuals,
     )
 
 
@@ -194,6 +264,66 @@ def estimate(model: EstimatorModel, features: Mapping[str, Any] | None) -> dict[
     p50 = math.exp(log_pred + quantiles["q50"])
     p90 = math.exp(log_pred + quantiles["q90"])
     return _finish(p10, p50, p90, "calibrated")
+
+
+def estimate_mc(
+    model: EstimatorModel,
+    features: Mapping[str, Any] | None,
+    n: int = 2000,
+    seed: int = 42,
+) -> dict[str, Any]:
+    """Interval estimate that treats unknown features as unknown, not as 0.
+
+    A feature is unknown when the mapping explicitly maps it to ``None``
+    (``resolve_features`` emits all 15 canonical keys). Keys absent from the
+    mapping keep the :func:`estimate` semantics ("not present" = 0), so the
+    two functions agree on binary vectors.
+
+    For each of the ``n`` Monte Carlo draws:
+
+    1. every unknown feature is sampled ``Bernoulli(p)`` with ``p`` the
+       training-set prevalence stored on the model
+       (``DEFAULT_FEATURE_PREVALENCE`` ~0.3 for missing keys);
+    2. ``log_pred_draw`` is the Ridge prediction on the completed binary
+       vector;
+    3. a residual is added, bootstrapped from the stored out-of-fold conformal
+       residuals (see :func:`_residual_draws` for the documented fallbacks and
+       widening), and the sample is ``exp(log_pred_draw + residual_draw)``.
+
+    ``p10/p50/p90`` are the sample percentiles with the same floor/rounding as
+    :func:`estimate`, ordering enforced. Returns ``mode "calibrated"`` and
+    ``unit "days"``, with ``method "mc"`` while at least one unknown remains;
+    with no unknowns the exact numbers of :func:`estimate` are returned with
+    ``method "point"``. Fully deterministic via ``np.random.default_rng(seed)``.
+    """
+    if n < 1:
+        raise ValueError(f"n must be >= 1, got {n}")
+    source = features or {}
+    unknown = [
+        name for name in model.feature_names if name in source and source[name] is None
+    ]
+    if not unknown:
+        result = estimate(model, source)
+        result["unit"] = "days"
+        result["method"] = "point"
+        return result
+
+    base = feature_vector(source, model.feature_names)  # unknown slots are 0, overwritten below
+    rng = np.random.default_rng(seed)
+    x_draw = np.tile(base, (n, 1))
+    prevalence = getattr(model, "feature_prevalence", None) or {}
+    index = {name: i for i, name in enumerate(model.feature_names)}
+    for name in unknown:
+        p = float(prevalence.get(name, DEFAULT_FEATURE_PREVALENCE))
+        x_draw[:, index[name]] = rng.random(n) < p
+
+    log_pred = np.asarray(model.model.predict(x_draw), dtype=float).ravel()
+    samples = np.exp(log_pred + _residual_draws(model, rng, n))
+    q10, q50, q90 = (float(value) for value in np.quantile(samples, QUANTILE_LEVELS))
+    result = _finish(q10, q50, q90, "calibrated")
+    result["unit"] = "days"
+    result["method"] = "mc"
+    return result
 
 
 def cold_start_estimate(features: Mapping[str, Any] | None) -> dict[str, Any]:

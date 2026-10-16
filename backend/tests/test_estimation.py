@@ -4,16 +4,19 @@ from __future__ import annotations
 
 import datetime as dt
 import math
+from dataclasses import replace
 
 import numpy as np
 import pytest
 
 from app.features import FEATURES
 from app.services.estimation import (
+    DEFAULT_FEATURE_PREVALENCE,
     RIDGE_ALPHA,
     cold_start_estimate,
     coefficients,
     estimate,
+    estimate_mc,
     load_model,
     point_estimate,
     save_model,
@@ -142,3 +145,128 @@ def test_small_training_set_uses_wide_fallback() -> None:
     prediction = estimate(small, {})
     ratio = (prediction["p90"] - prediction["p10"]) / prediction["p50"]
     assert ratio >= 1.0  # deliberately wide warm-up interval
+
+
+# --------------------------------------------------------------------------- #
+# Monte Carlo intervals over unknown features (docs/API.md contract v0.2)
+# --------------------------------------------------------------------------- #
+
+
+def test_feature_prevalence_matches_training_row_counts(train_rows, model) -> None:
+    total = len(train_rows)
+    assert set(model.feature_prevalence) == set(FEATURES)
+    for name in FEATURES:
+        expected = sum(1 for row in train_rows if row["features"].get(name)) / total
+        assert model.feature_prevalence[name] == pytest.approx(expected)
+
+
+def test_mc_is_deterministic(model) -> None:
+    features = {"data_migration": 1, "mobile_app": None, "pci_dss": None}
+    first = estimate_mc(model, features)
+    second = estimate_mc(model, dict(features))  # fresh equal mapping
+    assert first == second
+    assert estimate_mc(model, features, n=333, seed=7) == estimate_mc(
+        model, dict(features), n=333, seed=7
+    )
+
+
+def test_mc_no_unknowns_equals_point_estimate(model) -> None:
+    full_known = {name: int(i % 3 == 0) for i, name in enumerate(FEATURES)}
+    for features in (full_known, {"data_migration": 1}, {}):
+        mc = estimate_mc(model, features)
+        point = estimate(model, features)
+        assert (mc["p10"], mc["p50"], mc["p90"]) == (
+            point["p10"],
+            point["p50"],
+            point["p90"],
+        )
+        assert mc["p50"] == point_estimate(model, features)
+        assert mc["mode"] == point["mode"] == "calibrated"
+        assert mc["unit"] == "days"
+        assert mc["method"] == "point"
+
+
+def test_mc_more_unknowns_is_wider(model) -> None:
+    base = {"data_migration": 1, "realtime_ui": 1}
+    two = dict(base, third_party_api=None, mobile_app=None)
+    four = dict(two, payment_gateway=None, external_data_sync=None)
+
+    known = estimate_mc(model, base)
+    mc2 = estimate_mc(model, two)
+    mc4 = estimate_mc(model, four)
+
+    def width(result: dict) -> float:
+        return result["p90"] - result["p10"]
+
+    assert known["method"] == "point"
+    assert mc2["method"] == mc4["method"] == "mc"
+    assert width(mc4) > width(mc2) > width(known)
+    # Missing answers move the middle honestly, not only the tails.
+    assert mc4["p90"] >= mc2["p90"] >= known["p90"]
+
+
+def test_mc_intervals_always_ordered_and_floored(model) -> None:
+    scenarios = [
+        {"data_migration": 1, "mobile_app": None},
+        {name: None for name in FEATURES},
+        {"third_party_api": 0, "pci_dss": None, "offline_mode": None},
+        dict({"data_migration": 1}, pci_dss=None, privacy_compliance=None),
+    ]
+    for features in scenarios:
+        prediction = estimate_mc(model, features, n=500)
+        assert prediction["p10"] <= prediction["p50"] <= prediction["p90"]
+        assert prediction["p10"] >= 3.0
+        assert prediction["mode"] == "calibrated"
+        assert prediction["unit"] == "days"
+        assert prediction["method"] == "mc"
+
+
+def test_mc_coverage_with_random_unknowns(model) -> None:
+    holdout = make_rows(40, seed=99)
+    rng = np.random.default_rng(7)
+    covered = 0
+    for row in holdout:
+        features = dict(row["features"])
+        for name in rng.choice(FEATURES, size=4, replace=False):
+            features[str(name)] = None
+        prediction = estimate_mc(model, features, n=1000)
+        if prediction["p10"] <= row["actual_days"] <= prediction["p90"]:
+            covered += 1
+    coverage_pct = 100.0 * covered / len(holdout)
+    assert coverage_pct >= 60.0
+
+
+def test_mc_missing_prevalence_falls_back_to_default(model) -> None:
+    unknown = "data_migration"
+    features = {unknown: None, "realtime_ui": 1}
+    with_default = replace(model, feature_prevalence={})
+    explicit = replace(
+        model,
+        feature_prevalence={
+            **model.feature_prevalence,
+            unknown: DEFAULT_FEATURE_PREVALENCE,
+        },
+    )
+    assert estimate_mc(with_default, features) == estimate_mc(explicit, features)
+    assert DEFAULT_FEATURE_PREVALENCE == pytest.approx(0.3)
+
+
+def test_mc_uncalibrated_warmup_is_wide_and_ordered() -> None:
+    small = train_model(make_rows(7, seed=5))
+    assert small.calibrated is False
+    candidates = [n for n, p in small.feature_prevalence.items() if 0.0 < p < 1.0]
+    assert candidates  # at least one feature varies across the tiny history
+    features = {candidates[0]: None}
+    mc = estimate_mc(small, features)
+    point = estimate(small, features)
+    assert mc["method"] == "mc"
+    assert mc["p10"] <= mc["p50"] <= mc["p90"]
+    assert (mc["p90"] - mc["p10"]) > (point["p90"] - point["p10"])
+
+
+def test_mc_save_load_roundtrip(model, tmp_path) -> None:
+    path = save_model(model, tmp_path / "estimator_mc.pkl")
+    loaded = load_model(path)
+    features = {"data_migration": 1, "mobile_app": None, "pci_dss": None}
+    assert loaded.feature_prevalence == model.feature_prevalence
+    assert estimate_mc(loaded, features) == estimate_mc(model, features)
