@@ -1,24 +1,20 @@
 # Submission package — The Estimator
 
-## Short description (EN, ~160 words)
+## Short description (EN, ~180 words)
 
 **The Estimator** turns messy customer emails into honest effort estimates.
 
-Paste an RFP: an LLM extracts 15 engineering-complexity features with verbatim evidence quotes, then *math* — Ridge regression + conformal prediction — produces a calibrated range (P10/P50/P90) instead of a single misleading number. Unknown inputs are detected automatically and ranked into ready-to-send clarifying questions by expected impact in days. When a project finishes, entering actual days retrains the model and updates per-feature coefficients with a visible audit trail.
+Paste an RFP: an LLM (DeepSeek V4.1 Flash) extracts 15 engineering-complexity features with verbatim evidence, then *math* — Ridge regression + conformal prediction — produces a calibrated range (P10/P50/P90). Unknown inputs are never silently guessed: they are Monte-Carlo sampled so missing information widens the range, and the ranked clarifying questions turn the conversation around — answering them shrinks the range live. A budget-fit quote builder proposes Essential/Standard/Full packages with an over-budget probability. When a project finishes, entering actual days retrains the model; a mid-history productivity drift in the demo data proves the loop adapts while human estimates do not (last 10 projects: MAE 15.7 vs 33.3).
 
-A walk-forward replay re-predicts the company's entire project history (train on the past, predict the next) to prove the system actually learns — it beats both team estimates and LLM-only baselines on MAE. An A/B screen exposes LLM-only run-to-run variance side by side.
+A walk-forward replay measures everything for real: system MAE 23.5 days vs 30.4 (team) vs 36.0 (LLM + company history) vs 243 (LLM-only — it confuses calendar time with effort). Extraction quality is measured too (F1 0.92). No chat gimmicks: a single-URL workflow dashboard. Runs fully offline with a deterministic stub; demo data is synthetic and disclosed.
 
-No chat gimmicks: a workflow dashboard for sales and tech leads. Runs fully offline with a deterministic stub extractor; add a DeepSeek (or Gemini) key for real LLM extraction. Demo data is synthetic and disclosed in the UI and README.
-
-## Mô tả ngắn (VI, ~170 từ)
+## Mô tả ngắn (VI, ~190 từ)
 
 **The Estimator** biến email yêu cầu khách hàng thành ước lượng effort trung thực.
 
-Dán email/RFP: LLM trích xuất 15 đặc trưng độ phức tạp kèm trích dẫn làm bằng chứng, sau đó **toán học** (hồi quy Ridge + conformal prediction) đưa ra khoảng tin cậy P10/P50/P90 thay vì một con số dễ gây ngộ nhận. Thông tin còn thiếu được phát hiện tự động và xếp hạng thành các câu hỏi làm rõ kèm mức ảnh hưởng (ngày). Khi dự án kết thúc, nhập số ngày thực tế sẽ huấn luyện lại mô hình, cập nhật hệ số từng đặc trưng kèm lịch sử audit.
+Dán email/RFP: LLM (DeepSeek V4.1 Flash) trích xuất 15 đặc trưng độ phức tạp kèm trích dẫn làm bằng chứng, sau đó **toán học** (hồi quy Ridge + conformal prediction) đưa ra khoảng tin cậy P10/P50/P90. Thông tin còn thiếu không bị đoán bừa: feature "không rõ" được lấy mẫu Monte Carlo để khoảng giãn ra trung thực, và các câu hỏi làm rõ được xếp hạng theo mức ảnh hưởng — **trả lời từng câu, khoảng co lại ngay trên màn hình**. Công cụ báo giá theo ngân sách gợi ý 3 gói Essential/Standard/Full kèm xác suất vượt ngân sách. Nhập số ngày thực tế → mô hình học lại; dữ liệu demo có cú drift năng suất giữa chừng chứng minh vòng học thích nghi, còn ước lượng của đội thì không (10 dự án cuối: MAE 15.7 so với 33.3).
 
-Màn Replay chạy walk-forward trên toàn bộ lịch sử dự án (học quá khứ, dự đoán tương lai) để chứng minh hệ thống **học thật** — MAE tốt hơn cả ước lượng của đội và baseline LLM thuần. Màn A/B phơi bày độ dao động của LLM-only.
-
-Không có giao diện chat — dashboard quy trình cho sales và tech lead. Chạy hoàn toàn offline bằng stub extractor; gắn DeepSeek (hoặc Gemini) key để dùng LLM thật. Dữ liệu demo là dữ liệu mô phỏng, được ghi rõ trong app và README.
+Màn Replay đo thật walk-forward: hệ thống MAE 23.5 ngày, team 30.4, LLM + lịch sử 36.0, còn LLM thuần 243 (lẫn thời gian lịch với effort). Chất lượng extraction cũng được đo (F1 0.92). Không có giao diện chat — dashboard 1 URL duy nhất. Chạy offline hoàn toàn bằng stub; dữ liệu demo là mô phỏng, ghi rõ trong app và README.
 
 ## Links (điền sau khi deploy)
 

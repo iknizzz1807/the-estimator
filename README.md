@@ -1,15 +1,15 @@
 # The Estimator
 
-**From RFP to range** — paste a customer email, get a calibrated effort estimate (P10/P50/P90), the highest-impact clarifying questions, and a learning loop that improves with every finished project.
+**From RFP to range** — paste a customer email, get a calibrated effort estimate (P10/P50/P90), the highest-impact clarifying questions, a budget-fit quote, and a learning loop that improves with every finished project.
 
 > **Hackathon submission** — *Agent in the Shell* (Anduin Cybernetics) · Challenge #2: The Estimator.
-> ⚠️ Demo data is **synthetic** and estimates are deliberately shown as a **range**, not a promise. See [Honest limitations](#honest-limitations).
+> Demo data is **synthetic** (with drift, interactions and outliers) and estimates are always a **range**, not a promise. See [Honest limitations](#honest-limitations).
 
-**Live app:** _deploying — link TBD_ · **Docs:** [business spec](docs/SPEC.md) · [API contract](docs/API.md) · [decision log](docs/DECISIONS.md)
+**Docs:** [business spec](docs/SPEC.md) · [API contract](docs/API.md) · [decision log](docs/DECISIONS.md) · [data generation](docs/DATA_GENERATION.md) · [measured A/B](docs/AB_MEASUREMENT.md) · [extraction quality](docs/EXTRACTION_EVAL.md) · [TAWOS cross-check](docs/TAWOS_VALIDATION.md)
 
 ## Tóm tắt tiếng Việt
 
-Dán email/RFP của khách → hệ thống trích xuất **15 features** (kèm trích dẫn gốc làm bằng chứng), ước lượng effort bằng **Ridge Regression + Conformal Prediction** trả về **khoảng P10/P50/P90** thay vì một con số, phát hiện thông tin còn thiếu và **xếp hạng câu hỏi làm rõ theo mức ảnh hưởng (ngày)**. Nhập số ngày thực tế khi dự án xong → hệ số cập nhật ngay, độ chính xác hiển thị theo thời gian. Màn **Proof** chứng minh hệ thống "học thật": Replay walk-forward (System vs Team vs LLM-only) + A/B so sánh độ dao động của LLM thuần. Chạy offline hoàn toàn bằng stub extractor; gắn `DEEPSEEK_API_KEY` (hoặc Gemini) là dùng LLM thật ngay, không đổi code.
+Dán email/RFP của khách → LLM (DeepSeek V4.1 Flash) trích xuất **15 features** kèm trích dẫn gốc, phần **toán** (Ridge Regression + Conformal Prediction) trả về **khoảng P10/P50/P90**. Thông tin còn thiếu không bị đoán bừa: feature "không rõ" được **lấy mẫu Monte Carlo** làm khoảng giãn ra trung thực, và bạn có thể **bấm trả lời từng câu hỏi → khoảng co lại ngay trên màn hình**. Có thêm **gói báo giá theo ngân sách** (Essential/Standard/Full + xác suất vượt budget), vòng lặp học từ số ngày thực tế (có cú drift giữa chừng để chứng minh thích nghi), màn **Proof** đo thật: System vs Team vs LLM-only vs **LLM + lịch sử công ty**. Chạy offline được bằng stub extractor; gắn key là chạy LLM thật ngay.
 
 ## The problem
 
@@ -19,51 +19,72 @@ Dán email/RFP của khách → hệ thống trích xuất **15 features** (kèm
 
 ## How it works
 
-1. **Extract** — An LLM (or the offline stub) reads the email/RFP and extracts 15 binary features with verbatim evidence quotes. Evidence is verified with fuzzy matching; unclear items stay `unknown` instead of being guessed.
-2. **Estimate** — Math, not the LLM, produces the estimate: Ridge regression on `log(days)` + split conformal prediction → **P10/P50/P90** with measurable coverage. Unknown inputs are never silently filled in — they become questions.
-3. **Ask** — Each unknown feature is scored by Value of Information (impact in days) and turned into a concrete, ready-to-send clarifying question (VI + EN).
-4. **Learn** — When a project finishes, entering actual days retrains the model, updates per-feature coefficients (sliding average, audit trail) and re-scores accuracy.
-5. **Prove** — A walk-forward Replay re-predicts all history project-by-project (train on the past, predict the next) and compares System vs Team estimate vs LLM-only. No peeking at the future.
+1. **Extract** — an LLM reads the email/RFP and extracts 15 binary features with verbatim evidence quotes (verified with fuzzy matching; unclear items stay `unknown`, never guessed).
+2. **Estimate** — math, not the LLM, produces the estimate: Ridge regression on `log(days)` + conformal prediction → **P10/P50/P90**. Unknown features are **sampled by Monte Carlo** (historical prevalence) so missing information widens the interval honestly (`method:"mc"`).
+3. **Ask & refine** — unknowns are ranked by impact in days; each question has Yes/No buttons, and **the range shrinks live** as answers come in (`method` flips to `"point"` when the vector is fully known).
+4. **Quote** — enter the customer's budget → three scope packages (Essential / Standard / Full) with **over-budget probability**, built by phasing out the most expensive optional capabilities.
+5. **Learn** — entering actual days retrains the model, updates per-feature coefficients (audit trail) and re-scores accuracy. A mid-history **productivity drift** (+22% from 2026-02) proves the loop adapts while human estimates don't.
+6. **Prove** — walk-forward Replay (System / Team / LLM-only / **LLM + company history**) and a live A/B comparison — all measured, no hand-waving.
 
-## Architecture
+## Architecture (single service)
 
 ```mermaid
 flowchart LR
-    subgraph FE["Next.js 15 — frontend/"]
-        OB[Onboarding<br/>1-click scenarios] --> EST[Estimate dashboard<br/>SSE progress steps]
-        HIST[History<br/>enter actuals]
-        PROOF[Proof<br/>replay + A/B]
-    end
-
-    subgraph BE["FastAPI — backend/"]
-        R["/api routes<br/>docs/API.md"] --> PIPE[Estimate pipeline]
-        PIPE --> EX[LLM extraction<br/>DeepSeek / Gemini / OpenAI / stub]
-        PIPE --> ENG[Estimation engine<br/>Ridge + conformal]
-        PIPE --> SIM[Similar projects<br/>BM25 + TF-IDF + fuzzy]
-        PIPE --> VOI[Question ranker<br/>Value of Information]
-        STATE[App state<br/>model + replay cache] --> DB[(SQLite)]
-        LEARN[Learning loop<br/>actuals → retrain] --> STATE
-    end
-
-    FE -->|REST + SSE| BE
+    U[Sales / BD] -->|browser| FE["Static Next.js 15 export<br/>(served by FastAPI)"]
+    FE -->|"/api/* same-origin"| API[FastAPI app]
+    API --> PIPE[Estimate pipeline]
+    PIPE --> EX[LLM extraction<br/>DeepSeek V4.1 Flash / stub]
+    PIPE --> EST["Estimation engine<br/>Ridge + conformal + MC"]
+    PIPE --> SIM[Similar projects<br/>BM25 + TF-IDF + fuzzy]
+    PIPE --> VOI[Question ranker + answers]
+    PIPE --> PKG[Budget-fit packages]
+    STATE[App state: model + replay cache] --> DB[(SQLite)]
+    LEARN[Learning loop<br/>actuals → retrain] --> STATE
 ```
 
 Design notes:
 
-- **LLM does extraction only; math does estimation.** Same input → same output (std < 5%), auditable coefficients, no anchoring bias.
-- **Replay is computed once at startup** (walk-forward over all history) and cached/served — the History and Proof screens read precomputed P10/P50/P90 values instead of retraining per request.
-- **SSE streaming** (`POST /api/estimate/stream`) shows the pipeline steps live: extracting → validating → similar → estimating → questions → done.
+- **One service, one URL** — FastAPI serves the statically-exported frontend and the API on the same port: no CORS, no split deploy. A **"Reset demo data"** button reseeds the 60-project demo DB atomically (judges never corrupt each other's runs).
+- **LLM extracts, math estimates** — same input → same output, auditable coefficients, no anchoring bias.
+- **Replay is computed once at startup** (walk-forward over all history) and cached for the History and Proof screens.
+- **SSE streaming** shows the pipeline steps live on the Estimate screen.
+
+## Measured results (real runs, not marketing)
+
+Walk-forward replay on the seeded 60-project history (52 done, 42 replay steps), LLM = DeepSeek V4.1 Flash:
+
+| Baseline | MAE (days) | Notes |
+|---|---|---|
+| **System (calibrated P50)** | **23.50** | coverage 35/42 (83.3%) |
+| Team estimate | 30.40 | ignores the mid-history drift |
+| LLM + company history in prompt | 35.96 | the fair "LLM with context" strawman |
+| LLM-only | 242.98 | confuses calendar time with effort (e.g. answers "360" for a 56-day project) |
+
+Post-drift window (last 10 steps): **System 15.65 vs Team 33.30 MAE** — the model re-learns after the productivity shift; the humans keep the old habits. Full report: [docs/AB_MEASUREMENT.md](docs/AB_MEASUREMENT.md).
+
+Variance probe: the same email asked 5× at temperature 0 returned identical numbers (std = 0.000) — the LLM's problem at temperature 0 is **calibration, not variance**. The system's edge is calibration, auditability and learning.
+
+Extraction quality (60 emails with known ground truth, 900 cells):
+
+| Metric (micro) | Stub (offline) | DeepSeek |
+|---|---|---|
+| Precision | 0.833 | **0.975** |
+| Recall | 0.848 | 0.877 |
+| F1 | 0.841 | **0.923** |
+| Negation handling ("no mobile app") | 35% | **100%** |
+
+Full report: [docs/EXTRACTION_EVAL.md](docs/EXTRACTION_EVAL.md). Cost: the whole 60-email batch costs ≈ **$0.03** on `deepseek-flash`.
 
 ## Why this is not "just an LLM wrapper"
 
-| Criterion | LLM-only | This system |
+| Criterion | LLM-only (measured) | This system |
 |---|---|---|
-| Consistency | ±15 day swings run-to-run | Same input → same output |
-| Learning | None | Coefficients update from actuals; Ridge retrains |
-| Uncertainty | A single number | P10/P50/P90 with measured coverage (75–85% target) |
-| Auditability | Opaque | Every number traceable to coefficients + similar projects |
-| Cost | Per-request LLM calls | LLM only for extraction; estimation is free math |
-| Proof | — | Walk-forward Replay + A/B variance demo |
+| Consistency | Deterministic at T=0, but wrong scale | Same input → same output, calibrated scale |
+| Uncertainty | A single number | P10/P50/P90; measured coverage 83.3% |
+| Missing info | Silently guesses | MC-widened range + ranked questions; answers shrink it live |
+| Learning | None | Retrains on actuals; adapts after drift (15.7 vs 33.3 MAE) |
+| Auditability | Opaque | Coefficients, evidence quotes, similar projects |
+| Cost | ~$0.03/batch | LLM only for extraction; estimation is free math |
 
 ## The 15 features
 
@@ -73,69 +94,54 @@ UI: `realtime_ui`, `mobile_app`, `offline_mode` ·
 Security: `pci_dss`, `privacy_compliance`, `audit_logging` ·
 Context: `legacy_tech_stack`, `cross_team_coordination`
 
-(Canonical list + definitions: [`backend/app/features.py`](backend/app/features.py))
+(Canonical definitions: [`backend/app/features.py`](backend/app/features.py))
 
-## Quickstart (local)
+## Quickstart (local, single port)
 
 ```bash
-# Backend — FastAPI on :8000
+# Backend + UI on http://localhost:8000
 cd backend
-python3 -m venv .venv && . .venv/bin/activate
+python3 -m venv .venv && . .venv/bin/activate   # first time
 pip install -r requirements.txt
-bash scripts/run_api.sh            # seeds data/estimator.db from data/synthetic_history.csv on first run
-
-# Frontend — Next.js on :3000
-cd ../frontend
-cp .env.local.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:8000
-npm install && npm run dev
+bash scripts/run_api.sh
 ```
 
-No API key required: without one the app uses the deterministic **stub extractor** and labels it in the UI. For real LLM extraction, set `DEEPSEEK_API_KEY` (default, model `deepseek-flash`) or `GEMINI_API_KEY` in `.env` (see `.env.example`).
-
-## Deploy (production)
-
-**Backend → Render** (free tier): create a Blueprint from this repo — [`render.yaml`](render.yaml) configures the service (rootDir `backend`, health check `/api/health`). Set env vars in the dashboard:
-
-- `CORS_ORIGINS` = your Vercel URL (e.g. `https://your-app.vercel.app`)
-- optionally `LLM_PROVIDER=deepseek` + `DEEPSEEK_API_KEY` (or Gemini) for real LLM extraction (stub otherwise)
-
-> Note: on the free tier the SQLite file is ephemeral — the demo reseeds its 60 synthetic projects on every restart, so "entered actuals" are lost after a cold start. Expected for a demo.
-
-**Frontend → Vercel**: import the same repo, set **Root Directory** to `frontend`, add env var `NEXT_PUBLIC_API_URL=https://your-backend.onrender.com`. Build settings are auto-detected (Next.js).
-
-Alternative: `backend/Dockerfile` builds a self-contained API image for any container host (`docker build -f backend/Dockerfile .`).
+The frontend build is served from `frontend/out` when present (build it once with `cd frontend && npm install && npm run build`; on this Android device see [DECISIONS D7+D12](docs/DECISIONS.md) for the FUSE build workaround). Without a build the server runs API-only. No API key needed (stub extractor); copy `.env.example` → `.env` and set `DEEPSEEK_API_KEY` for real LLM extraction. `npm run dev` still works for UI development against `:8000`.
 
 ## Demo scenarios (1-click)
 
-Three realistic RFPs ship with the app (Onboarding → **Load Sample Data**):
-**A** fintech (payments + PCI + mobile + real-time), **B** healthcare (legacy data migration, HIPAA, audit trail; offline hinted but ambiguous), **C** marketplace (multi-currency, multi-tenancy, SSO, vendor sync). Each runs the full pipeline and lands on a populated dashboard.
+Three realistic RFPs ship with the app (Onboarding → **Load Sample Data**): **A** fintech (payments + PCI + mobile + real-time), **B** healthcare (legacy data migration, HIPAA, audit trail), **C** marketplace (multi-currency, multi-tenancy, SSO, vendor sync).
+
+## Proof screens
+
+- **Replay** — walk-forward MAE chart (System / Team / LLM-only), coverage `35/42 (83.3%)`, per-step P10/P50/P90 vs actual.
+- **A/B** — 10 repeated LLM-only runs vs **LLM + company history** vs system, with a "simulated" badge whenever the offline stub is used.
 
 ## Tests
 
-86 backend tests (services + API integration), offline and deterministic:
+**140 backend tests** — offline, deterministic, stub-forced:
 
 ```bash
 cd backend && python -m pytest tests/ -q
 ```
 
-> Bonus cross-dataset experiment on 5,850 real TAWOS Jira issues (negative result, honestly reported): [docs/TAWOS_VALIDATION.md](docs/TAWOS_VALIDATION.md)
-
 ## Honest limitations
 
-1. **Demo data is synthetic** — generated by a hidden formula (documented in the generator, and ground truth is excluded from all services). Real-world numbers will differ.
-2. **Story point ≠ person-day** — unit conversions are out of scope.
-3. **Feature extraction can be wrong** — evidence verification + confidence values exist, but guardrails are not perfect.
-4. **Conformal prediction assumes exchangeability** — distribution shift (new tech, new client types) can degrade coverage.
+1. **Demo data is synthetic** — regenerated with interactions, mid-history drift (+22% from 2026-02) and 5% outliers; ground truth is excluded from all services and used only for evaluation.
+2. **Story point ≠ person-day** — the TAWOS cross-dataset check showed no signal under the offline stub (documented negative result: [docs/TAWOS_VALIDATION.md](docs/TAWOS_VALIDATION.md)).
+3. **Extraction can err** — measured: F1 0.923 (DeepSeek) / 0.841 (stub); weak spots are indirect features (`cross_team_coordination`, `audit_logging`).
+4. **Conformal prediction assumes exchangeability** — distribution shift can degrade coverage.
 5. **No Jira/GitHub integration** — demo imports CSV only.
-6. **No auth / multi-user** — single-user demo app; no roles or permissions.
-7. **Baselines marked "simulated"** — the LLM-only baseline in Replay and the stub A/B run are simulation stand-ins (clearly flagged in API payloads and UI). With an API key, A/B runs real LLM calls.
+6. **No auth / multi-user** — the demo DB is shared; the **Reset demo data** button restores the pristine 60-project state.
+7. **Baselines labeled honestly** — the LLM-only replay baseline is simulated when no key is present; the LLM+history baseline and the A/B run are real with a key (see badges in the UI).
 8. **Similar projects retrieval** uses BM25 + TF-IDF (no embeddings) to keep the on-device build light.
-9. **Cross-dataset check on TAWOS showed no signal** — with the offline stub extractor and story-point units (≠ person-days), the model only ties the median baseline. That negative result is documented in [docs/TAWOS_VALIDATION.md](docs/TAWOS_VALIDATION.md); real cross-dataset validation needs LLM extraction and person-day data.
+9. **Free-tier hosting** — on Render the SQLite file is ephemeral: the demo reseeds on every restart; entered actuals are lost on cold start (use Reset to restore deliberately).
+10. **Interval width is not strictly monotone per single answer** — answering "yes" to an expensive feature raises P50 (absolute width can grow); the *relative* uncertainty always shrinks (live-measured 1.99 → 1.38).
 
 ## We do NOT claim
 
 - "100% accurate"
-- "Replaces humans" — it prepares questions and ranges for humans to decide
+- "Replaces humans" — it prepares ranges and questions for humans to decide
 - "Works for every kind of project"
 - "Works without historical data" — cold start still detects missing info and normalizes RFPs, but calibrated ranges need history
 
@@ -143,19 +149,26 @@ cd backend && python -m pytest tests/ -q
 
 | Layer | Choice |
 |---|---|
-| Frontend | Next.js 15 (App Router, TypeScript) + TailwindCSS + Recharts — dark, workflow-first, no chat UI |
-| Backend | FastAPI + SSE streaming, SQLite |
+| Frontend | Next.js 15 (static export) + TailwindCSS + Recharts — dark, workflow-first, no chat UI |
+| Backend | FastAPI (Python 3.13) + SSE, serves the UI on the same port |
 | AI | DeepSeek V4.1 Flash (default) / Gemini / OpenAI — pluggable + deterministic offline stub |
-| Math | scikit-learn Ridge + split conformal prediction |
-| Tests | pytest — 86 offline tests |
+| Math | scikit-learn Ridge (α=0.3) + split conformal prediction + Monte Carlo over unknowns |
+| DB | SQLite (auto-seeded, atomic reset) |
+| Deploy | One Render Docker web service (`render.yaml`), free tier |
+
+## Deploy
+
+**Render (single service)**: New → Blueprint → pick this repo — [`render.yaml`](render.yaml) builds the repo-root Docker image (frontend built inside), health-checks `/api/health` and serves UI+API on one URL. Set `LLM_PROVIDER=deepseek` + `DEEPSEEK_API_KEY` in the dashboard for real LLM extraction (stub otherwise).
+
+Alternative: `docker build -f backend/Dockerfile -t the-estimator . && docker run -p 8000:8000 the-estimator`. Vercel is no longer needed (kept as a fallback: host `frontend/out` anywhere and set `NEXT_PUBLIC_API_URL` + `CORS_ORIGINS` at build/deploy time).
 
 ## Repo layout
 
 ```
-backend/   FastAPI app (app/api, app/services), tests, seed scripts
-frontend/  Next.js 15 dashboard — onboarding, estimate, history, proof
-data/      synthetic history CSV + ground truth (db is gitignored, auto-seeded)
-docs/      SPEC.md (business spec), API.md (contract), DECISIONS.md (decision log)
+backend/   FastAPI app (app/api, app/services), tests, scripts
+frontend/  Next.js 15 UI (static export into frontend/out, gitignored)
+data/      synthetic history + ground truth (db is gitignored, auto-seeded; tawos subset)
+docs/      SPEC, API contract, decisions, measured reports (AB, extraction, TAWOS, data-gen)
 ```
 
 ## License

@@ -44,6 +44,21 @@ Official TAWOS dump (637 MB) was too slow to download (~75 KB/s) → used a GitH
 
 Added `DeepSeekProvider` (`deepseek-flash` = DeepSeek-V4.1-Flash, OpenAI-compatible chat completions at https://api.deepseek.com, JSON output mode, thinking mode explicitly disabled for fast cheap deterministic extraction) and made `deepseek` the recommended provider in `.env.example` (user preference over Gemini). Reference pricing per 1M tokens: input $0.15/$0.30 off-peak/peak (cache hit ~$0.003–0.006), output $0.60/$1.20 — roughly 2–4× cheaper than Gemini 2.5 Flash; the whole 60-email extraction batch costs ≈ $0.03–0.07. Gemini/OpenAI providers remain; the zero-key default stays the offline stub.
 
+## D11 — Wave B product upgrades (2026-10-17)
+
+Addressing review feedback, all with tests (140 total, offline/stub-forced):
+- **Monte Carlo over unknown features** (`estimate_mc`): unknowns are sampled from training prevalence; intervals widen with missing info (live demo: 10 unknowns ⇒ 256–364-day range; fully answered ⇒ `method:"point"`).
+- **Interactive answers** (`POST /api/estimate` gains `answers`): each ranked question has Yes/No; the range shrinks live. Refinement calls are side-effect free (no P0nn rows).
+- **Budget-fit packages** (`build_packages`): Essential/Standard/Full tiers phase out the most expensive optional capabilities; over-budget probability via a documented lognormal fit of the conformal interval.
+- **Third baseline** (`llm_baseline`): LLM + company history in the prompt; `ab_measurement.py` measured all baselines for real on `deepseek-flash` (system 23.5 vs team 30.4 vs LLM+history 36.0 vs LLM-only 243 MAE days; 5× variance probe std 0.000 — the spec's "±15 days" claim is retired and replaced by measured calibration findings).
+- **Extraction eval** (`extraction_eval.py`): per-feature precision/recall on the 60 emails with known ground truth (DeepSeek F1 0.923 vs stub 0.841; negation 100% vs 35%).
+- **Realistic generator**: interactions (pg×pci +20%, migration×legacy +15%, mobile×offline +8%), mid-history drift (+22% from 2026-02; post-drift last-10 System 15.65 vs Team 33.30 MAE) and 5% outliers.
+
+## D12 — Single-service deploy (2026-10-17)
+
+Next.js switches to `output: "export"`; `lib/api.ts` defaults to same-origin `""` so the static UI is served by FastAPI (`StaticExportFiles` subclass: `.html` retry for extensionless routes, `/api/*` never falls into the static mount). Multi-stage Dockerfile (node build → python runtime) + one Render Docker web service (`render.yaml`); `.dockerignore` keeps `.env`/`node_modules` out of the build context; `frontend/out` is gitignored (built in-image / on-device via the D7 rootfs dance). Removes CORS and the two-service failure mode; Vercel demoted to a documented fallback.
+
+
 
 
 
