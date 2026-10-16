@@ -82,7 +82,7 @@ Same input. Emits `step` events (`extracting → validating → similar → esti
 
 Body: `{ "actual_days": 42 }`
 
-Validation: `0 < actual_days <= 1000` (docs/SPEC.md §9).
+Validation per docs/SPEC.md §9: reject `actual_days <= 0` (422); accept `actual_days > 1000` but include a `warning` field ("Giá trị bất thường, vui lòng kiểm tra lại").
 
 ```json
 {
@@ -100,6 +100,17 @@ Validation: `0 < actual_days <= 1000` (docs/SPEC.md §9).
                "actual": 42, "mae_system": 8.1, "mae_team": 12.4, "in_interval": true } ],
   "summary": { "mae_system": 9.2, "mae_team": 14.7, "mae_llm_only": 13.1, "coverage_pct": 79.4 }
 }
+```
+
+### POST /api/ab
+
+Body: `{ "email_text": "...", "n": 10 }`
+
+Runs the same email `n` times through an LLM-only point estimator to expose run-to-run variance (spec §4.5). With the offline stub provider the response is clearly flagged (`mode:"simulated"`).
+
+```json
+{ "mode": "real|simulated", "values": [31, 35, 29, "..."], "mean": 33.4, "std": 2.1,
+  "min": 29, "max": 38, "system_estimate": 36.0, "delta_pct": -7.2, "note": "..." }
 ```
 
 ### POST /api/import (multipart CSV)
