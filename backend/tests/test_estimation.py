@@ -70,7 +70,7 @@ def test_recovers_known_multiplier(model) -> None:
     assert set(by_name) == set(FEATURES)
     assert by_name["data_migration"]["raw"] > 0
     assert 1.3 <= by_name["data_migration"]["multiplier"] <= 1.9
-    assert RIDGE_ALPHA == 1.0
+    assert RIDGE_ALPHA == 0.3  # pinned; CV-tuned in docs/DECISIONS.md D8
     assert model.n_train == 120
     assert model.calibrated is True
 

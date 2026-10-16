@@ -32,4 +32,13 @@ Both servers verified together, live: CORS `access-control-allow-origin: http://
 
 Ops caveat (this device only): building `frontend/` in place on `/sdcard` fails on FUSE (no symlinks; Node cannot mmap native `.node` binaries from the mount). Workaround: build in a rootfs copy (`/root/est-build/frontend`) and copy `.next` back; npm scripts invoke the Next CLI via `node ./node_modules/next/dist/bin/next` (portable); on-device installs need `--no-bin-links`. Standard machines (and Vercel CI) are unaffected.
 
+## D8 — Ridge alpha tuned 1.0 → 0.3 (2026-10-16)
+
+Multi-seed CV sweep on the seeded 52-project dataset: alpha 0.1 → 8.90, 0.3 → 8.95, 1.0 → 9.69, 10 → 14.19 (CV MAE, days). Set `RIDGE_ALPHA = 0.3`: walk-forward MAE 12.58 → **10.70 days (-15%)**, coverage stays 78.6%, in-sample R² 0.87 → 0.90. Learning-curve experiment (same hidden formula, sampled histories): CV MAE 10.2 @ n=60 → 8.5 @ n=120 → ~8.1 plateau (= lognormal noise floor); rare features (pci_dss, 17%) converge with more data.
+
+## D9 — TAWOS cross-dataset validation: documented negative result (2026-10-16)
+
+Official TAWOS dump (637 MB) was too slow to download (~75 KB/s) → used a GitHub mirror; subset committed as `data/tawos_subset.csv` (5,850 stories / 39 projects, Apache-2.0 attribution in `data/tawos_README.txt`). Offline stub extraction fires on only 22.3% of rows (Jira story vocabulary ≠ RFP vocabulary) and the 3-day prediction floor binds on ~85% of test rows (story points ≠ person-days — exactly the spec §11.1 warning). Cross-project result: MAE 2.48 SP ≈ global-median baseline (2.48 SP), R² ≈ −0.02 → **no learning signal**. Documented honestly in `docs/TAWOS_VALIDATION.md` + README limitations. Real cross-dataset validation requires LLM-based extraction and person-day data.
+
+
 

@@ -130,6 +130,7 @@ cd backend && python -m pytest tests/ -q
 6. **No auth / multi-user** — single-user demo app; no roles or permissions.
 7. **Baselines marked "simulated"** — the LLM-only baseline in Replay and the stub A/B run are simulation stand-ins (clearly flagged in API payloads and UI). With an API key, A/B runs real LLM calls.
 8. **Similar projects retrieval** uses BM25 + TF-IDF (no embeddings) to keep the on-device build light.
+9. **Cross-dataset check on TAWOS showed no signal** — with the offline stub extractor and story-point units (≠ person-days), the model only ties the median baseline. That negative result is documented in [docs/TAWOS_VALIDATION.md](docs/TAWOS_VALIDATION.md); real cross-dataset validation needs LLM extraction and person-day data.
 
 ## We do NOT claim
 

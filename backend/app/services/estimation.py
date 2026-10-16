@@ -2,7 +2,7 @@
 
 Spec §4.2: estimation is data-driven (never LLM-driven), each feature has a
 learned multiplier and the [P10, P90] interval is calibrated. We fit
-``log(actual_days) ~ Ridge(alpha=1.0)`` over the 15 binary features and build
+``log(actual_days) ~ Ridge(alpha=0.3)`` over the 15 binary features and build
 the interval from out-of-fold conformal residual quantiles.
 
 Cold start (no history) uses documented conservative industry multipliers with
@@ -29,7 +29,7 @@ from app.features import FEATURES
 
 MIN_ROWS = 5  # below this there is nothing to learn (spec §9 "khuyến nghị >= 10")
 MIN_ROWS_CONFORMAL = 10
-RIDGE_ALPHA = 1.0
+RIDGE_ALPHA = 0.3  # CV-selected on the seeded dataset (docs/DECISIONS.md D8)
 MIN_DAYS = 3.0
 QUANTILE_LEVELS = (0.1, 0.5, 0.9)
 
