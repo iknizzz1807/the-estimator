@@ -32,3 +32,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Local planning docs (source material; in-repo copy lives in docs/SPEC.md)
+/checklist.md
+/info.md
+/spec.md
