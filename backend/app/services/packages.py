@@ -41,6 +41,12 @@ Public API (frozen shape, docs/API.md v0.2)::
 ``features_included`` is always the full 15-name map after the tier edits
 (unknowns stay ``None``); ``excluded`` lists only the capabilities that tier
 deliberately phased out.
+
+The response also carries a top-level ``pricing`` block (see
+:func:`_pricing_block`), fitted from the **Full-scope** interval: a ~25-point
+overrun-probability curve, the smallest safe quotes at 25% / 10% risk, and the
+interval it was fit from. Same lognormal model as ``over_budget_prob``, so at
+``days == budget`` the Full-tier number and the curve agree.
 """
 
 from __future__ import annotations
@@ -74,6 +80,13 @@ OVER_BUDGET_THRESHOLD = 0.25
 PROB_EPSILON = 0.001
 #: Standard-normal 90% quantile, i.e. the z for the P10/P90 conformal tail.
 Z_P90 = 1.2816
+#: Standard-normal 75% quantile: the z for a 25% overrun tail (safe_quote_25).
+Z_P25 = 0.6745
+#: Pricing curve resolution: ~25 log-spaced points (docs/API.md v0.2).
+PRICING_CURVE_POINTS = 25
+#: Curve span: [p10 * LOW, p90 * HIGH] (log-spaced).
+PRICING_LOW_FACTOR = 0.6
+PRICING_HIGH_FACTOR = 1.5
 
 RISK_NOTE = (
     "all packages exceed the 25% over-budget threshold; Essential (core) is the "
@@ -192,6 +205,19 @@ def _phi(z: float) -> float:
     return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
 
 
+def _lognormal_params(p10: float, p50: float, p90: float) -> tuple[float, float] | None:
+    """(mu, sigma) of the interval-fitted lognormal, or ``None`` if degenerate.
+
+    ``mu = ln(p50)`` and ``sigma = (ln(p90) - ln(p10)) / (2 * z90)``; a
+    degenerate interval (non-positive p10/p50, or p90 <= p10) returns ``None``
+    so callers use the documented step fallback at p50.
+    """
+    if p10 > 0 and p90 > p10 and p50 > 0:
+        sigma = (math.log(p90) - math.log(p10)) / (2.0 * Z_P90)
+        return math.log(p50), sigma
+    return None
+
+
 def _over_budget_prob(estimate_row: Mapping[str, Any], budget_days: float | None) -> float | None:
     """P(actual days > budget) under the tier's lognormal interval fit.
 
@@ -206,14 +232,71 @@ def _over_budget_prob(estimate_row: Mapping[str, Any], budget_days: float | None
     p90 = float(estimate_row["p90"])
     budget = float(budget_days)
 
-    if p10 > 0 and p90 > p10 and p50 > 0 and budget > 0:
-        sigma = (math.log(p90) - math.log(p10)) / (2.0 * Z_P90)
-        z = (math.log(budget) - math.log(p50)) / sigma
+    params = _lognormal_params(p10, p50, p90)
+    if params is not None and budget > 0:
+        mu, sigma = params
+        z = (math.log(budget) - mu) / sigma
         probability = 1.0 - _phi(z)
     else:  # degenerate interval and/or non-positive budget
         probability = 1.0 if budget < p50 else 0.0
 
     return round(min(1.0 - PROB_EPSILON, max(PROB_EPSILON, probability)), 3)
+
+
+def _pricing_block(p10: float, p50: float, p90: float) -> dict[str, Any]:
+    """Interactive pricing curve fitted from one (Full-scope) interval.
+
+    Contract docs/API.md v0.2::
+
+        {"scope": "full", "p10", "p50", "p90",
+         "curve": [{"days": 60.0, "over_prob": 0.42}, ... ~25 log-spaced points],
+         "safe_quote_25": 154.3, "safe_quote_10": 208.7}
+
+    ``curve`` spans ``[p10 * 0.6, p90 * 1.5]`` log-spaced (days rounded to 1
+    decimal, probabilities to 3), with ``over_prob(d)`` = P(actual > d) from
+    the *same* :func:`_over_budget_prob` lognormal fit used by the tier cards —
+    so at ``d == budget`` the Full-tier number and the curve agree exactly.
+
+    ``safe_quote_25`` / ``safe_quote_10`` are the smallest quotes whose overrun
+    probability is at most 25% / 10% (the z-quantiles of the same fit).
+    Degenerate intervals fall back to the p50 step (safe quotes at the median).
+    """
+    p10, p50, p90 = float(p10), float(p50), float(p90)
+    estimate_row = {"p10": p10, "p50": p50, "p90": p90}
+
+    params = _lognormal_params(p10, p50, p90)
+    if params is not None:
+        mu, sigma = params
+    else:  # degenerate: safe quotes collapse to the median
+        mu = math.log(p50) if p50 > 0 else 0.0
+        sigma = 0.0
+
+    start = p10 * PRICING_LOW_FACTOR if p10 > 0 else p50 * PRICING_LOW_FACTOR
+    start = max(start, PROB_EPSILON)
+    end = (
+        p90 * PRICING_HIGH_FACTOR
+        if p90 > 0
+        else start * (PRICING_HIGH_FACTOR / PRICING_LOW_FACTOR)
+    )
+    if end <= start:
+        end = start * (PRICING_HIGH_FACTOR / PRICING_LOW_FACTOR)
+
+    log_start = math.log(start)
+    step = (math.log(end) - log_start) / (PRICING_CURVE_POINTS - 1)
+    curve: list[dict[str, float]] = []
+    for index in range(PRICING_CURVE_POINTS):
+        days = max(0.1, round(math.exp(log_start + step * index), 1))
+        curve.append({"days": days, "over_prob": _over_budget_prob(estimate_row, days)})
+
+    return {
+        "scope": "full",
+        "p10": p10,
+        "p50": p50,
+        "p90": p90,
+        "curve": curve,
+        "safe_quote_25": round(math.exp(mu + Z_P25 * sigma), 1),
+        "safe_quote_10": round(math.exp(mu + Z_P90 * sigma), 1),
+    }
 
 
 def _recommend(
@@ -269,7 +352,8 @@ def build_packages(
     Deterministic for a given ``seed``. Returns::
 
         {"budget_days", "packages": [{tier, label, estimate, over_budget_prob,
-         features_included, excluded, notes}], "recommendation", "method"}
+         features_included, excluded, notes}], "recommendation", "method",
+         "pricing": {scope, p10, p50, p90, curve, safe_quote_25, safe_quote_10}}
 
     plus ``recommendation_note`` when every tier exceeds the 25% risk
     threshold (the core tier is still recommended, with the caveat).
@@ -299,11 +383,19 @@ def build_packages(
 
     recommendation, risk_note = _recommend(packages, budget)
     method = "mc" if any(pkg["estimate"]["method"] == "mc" for pkg in packages) else "point"
+    full_estimate = next(
+        package["estimate"] for package in packages if package["tier"] == "full"
+    )
     result: dict[str, Any] = {
         "budget_days": budget_days,
         "packages": packages,
         "recommendation": recommendation,
         "method": method,
+        # Interactive pricing curve, always fitted from the Full-scope tier
+        # (even when every tier coincides).
+        "pricing": _pricing_block(
+            full_estimate["p10"], full_estimate["p50"], full_estimate["p90"]
+        ),
     }
     if risk_note:
         result["recommendation_note"] = risk_note

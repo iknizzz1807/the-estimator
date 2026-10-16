@@ -622,6 +622,50 @@ def test_packages_contract_shape_and_tier_ordering(client: TestClient) -> None:
     assert p50s == sorted(p50s)
 
 
+def test_packages_includes_pricing_curve(client: TestClient) -> None:
+    email = get_scenario("A")["email_text"]
+    response = client.post("/api/packages", json={"email_text": email, "budget_days": 200})
+    assert response.status_code == 200
+    body = response.json()
+
+    pricing = body["pricing"]
+    assert set(pricing) == {
+        "scope",
+        "p10",
+        "p50",
+        "p90",
+        "curve",
+        "safe_quote_25",
+        "safe_quote_10",
+    }
+    assert pricing["scope"] == "full"
+    full = next(package for package in body["packages"] if package["tier"] == "full")
+    assert (pricing["p10"], pricing["p50"], pricing["p90"]) == (
+        full["estimate"]["p10"],
+        full["estimate"]["p50"],
+        full["estimate"]["p90"],
+    )
+
+    curve = pricing["curve"]
+    assert len(curve) == 25
+    days = [point["days"] for point in curve]
+    probs = [point["over_prob"] for point in curve]
+    assert days == sorted(days)
+    assert probs == sorted(probs, reverse=True)  # more days -> lower risk
+    assert all(0.001 <= probability <= 0.999 for probability in probs)
+    assert pricing["safe_quote_10"] > pricing["safe_quote_25"] > pricing["p50"]
+
+    # At a quote that is exactly a curve day, Full tier and curve agree.
+    day = curve[12]["days"]
+    second = client.post(
+        "/api/packages", json={"email_text": email, "budget_days": day}
+    ).json()
+    full_second = next(
+        package for package in second["packages"] if package["tier"] == "full"
+    )
+    assert second["pricing"]["curve"][12]["over_prob"] == full_second["over_budget_prob"]
+
+
 def test_packages_budget_validation(client: TestClient) -> None:
     payload_base = {"email_text": get_scenario("A")["email_text"]}
     for bad_budget in (0, -25):

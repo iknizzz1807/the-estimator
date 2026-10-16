@@ -414,3 +414,137 @@ def test_default_path_reports_mc_when_estimate_mc_is_available(model) -> None:
     assert estimate_mc is not None
     assert result["method"] == "mc"
     assert all(pkg["estimate"]["method"] == "mc" for pkg in result["packages"])
+
+
+# --------------------------------------------------------------------------- #
+# Pricing curve (contract v0.2, top-level "pricing" block)
+# --------------------------------------------------------------------------- #
+
+PRICING_KEYS = {
+    "scope",
+    "p10",
+    "p50",
+    "p90",
+    "curve",
+    "safe_quote_25",
+    "safe_quote_10",
+}
+
+
+def full_estimate(result: dict) -> dict:
+    return next(
+        package["estimate"] for package in result["packages"] if package["tier"] == "full"
+    )
+
+
+def test_pricing_block_shape_and_log_spaced_range(model) -> None:
+    result = build_packages(model, FULL_DEMO, budget_days=45)
+    pricing = result["pricing"]
+    full = full_estimate(result)
+
+    assert set(pricing) == PRICING_KEYS
+    assert pricing["scope"] == "full"
+    # Fitted from the Full tier's own interval (never from another tier).
+    assert (pricing["p10"], pricing["p50"], pricing["p90"]) == (
+        full["p10"],
+        full["p50"],
+        full["p90"],
+    )
+
+    curve = pricing["curve"]
+    assert len(curve) == packages.PRICING_CURVE_POINTS == 25
+    days = [point["days"] for point in curve]
+    assert days == sorted(days)
+    # ~25 log-spaced points spanning [p10 * 0.6, p90 * 1.5] (1-decimal).
+    assert days[0] == round(full["p10"] * 0.6, 1)
+    assert days[-1] == round(full["p90"] * 1.5, 1)
+    ratios = [b / a for a, b in zip(days, days[1:])]
+    assert max(ratios) - min(ratios) < 0.01  # ~evenly log-spaced (1-decimal rounding)
+
+    for point in curve:
+        assert set(point) == {"days", "over_prob"}
+        assert point["days"] == round(point["days"], 1)
+        assert point["days"] > 0
+        assert 0.001 <= point["over_prob"] <= 0.999
+        assert point["over_prob"] == round(point["over_prob"], 3)
+
+
+def test_pricing_curve_monotone_decreasing_in_days(model) -> None:
+    result = build_packages(model, FULL_DEMO, budget_days=45)
+    probs = [point["over_prob"] for point in result["pricing"]["curve"]]
+    assert probs == sorted(probs, reverse=True)
+    assert probs[0] > probs[-1]  # more days quoted -> strictly lower risk
+
+
+def test_pricing_curve_reuses_the_tier_probability_model(model) -> None:
+    result = build_packages(model, FULL_DEMO, budget_days=30)
+    full = full_estimate(result)
+    for point in result["pricing"]["curve"]:
+        assert point["over_prob"] == packages._over_budget_prob(full, point["days"])
+
+
+def test_pricing_agrees_with_full_tier_at_the_budget(model) -> None:
+    """At days == budget, curve and Full tier must report the same risk."""
+    first = build_packages(model, FULL_DEMO, budget_days=45)
+    day = first["pricing"]["curve"][12]["days"]  # an exact curve point
+    second = build_packages(model, FULL_DEMO, budget_days=day)
+
+    full = next(pkg for pkg in second["packages"] if pkg["tier"] == "full")
+    # Same interval => same curve and same Full-tier probability at that day.
+    assert second["pricing"]["curve"][12] == first["pricing"]["curve"][12]
+    assert second["pricing"]["curve"][12]["days"] == day
+    assert full["over_budget_prob"] == second["pricing"]["curve"][12]["over_prob"]
+
+
+def test_pricing_safe_quotes(model) -> None:
+    result = build_packages(model, FULL_DEMO, budget_days=45)
+    pricing = result["pricing"]
+    full = full_estimate(result)
+
+    mu = math.log(pricing["p50"])
+    sigma = (math.log(pricing["p90"]) - math.log(pricing["p10"])) / (2 * packages.Z_P90)
+    expected_25 = math.exp(mu + packages.Z_P25 * sigma)
+    expected_10 = math.exp(mu + packages.Z_P90 * sigma)
+
+    # Documented closed forms, displayed at 1 decimal (same as curve days).
+    assert abs(pricing["safe_quote_25"] - expected_25) <= 0.05
+    assert abs(pricing["safe_quote_10"] - expected_10) <= 0.05
+    # Sanity: quoting 10%-risk needs more days than 25%-risk, both above P50.
+    assert pricing["safe_quote_10"] > pricing["safe_quote_25"] > pricing["p50"]
+
+    risk_25 = packages._over_budget_prob(full, pricing["safe_quote_25"])
+    risk_10 = packages._over_budget_prob(full, pricing["safe_quote_10"])
+    assert risk_25 <= 0.252  # honours "<= 25%" (1-decimal display rounding)
+    assert risk_10 <= 0.102  # honours "<= 10%"
+    assert risk_10 < risk_25
+
+    # And they are the *smallest* such quotes: one day less already breaches.
+    assert packages._over_budget_prob(full, pricing["safe_quote_25"] - 1) > 0.25
+    assert packages._over_budget_prob(full, pricing["safe_quote_10"] - 1) > 0.10
+
+
+def test_pricing_block_present_when_tiers_coincide_and_without_budget(model) -> None:
+    # No cuttables present: all three tiers are identical - pricing is still
+    # fitted from the (coincident) full interval.
+    no_cut = build_packages(
+        model, demo_features(data_migration=1, third_party_api=1), budget_days=30
+    )
+    assert no_cut["pricing"]["scope"] == "full"
+    assert no_cut["pricing"]["p50"] == full_estimate(no_cut)["p50"]
+
+    # The curve models quote -> risk, so it does not depend on the budget.
+    without_budget = build_packages(model, FULL_DEMO, budget_days=None)
+    with_budget = build_packages(model, FULL_DEMO, budget_days=45)
+    assert without_budget["pricing"] == with_budget["pricing"]
+
+
+def test_pricing_block_degenerate_interval_falls_back_to_median() -> None:
+    pricing = packages._pricing_block(10.0, 10.0, 10.0)
+    assert set(pricing) == PRICING_KEYS
+    assert pricing["scope"] == "full"
+    assert len(pricing["curve"]) == 25
+    assert pricing["safe_quote_25"] == 10.0
+    assert pricing["safe_quote_10"] == 10.0
+    for point in pricing["curve"]:
+        assert point["days"] > 0
+        assert point["over_prob"] in (0.001, 0.999)  # p50 step fallback
