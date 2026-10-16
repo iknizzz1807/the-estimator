@@ -196,6 +196,26 @@ Each response also includes a top-level `pricing` block computed from the Full-s
 - `safe_quote_25` / `safe_quote_10` = smallest quote such that P(overrun) ≤ 25% / 10% respectively.
 - Implied margin at a quote = `(quote − p50) / p50` (display + tooltip only; no extra API field needed).
 
+### POST /api/estimate — optional codebase context (Codebase Lab)
+
+Body may include `"repo": "demo_a" | "demo_b" | "self"` — the two built-in demo repos (plugin-pattern vs spaghetti, generated on demand into `data/demo_repos/`, gitignored) or the server's own checkout. When present, the response gains a `codebase` block (all other keys unchanged; the top-level `estimate` becomes the ADJUSTED estimate):
+
+```json
+{ "codebase": {
+    "repo": "demo_b",
+    "friction": { "score": 0.687, "level": "high", "components": { "churn": 0.45, "...": 0.0 } },
+    "invasiveness": { "modified_ratio": 0.857, "mean_files_touched": 5.44, "based_on_commits": 9 },
+    "similar_changes": [ { "commit": "abc1234", "date": "2026-03-02", "files_touched": 6, "new_files": 1, "modified_files": 5 } ],
+    "base_estimate": { "p10": 7.9, "p50": 20.0, "p90": 40.0, "mode": "calibrated", "unit": "days", "method": "mc" },
+    "adjusted_estimate": { "p10": 6.2, "p50": 26.0, "p90": 56.5, "mode": "calibrated", "unit": "days", "method": "mc" },
+    "adjustments": [ { "what": "p90 widened", "factor": 1.41, "why": "friction 0.687 (high)" } ],
+    "note": "DEMO-ASSUMED coefficients; the similar-past-changes mechanism is validated on 29k real commits (docs/CODEBASE_HISTORY_VALIDATION.md); no text-prediction accuracy claim (docs/CODEBASE_VALIDATION.md). One-directional by design: surcharge only, never a discount."
+} }
+```
+
+- Keywords for `find_similar_changes` are derived from the extracted features (documented mapping in the API layer).
+- Unknown `repo` value → 422; `repo` absent → response unchanged (backward compatible). Persistence rule unchanged.
+
 ### POST /api/ab — third baseline (LLM with history)
 
 Response keeps all existing fields and adds:
