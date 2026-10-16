@@ -8,7 +8,7 @@ Beyond the original checks (byte determinism, schema, team bias, omission
 rate, negations, no NaNs) this suite validates the added realism layers:
 interaction multipliers, mid-history drift and blow-up outliers. The
 statistical checks pool several seeds so they stay deterministic while having
-enough samples to be meaningful (n=52 per corpus alone is too small for the
+enough samples to be meaningful (a single corpus still has few samples for the
 rarest co-occurring pairs).
 """
 
@@ -31,6 +31,7 @@ from app.data_gen.generate_history import (
     METADATA_COLUMNS,
     OUTLIER_SHOCK_MAX,
     OUTLIER_SHOCK_MIN,
+    RECENT_PROJECT_COUNT,
     REPO_ROOT,
     effort_days,
     generate,
@@ -40,7 +41,7 @@ from app.features import FEATURES, csv_columns
 from app.services.estimation import coefficients as learned_multipliers
 from app.services.estimation import train_model
 
-N_PROJECTS = 60
+N_PROJECTS = 240
 SEED = 42
 #: Seeds pooled by the "interaction raises effort" statistical check.
 STATISTICAL_SEEDS = (42, 43, 44, 45, 46, 47)
@@ -120,7 +121,7 @@ def test_actual_days_minimum_and_empty_when_not_done(generated: dict) -> None:
 
 def test_recent_projects_are_open(generated: dict) -> None:
     df = generated["df"].sort_values(["date", "project_id"], kind="stable").reset_index(drop=True)
-    newest = df.tail(8)
+    newest = df.tail(RECENT_PROJECT_COUNT)
     assert df[df["status"] != "done"]["project_id"].tolist() == newest["project_id"].tolist()
 
 
@@ -253,7 +254,7 @@ def test_drift_effect_present(generated: dict) -> None:
     assert len(pre_actual) >= 10 and len(post_actual) >= 10
     assert fmean(pre_actual) < fmean(post_actual), "expected direction: post-switch > pre-switch"
     drift_gap = fmean(post_corrected) - fmean(pre_corrected)
-    # log(1.22) = 0.199; generous band around it (13 post-switch rows, o=0.18).
+    # log(1.22) = 0.199; generous band around it (157 pre / 71 post-switch rows, o=0.18).
     assert 0.10 <= drift_gap <= 0.35, f"drift gap {drift_gap:.3f} not near log(1.22)"
 
 
@@ -303,13 +304,14 @@ def test_interaction_pairs_raise_effort_beyond_main_effects() -> None:
             if len(active) == 1:
                 per_pair[active[0]].append(residual)
 
-    assert len(joint) >= 40 and len(other) >= 150
+    # 6 seeds x 228 done rows pool ~234 joint / ~1134 interaction-free rows.
+    assert len(joint) >= 150 and len(other) >= 900
     # Joint projects systematically exceed the individual-product prediction...
     assert fmean(joint) > fmean(other) + 0.05, f"joint={fmean(joint):.3f} other={fmean(other):.3f}"
     # ...while interaction-free projects show no spurious uplift.
     assert abs(fmean(other)) < 0.05
     for pair, values in per_pair.items():
-        assert len(values) >= 8, f"{pair} has too few clean samples: {len(values)}"
+        assert len(values) >= 40, f"{pair} has too few clean samples: {len(values)}"
         assert fmean(values) > 0.03, f"{pair} uplift {fmean(values):.3f} not positive"
 
 

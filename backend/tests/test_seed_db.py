@@ -1,7 +1,7 @@
 """Tests for the SQLite schema and the CSV -> database seed script.
 
-Uses a small generated corpus (n=24) in ``tmp_path``; no network, no side
-effects on the repo-root database.
+Uses the full-size generated corpus (n=240) in ``tmp_path``; no network, no
+side effects on the repo-root database.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from app.db.database import connect, init_db
 from app.features import FEATURES
 from scripts.seed_db import seed
 
-N_PROJECTS = 24
+N_PROJECTS = 240
 SEED = 7
 EXPECTED_TABLES = {"projects", "features", "corrections", "estimates"}
 

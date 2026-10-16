@@ -38,11 +38,12 @@ PROJECT_CONTRACT_KEYS = {
     "delta_pct",
     "features",
 }
-P053_FEATURES = {
+#: Present features of the first open project (P229) in the 240-project history.
+P229_FEATURES = {
+    "third_party_api",
     "payment_gateway",
-    "external_data_sync",
-    "multi_tenancy",
-    "mobile_app",
+    "privacy_compliance",
+    "audit_logging",
     "cross_team_coordination",
 }
 CSV_HEADER = ",".join(
@@ -66,7 +67,7 @@ CSV_HEADER = ",".join(
 
 @pytest.fixture(scope="module")
 def client(tmp_path_factory: pytest.TempPathFactory):
-    """Real app on a temp DB seeded from data/synthetic_history.csv (60 rows)."""
+    """Real app on a temp DB seeded from data/synthetic_history.csv (240 rows)."""
     db_path = tmp_path_factory.mktemp("api_db") / "estimator.db"
     os.environ["ESTIMATOR_DB_PATH"] = str(db_path)
     try:
@@ -127,7 +128,7 @@ def test_health_reports_seeded_calibrated(client: TestClient) -> None:
     assert body["status"] == "ok"
     assert body["model_loaded"] is True
     assert body["llm_provider"] == "stub"
-    assert body["projects_count"] == 60
+    assert body["projects_count"] == 240
     assert body["mode"] == "calibrated"
 
 
@@ -150,9 +151,9 @@ def test_estimate_returns_calibrated_contract_payload(client: TestClient) -> Non
 
     assert ESTIMATE_CONTRACT_KEYS <= set(body)
     assert body["project_id"] and body["project_id"].startswith("P")
-    # A fresh id after the 60 seeded projects (exact value depends on how many
+    # A fresh id after the 240 seeded projects (exact value depends on how many
     # estimate calls ran before this test).
-    assert int(body["project_id"][1:]) > 60
+    assert int(body["project_id"][1:]) > 240
     assert body["provider"] == "stub"
 
     findings = body["findings"]
@@ -240,7 +241,7 @@ def test_estimate_stream_emits_steps_then_result(client: TestClient) -> None:
 
 def test_projects_list_and_filters(client: TestClient) -> None:
     rows = client.get("/api/projects").json()
-    assert len(rows) >= 60
+    assert len(rows) >= 240
     first = rows[0]
     assert PROJECT_CONTRACT_KEYS <= set(first)
     assert set(first["features"]) == set(FEATURES)
@@ -297,18 +298,18 @@ def test_replay_endpoint_is_cached_and_deterministic(client: TestClient) -> None
 # --------------------------------------------------------------------------- #
 
 
-def test_enter_actual_p053_returns_coefficients_and_accuracy(client: TestClient) -> None:
-    response = client.post("/api/projects/P053/actual", json={"actual_days": 64})
+def test_enter_actual_p229_returns_coefficients_and_accuracy(client: TestClient) -> None:
+    response = client.post("/api/projects/P229/actual", json={"actual_days": 64})
     assert response.status_code == 200
     body = response.json()
 
     assert PROJECT_CONTRACT_KEYS <= set(body["project"])
-    assert body["project"]["project_id"] == "P053"
+    assert body["project"]["project_id"] == "P229"
     assert body["project"]["status"] == "done"
     assert body["project"]["actual_days"] == 64
 
     updates = body["coefficient_updates"]
-    assert {update["feature"] for update in updates} == P053_FEATURES
+    assert {update["feature"] for update in updates} == P229_FEATURES
     for update in updates:
         assert {"feature", "old", "new", "sample_count"} <= set(update)
         assert update["old"] > 0 and update["new"] > 0
@@ -323,10 +324,10 @@ def test_enter_actual_p053_returns_coefficients_and_accuracy(client: TestClient)
     assert body["warning"] is None
 
     # Persisted: now done, visible with the new actual in the listing.
-    p053 = next(
-        row for row in client.get("/api/projects").json() if row["project_id"] == "P053"
+    p229 = next(
+        row for row in client.get("/api/projects").json() if row["project_id"] == "P229"
     )
-    assert p053["status"] == "done" and p053["actual_days"] == 64
+    assert p229["status"] == "done" and p229["actual_days"] == 64
 
     # Coefficients now come from the corrections table (still 15 entries).
     coefficients = client.post(
@@ -338,7 +339,7 @@ def test_enter_actual_p053_returns_coefficients_and_accuracy(client: TestClient)
 
 @pytest.mark.parametrize("bad_value", [0, -5])
 def test_enter_actual_rejects_non_positive(client: TestClient, bad_value: float) -> None:
-    response = client.post("/api/projects/P054/actual", json={"actual_days": bad_value})
+    response = client.post("/api/projects/P230/actual", json={"actual_days": bad_value})
     assert response.status_code == 422
     assert "lớn hơn 0" in response.json()["detail"]
 
@@ -350,7 +351,7 @@ def test_enter_actual_unknown_project_404(client: TestClient) -> None:
 
 
 def test_enter_actual_accepts_large_value_with_warning(client: TestClient) -> None:
-    response = client.post("/api/projects/P055/actual", json={"actual_days": 1500})
+    response = client.post("/api/projects/P231/actual", json={"actual_days": 1500})
     assert response.status_code == 200
     body = response.json()
     assert body["warning"] == "Giá trị bất thường, vui lòng kiểm tra lại"
@@ -742,16 +743,16 @@ def test_ab_includes_history_baseline(client: TestClient) -> None:
 def test_reset_restores_pristine_demo_db(client: TestClient) -> None:
     extra = client.post("/api/estimate", json={"email_text": get_scenario("C")["email_text"]})
     assert extra.status_code == 200 and extra.json()["project_id"]
-    assert client.get("/api/health").json()["projects_count"] > 60
+    assert client.get("/api/health").json()["projects_count"] > 240
 
     response = client.post("/api/reset")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "projects_count": 60}
+    assert response.json() == {"status": "ok", "projects_count": 240}
 
     health = client.get("/api/health").json()
-    assert health["projects_count"] == 60
+    assert health["projects_count"] == 240
     assert health["model_loaded"] is True
-    assert len(client.get("/api/projects").json()) == 60
+    assert len(client.get("/api/projects").json()) == 240
 
-    # Idempotent: a second reset also lands on the pristine 60.
-    assert client.post("/api/reset").json() == {"status": "ok", "projects_count": 60}
+    # Idempotent: a second reset also lands on the pristine 240.
+    assert client.post("/api/reset").json() == {"status": "ok", "projects_count": 240}
