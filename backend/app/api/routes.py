@@ -1,0 +1,342 @@
+"""HTTP routes for The Estimator API — contract frozen in docs/API.md.
+
+Errors use FastAPI's standard ``{"detail": "..."}`` shape; validation
+messages for business rules are Vietnamese (spec §9: "Vui lòng paste email",
+"Giá trị bất thường, vui lòng kiểm tra lại").
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+from typing import Any, AsyncIterator
+
+from fastapi import APIRouter, File, HTTPException, Query, Request, UploadFile
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
+
+from app.api import state as state_mod
+from app.features import FEATURES
+from app.scenarios import get_scenario, list_scenarios
+from app.services.ab import ab_compare
+from app.services.extraction import extract_features
+from app.services.voi import rank_questions
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/api")
+
+#: Spec §9 empty-email guard (same message the extraction service raises).
+EMPTY_EMAIL_DETAIL = "Vui lòng paste email"
+
+#: SSE step messages, in the order emitted (docs/API.md §/estimate/stream).
+STEP_MESSAGES: dict[str, str] = {
+    "extracting": "Đang trích xuất 15 features từ email...",
+    "validating": "Đang kiểm tra evidence và mâu thuẫn...",
+    "similar": "Đang tìm dự án tương tự...",
+    "estimating": "Đang tính khoảng P10/P50/P90...",
+    "questions": "Đang xếp hạng thông tin còn thiếu...",
+    "done": "Hoàn tất",
+}
+STEP_ORDER = ["extracting", "validating", "similar", "estimating", "questions", "done"]
+
+#: Tiny pause between SSE events so the UI can paint each step; the whole
+#: stream still finishes in ~0.3s and stays deterministic.
+STREAM_STEP_PAUSE_SECONDS = 0.05
+
+MAX_AB_CALLS = 50
+
+
+# --------------------------------------------------------------------------- #
+# Request models
+# --------------------------------------------------------------------------- #
+
+
+class EstimateRequest(BaseModel):
+    """Body of ``POST /api/estimate`` and ``POST /api/estimate/stream``."""
+
+    email_text: str = ""
+
+
+class ActualRequest(BaseModel):
+    """Body of ``POST /api/projects/{project_id}/actual``."""
+
+    actual_days: float
+
+
+class AbRequest(BaseModel):
+    """Body of ``POST /api/ab`` (spec §4.5, default n=10)."""
+
+    email_text: str = ""
+    n: int = 10
+
+
+# --------------------------------------------------------------------------- #
+# Helpers
+# --------------------------------------------------------------------------- #
+
+
+def get_state(request: Request) -> state_mod.AppState:
+    """Runtime state attached to the app by the lifespan handler."""
+    state = getattr(request.app.state, "estimator", None)
+    if state is None:  # pragma: no cover - lifespan always sets it
+        raise HTTPException(status_code=503, detail="Hệ thống đang khởi động, vui lòng thử lại")
+    return state
+
+
+def _require_email(email_text: str) -> str:
+    """422 with the spec §9 message when the input is empty/whitespace."""
+    if not email_text or not email_text.strip():
+        raise HTTPException(status_code=422, detail=EMPTY_EMAIL_DETAIL)
+    return email_text
+
+
+def _sse(event: str, data: dict[str, Any]) -> str:
+    """Serialize one Server-Sent Event (single-line JSON payload)."""
+    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+
+def _parse_feature_filters(raw_filters: list[str] | None) -> list[tuple[str, int]]:
+    """Parse ``?feature=name`` / ``?feature=name=1`` / ``?feature=name=0``."""
+    parsed: list[tuple[str, int]] = []
+    for raw in raw_filters or []:
+        name, _, value = raw.partition("=")
+        name = name.strip()
+        if name not in FEATURES:
+            raise HTTPException(status_code=422, detail=f"Feature không hợp lệ: {name}")
+        value = value.strip()
+        if value in ("", "1"):
+            parsed.append((name, 1))
+        elif value == "0":
+            parsed.append((name, 0))
+        else:
+            raise HTTPException(status_code=422, detail=f"Giá trị filter feature không hợp lệ: {raw}")
+    return parsed
+
+
+# --------------------------------------------------------------------------- #
+# Health
+# --------------------------------------------------------------------------- #
+
+
+@router.get("/health")
+def health(request: Request) -> dict[str, Any]:
+    """Service status: model, effective LLM provider and project count."""
+    state = get_state(request)
+    return {
+        "status": "ok",
+        "model_loaded": state.model_loaded,
+        "llm_provider": state.llm_provider_name,
+        "projects_count": state.project_count(),
+        # Extras for the UI (never replace contract keys).
+        "mode": "calibrated" if state.model_loaded else "cold_start",
+        "n_train": state.model.n_train if state.model is not None else 0,
+    }
+
+
+# --------------------------------------------------------------------------- #
+# Estimate
+# --------------------------------------------------------------------------- #
+
+
+@router.post("/estimate")
+def estimate_endpoint(payload: EstimateRequest, request: Request) -> dict[str, Any]:
+    """Full pipeline: extract -> estimate -> similar -> questions -> persist."""
+    state = get_state(request)
+    email_text = _require_email(payload.email_text)
+    return state_mod.run_estimate_pipeline(state, email_text, persist=True)
+
+
+async def _stream_estimate(state: state_mod.AppState, email_text: str) -> AsyncIterator[str]:
+    """Yield ``step`` events in contract order, then the final ``result``."""
+    try:
+        yield _sse("step", {"step": "extracting", "message": STEP_MESSAGES["extracting"]})
+        extraction, _provider = await run_in_threadpool(state_mod.extract_stage, state, email_text)
+        await asyncio.sleep(STREAM_STEP_PAUSE_SECONDS)
+
+        yield _sse("step", {"step": "validating", "message": STEP_MESSAGES["validating"]})
+        features = state_mod.resolve_features(extraction)
+        warnings = state_mod.collect_warnings(extraction, email_text)
+        await asyncio.sleep(STREAM_STEP_PAUSE_SECONDS)
+
+        yield _sse("step", {"step": "similar", "message": STEP_MESSAGES["similar"]})
+        similar = await run_in_threadpool(
+            state_mod.similar_projects, state, email_text, features, 3
+        )
+        await asyncio.sleep(STREAM_STEP_PAUSE_SECONDS)
+
+        yield _sse("step", {"step": "estimating", "message": STEP_MESSAGES["estimating"]})
+        prediction = state_mod.predict(state, features)
+        await asyncio.sleep(STREAM_STEP_PAUSE_SECONDS)
+
+        yield _sse("step", {"step": "questions", "message": STEP_MESSAGES["questions"]})
+        questions = await run_in_threadpool(rank_questions, state.model, extraction.findings, 5)
+        await asyncio.sleep(STREAM_STEP_PAUSE_SECONDS)
+
+        yield _sse("step", {"step": "done", "message": STEP_MESSAGES["done"]})
+        coefficient_rows = state_mod.coefficient_view(state)
+        project_id = await run_in_threadpool(
+            state_mod.persist_estimate, state, email_text, extraction, prediction
+        )
+        payload = state_mod.build_estimate_payload(
+            extraction, prediction, similar, questions, coefficient_rows, warnings, project_id
+        )
+        yield _sse("result", payload)
+    except Exception as exc:  # keep the stream well-formed even on failure
+        logger.exception("SSE estimate failed")
+        yield _sse("error", {"detail": str(exc) or "Có lỗi xảy ra, vui lòng thử lại"})
+
+
+@router.post("/estimate/stream")
+async def estimate_stream_endpoint(payload: EstimateRequest, request: Request) -> StreamingResponse:
+    """SSE variant of ``/api/estimate`` (fetch + ReadableStream on the client)."""
+    state = get_state(request)
+    email_text = _require_email(payload.email_text)
+    return StreamingResponse(
+        _stream_estimate(state, email_text),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Projects
+# --------------------------------------------------------------------------- #
+
+
+@router.get("/projects")
+def list_projects(
+    request: Request,
+    status: str | None = Query(default=None),
+    feature: list[str] | None = Query(default=None),
+    date_from: str | None = Query(default=None, alias="from"),
+    date_to: str | None = Query(default=None, alias="to"),
+) -> list[dict[str, Any]]:
+    """All projects with features + system interval + delta vs team estimate."""
+    state = get_state(request)
+    feature_filters = _parse_feature_filters(feature)
+
+    rows = sorted(
+        state_mod.load_rows(state.db_path),
+        key=lambda row: (str(row.get("date") or ""), str(row.get("project_id") or "")),
+    )
+    estimates = state_mod.system_estimates(state, rows)
+
+    result: list[dict[str, Any]] = []
+    for row in rows:
+        if status and row.get("status") != status:
+            continue
+        if date_from and str(row.get("date") or "") < date_from:
+            continue
+        if date_to and str(row.get("date") or "") > date_to:
+            continue
+        row_features = row.get("features") or {}
+        if any(int(bool(row_features.get(name))) != want for name, want in feature_filters):
+            continue
+        result.append(
+            state_mod.project_row_payload(row, estimates.get(str(row["project_id"])))
+        )
+    return result
+
+
+@router.post("/projects/{project_id}/actual")
+def submit_actual(project_id: str, payload: ActualRequest, request: Request) -> dict[str, Any]:
+    """Record the real duration: retrain + coefficient update + accuracy."""
+    state = get_state(request)
+    if payload.actual_days <= 0:
+        raise HTTPException(
+            status_code=422,
+            detail="actual_days phải lớn hơn 0 (số ngày thực tế không hợp lệ)",
+        )
+    result = state_mod.apply_actual(state, project_id, float(payload.actual_days))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Không tìm thấy dự án {project_id}")
+    return result
+
+
+# --------------------------------------------------------------------------- #
+# Replay
+# --------------------------------------------------------------------------- #
+
+
+@router.get("/replay")
+def get_replay(
+    request: Request,
+    min_train: int = Query(default=state_mod.DEFAULT_MIN_TRAIN, ge=5, le=1000),
+) -> dict[str, Any]:
+    """Walk-forward replay: cached for min_train=10, recomputed otherwise."""
+    state = get_state(request)
+    cached = state.replay_cache.get(min_train)
+    if cached is None:
+        cached = state_mod.refresh_replay(
+            state, min_train=min_train, persist=(min_train == state_mod.DEFAULT_MIN_TRAIN)
+        )
+    return {"steps": cached["steps"], "summary": cached["summary"], "min_train": min_train}
+
+
+# --------------------------------------------------------------------------- #
+# A/B comparison
+# --------------------------------------------------------------------------- #
+
+
+@router.post("/ab")
+def ab_endpoint(payload: AbRequest, request: Request) -> dict[str, Any]:
+    """LLM-only run-to-run spread vs the calibrated system estimate (spec §4.5)."""
+    state = get_state(request)
+    email_text = _require_email(payload.email_text)
+    calls = max(1, min(int(payload.n or 10), MAX_AB_CALLS))
+
+    extraction = extract_features(email_text, provider=(state.provider, state.llm_provider_name))
+    features = state_mod.resolve_features(extraction)
+    system = state_mod.predict(state, features)
+    try:
+        result = ab_compare(
+            email_text, provider=state.provider, system_estimate=system["p50"], n=calls
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    result["system_mode"] = system["mode"]
+    return result
+
+
+# --------------------------------------------------------------------------- #
+# CSV import
+# --------------------------------------------------------------------------- #
+
+
+@router.post("/import")
+async def import_endpoint(request: Request, file: UploadFile = File(...)) -> dict[str, Any]:
+    """Multipart canonical-CSV upload -> ``{imported, skipped, errors}``."""
+    state = get_state(request)
+    data = await file.read()
+    try:
+        return await run_in_threadpool(state_mod.import_csv, state, data)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+# --------------------------------------------------------------------------- #
+# Demo scenarios
+# --------------------------------------------------------------------------- #
+
+
+@router.get("/scenarios")
+def scenarios_endpoint() -> list[dict[str, str]]:
+    """The 3 built-in demo scenarios for the 1-click "Load Sample Data"."""
+    return list_scenarios()
+
+
+@router.post("/scenarios/{scenario_id}/load")
+def load_scenario_endpoint(scenario_id: str, request: Request) -> dict[str, Any]:
+    """Run the full estimate pipeline on a scenario (same shape as /estimate)."""
+    state = get_state(request)
+    scenario = get_scenario(scenario_id)
+    if scenario is None:
+        raise HTTPException(status_code=404, detail=f"Không tìm thấy scenario {scenario_id}")
+    return state_mod.run_estimate_pipeline(state, scenario["email_text"], persist=True)
