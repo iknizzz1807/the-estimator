@@ -16,6 +16,7 @@ venv/
 data/*.db
 data/*.db-journal
 data/*.sqlite*
+data/demo_repos/
 
 # Node / Next.js
 node_modules/
