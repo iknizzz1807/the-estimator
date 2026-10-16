@@ -771,6 +771,8 @@ def render_markdown(payload: dict[str, Any], include_payload: bool) -> str:
         "  Teacher-null cells (\"not mentioned\") are *unknown* and excluded from that feature's training.",
         "- Decision rule: p=P(present); p>=0.5 -> 1 (confidence p); p<=0.4 -> 0 (confidence 1-p);",
         "  0.4<p<0.5 -> null (abstain). `evidence_quote` is always null — no generation, no fabrication.",
+        "- Runtime usage: set `LLM_PROVIDER=distilled` (or `get_provider(\"distilled\")`); if the model",
+        "  file is missing the factory logs a warning and falls back to the offline stub provider.",
         "- Metrics: predicting value==True, null counts as a miss (same convention as",
         "  `docs/EXTRACTION_EVAL.md`); 5-fold out-of-fold CV, micro pooled / macro averaged.",
         "- Learning curve: nested seeded subsets (seed 42) of 30/60/120/180/240 emails, same CV.",
