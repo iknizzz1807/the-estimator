@@ -133,3 +133,59 @@ Runs a full estimate on a sample scenario (powers the 1-click "Load Sample Data"
 
 - LLM provider is pluggable (deepseek | gemini | openai | stub). Without an API key the app runs with `stub` and must say so in the UI (`llm_provider` in /api/health).
 - Everything must work with zero network access (offline demo mode).
+
+## Contract additions v0.2 (2026-10-16)
+
+### POST /api/estimate — optional answers + Monte Carlo intervals
+
+Body may include an optional override map:
+
+```json
+{ "email_text": "...", "answers": { "pci_dss": 1, "offline_mode": 0 } }
+```
+
+`answers` set previously-unknown features (powers the interactive "answer a question → interval shrinks" flow; the frontend just re-calls this endpoint with accumulated answers). Persistence rule: a new project row (P0nn) is only created for a direct estimate call **without** `answers`; answer-refinement calls are side-effect free.
+
+`estimate` gains a `method` field: `"mc"` when unknown features remain (interval sampled from historical feature prevalence — more unknowns ⇒ honestly wider range) or `"point"` when the vector is fully known / cold start.
+
+### POST /api/reset
+
+Reseeds the demo database to the pristine synthetic history (retrains model + refreshes replay cache). Frame in the UI as "Reset demo data".
+
+```json
+{ "status": "ok", "projects_count": 60 }
+```
+
+### POST /api/packages
+
+Body: `{ "email_text": "...", "budget_days": 30 }`
+
+```json
+{
+  "budget_days": 30,
+  "packages": [
+    { "tier": "core", "label": "Essential",
+      "estimate": { "p10": 21, "p50": 29, "p90": 44, "mode": "calibrated", "unit": "days", "method": "mc" },
+      "over_budget_prob": 0.34,
+      "features_included": { "third_party_api": 1, "...": null },
+      "excluded": ["offline_mode", "mobile_app"],
+      "notes": "phased scope: drop the most expensive optional capabilities" },
+    { "tier": "standard", "label": "Standard", "...": "..." },
+    { "tier": "full", "label": "Full scope", "...": "..." }
+  ],
+  "recommendation": "standard",
+  "method": "mc"
+}
+```
+
+Tiers differ by which optional capabilities are phased out (`excluded`); `over_budget_prob` = P(actual days > budget) under the tier's predictive distribution. Deterministic (seeded MC).
+
+### POST /api/ab — third baseline (LLM with history)
+
+Response keeps all existing fields and adds:
+
+```json
+{ "baseline_history": { "values": [37, 41, 39], "mean": 39.0, "std": 2.0, "n": 3, "mode": "real|simulated" } }
+```
+
+`baseline_history` = the same email run through an LLM whose prompt includes the most recent finished projects (features + actual days), i.e. the fair "LLM + company history" strawman judges will ask about.

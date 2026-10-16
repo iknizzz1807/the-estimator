@@ -4,6 +4,8 @@ Phiên bản: 2.0
 Ngày tạo: 16/10/2026
 Mục đích: Mô tả bài toán, luồng nghiệp vụ, logic và lý do thiết kế. Không bao gồm implementation details.
 
+> ⚠️ Ghi chú kiểm chứng (16/10/2026): các con số minh họa trong §6.4 (LLM-only "±15 ngày", "$0.01–0.1/request") là kỳ vọng trước khi build và chưa được đo. Số đo thực tế nằm trong `docs/AB_MEASUREMENT.md`, `docs/EXTRACTION_EVAL.md` và README mục "Honest limitations".
+
 ---
 
 1. BỐI CẢNH NGHIỆP VỤ
