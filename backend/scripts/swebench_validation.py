@@ -29,6 +29,20 @@ Run from ``backend/``:
     /root/venvs/estimator/bin/python scripts/swebench_validation.py \
         --max-instances 0 --subset-repo sympy/sympy --subset-max-instances 150 --write
 
+Multi-file refinement (2026-10-17): the original target is near-degenerate
+(75% of patches touch exactly one file), so the ablation can be re-run on the
+variance subset and on alternative targets::
+
+    /root/venvs/estimator/bin/python scripts/swebench_validation.py \
+        --max-instances 0 --min-files 2 --target all \
+        --subset-repos sympy/sympy,pytest-dev/pytest,psf/requests \
+        --subset-max-instances 0 --write
+
+``--min-files N`` filters the variance/ablation subsets to patches touching at
+least N files (0 = original behaviour). ``--target files|modified|added_lines|
+all`` switches the regression target. ``--subset-repos`` spans several repos in
+the codebase arm (one blob-filtered clone each).
+
 Deterministic: seed 42 everywhere; no randomness outside seeded numpy/sklearn.
 """
 
@@ -59,6 +73,30 @@ DEFAULT_CACHE_DIR = Path("/root/swebench_cache")
 SUBSET_WINDOW_DAYS = 180
 MIN_FREE_MB_DATASET = 200
 MIN_FREE_MB_CLONE = 500
+
+# Regression targets: name -> (ground-truth key from parse_patch, clip lower bound).
+TARGETS: dict[str, tuple[str, float]] = {
+    "files": ("files_touched", 1.0),
+    "modified": ("modified_files", 0.0),
+    "added_lines": ("added_lines", 0.0),
+}
+TARGET_CHOICES = ("files", "modified", "added_lines")
+
+
+def parse_targets(spec: str) -> list[str]:
+    """Expand ``--target`` (single choice or ``all``) to an ordered target list."""
+    if spec == "all":
+        return list(TARGET_CHOICES)
+    if spec not in TARGET_CHOICES:
+        raise SystemExit(f"unknown target {spec!r}; choose from {TARGET_CHOICES + ('all',)}")
+    return [spec]
+
+
+def subset_repo_list(args: argparse.Namespace) -> list[str]:
+    """Repos for the codebase arm: ``--subset-repos`` overrides ``--subset-repo``."""
+    raw = getattr(args, "subset_repos", "") or ""
+    repos = [item.strip() for item in raw.split(",") if item.strip()]
+    return repos or [args.subset_repo]
 
 DATASET_SOURCES = {
     "full": {
@@ -864,9 +902,14 @@ def _fit_predict_hgb(x_train, y_train_log, x_test) -> np.ndarray:
 
 
 def oof_regression(
-    x: np.ndarray, y: np.ndarray, *, kind: str = "ridge", n_splits: int = 5
+    x: np.ndarray,
+    y: np.ndarray,
+    *,
+    kind: str = "ridge",
+    n_splits: int = 5,
+    clip_min: float = 1.0,
 ) -> np.ndarray:
-    """Out-of-fold predictions of files_touched (trained on log1p, clipped >= 1)."""
+    """Out-of-fold predictions (trained on log1p, clipped to >= ``clip_min``)."""
     preds = np.zeros(len(y), dtype=float)
     for train_idx, test_idx in fold_indices(len(y), n_splits):
         y_log = np.log1p(y[train_idx])
@@ -874,7 +917,7 @@ def oof_regression(
             raw = _fit_predict_ridge(x[train_idx], y_log, x[test_idx])
         else:
             raw = _fit_predict_hgb(x[train_idx], y_log, x[test_idx])
-        preds[test_idx] = np.clip(np.expm1(raw), 1.0, None)
+        preds[test_idx] = np.clip(np.expm1(raw), clip_min, None)
     return preds
 
 
@@ -928,6 +971,17 @@ def median_baseline_oof(y: np.ndarray, n_splits: int = 5) -> np.ndarray:
     return preds
 
 
+def target_values(rows: list[dict], target: str) -> np.ndarray:
+    """Ground-truth vector for a named target (``files``/``modified``/``added_lines``)."""
+    key, _ = TARGETS[target]
+    return np.array([row["gt"][key] for row in rows], dtype=float)
+
+
+def constant_baseline_mae(y: np.ndarray, value: float) -> float:
+    """MAE of the fold-independent constant predictor ``value`` (e.g. always-2)."""
+    return float(np.mean(np.abs(y - value)))
+
+
 def paired_bootstrap_ci(
     err_a: np.ndarray, err_b: np.ndarray, *, reps: int = 2000, seed: int = SEED
 ) -> tuple[float, float, float]:
@@ -950,19 +1004,86 @@ def fmt(value: float, digits: int = 3) -> str:
 # --------------------------------------------------------------------------
 
 
-def pick_subset(rows: list[dict], repo: str, limit: int, *, seed: int = SEED) -> list[dict]:
-    subset = [row for row in rows if row["repo"] == repo]
-    if not subset:
-        return []
-    subset = sorted(subset, key=lambda row: row["instance_id"])
+def pick_subset(
+    rows: list[dict],
+    repos: list[str] | None,
+    limit: int,
+    *,
+    seed: int = SEED,
+    min_files: int = 0,
+) -> list[dict]:
+    """Deterministic subset selection.
+
+    ``repos=None`` keeps every repo; ``min_files`` keeps only patches whose
+    ``files_touched`` is >= max(1, min_files); ``limit`` caps instances *per repo*
+    (0 = no cap). With ``repos=[one repo]`` and ``min_files=0`` this reproduces the
+    original single-repo subset selection exactly (same seed, same draw order).
+    """
+    repo_set = set(repos) if repos else None
+    groups: dict[str, list[dict]] = {}
+    for row in rows:
+        if repo_set is not None and row["repo"] not in repo_set:
+            continue
+        if row["gt"]["files_touched"] < max(min_files, 1):
+            continue
+        groups.setdefault(row["repo"], []).append(row)
+
     rng = np.random.RandomState(seed)
-    order = rng.permutation(len(subset))
-    chosen = [subset[i] for i in order[:limit]] if 0 < limit < len(subset) else subset
-    return sorted(chosen, key=lambda row: row["instance_id"])
+    chosen: list[dict] = []
+    for repo in sorted(groups):
+        group = sorted(groups[repo], key=lambda row: row["instance_id"])
+        if 0 < limit < len(group):
+            order = rng.permutation(len(group))
+            group = [group[i] for i in order[:limit]]
+        chosen.extend(group)
+    return sorted(chosen, key=lambda row: (row["repo"], row["instance_id"]))
+
+
+def run_variance(
+    rows: list[dict],
+    t_names: list[str],
+    targets: list[str],
+    *,
+    min_files: int,
+) -> dict:
+    """Text-only regression metrics on the variance subset (all repos).
+
+    ``--min-files N`` selects this subset; every target is fitted with the same
+    seeded folds. Baselines: per-fold median of the training subset and the
+    constant "always 2" predictor.
+    """
+    x = design_matrix(rows, t_names)
+    out: dict = {
+        "n": len(rows),
+        "min_files": min_files,
+        "repo_counts": _repo_counts(rows),
+        "targets": {},
+    }
+    for name in targets:
+        _, clip_min = TARGETS[name]
+        y = target_values(rows, name)
+        pred = oof_regression(x, y, kind="ridge", n_splits=5, clip_min=clip_min)
+        pred_hgb = oof_regression(x, y, kind="hgb", n_splits=5, clip_min=clip_min)
+        out["targets"][name] = {
+            "n": len(rows),
+            "mean": float(y.mean()),
+            "median": float(np.median(y)),
+            "max": float(y.max()),
+            "mae_ridge": mae(y, pred),
+            "mae_hgb": mae(y, pred_hgb),
+            "rmse": rmse(y, pred),
+            "spearman": spearman(y, pred),
+            "mae_median": mae(y, median_baseline_oof(y)),
+            "mae_const2": constant_baseline_mae(y, 2.0),
+        }
+    return out
 
 
 def run_experiment(args: argparse.Namespace) -> dict:
     cache_dir = Path(args.cache_dir)
+    target_names = parse_targets(args.target)
+    primary_target = target_names[0]
+    clip_min = TARGETS[primary_target][1]
 
     # ---- dataset ---------------------------------------------------------
     all_rows = load_dataset(args.dataset, cache_dir, refresh=args.refresh_cache)
@@ -983,23 +1104,30 @@ def run_experiment(args: argparse.Namespace) -> dict:
     print(f"[data] dataset={args.dataset} n_full_model={len(rows)}{cap_note}")
 
     t_names = text_feature_names(all_rows)
-    y = np.array([row["gt"]["files_touched"] for row in rows], dtype=float)
+    y = target_values(rows, primary_target)
     x_text = design_matrix(rows, t_names)
     y_multi = np.array([row["gt"]["multi_file"] for row in rows])
     y_existing = np.array([row["gt"]["touches_existing"] for row in rows])
     print(
-        f"[gt] files_touched: mean={y.mean():.2f} median={np.median(y):.0f} "
-        f"max={y.max():.0f} | multi-file={y_multi.mean():.1%} | "
+        f"[gt] files_touched: mean={np.mean([r['gt']['files_touched'] for r in rows]):.2f} "
+        f"median={np.median([r['gt']['files_touched'] for r in rows]):.0f} "
+        f"max={max(r['gt']['files_touched'] for r in rows):.0f} | multi-file={y_multi.mean():.1%} | "
         f"new-file={np.mean([r['gt']['adds_new_file'] for r in rows]):.1%} | "
         f"touches-existing={y_existing.mean():.3%}"
     )
+    if primary_target != "files":
+        print(
+            f"[gt] primary target={primary_target}: mean={y.mean():.2f} "
+            f"median={np.median(y):.0f} max={y.max():.0f}"
+        )
 
     # ---- full-set text-only model (secondary) ----------------------------
-    full_oof_ridge = oof_regression(x_text, y, kind="ridge", n_splits=5)
-    full_oof_hgb = oof_regression(x_text, y, kind="hgb", n_splits=5)
+    full_oof_ridge = oof_regression(x_text, y, kind="ridge", n_splits=5, clip_min=clip_min)
+    full_oof_hgb = oof_regression(x_text, y, kind="hgb", n_splits=5, clip_min=clip_min)
     full_median = median_baseline_oof(y)
     full_results = {
         "n": len(rows),
+        "target": primary_target,
         "mae_ridge": mae(y, full_oof_ridge),
         "mae_hgb": mae(y, full_oof_hgb),
         "mae_median": mae(y, full_median),
@@ -1016,12 +1144,28 @@ def run_experiment(args: argparse.Namespace) -> dict:
         "target_new": float(np.mean([r["gt"]["adds_new_file"] for r in rows])),
     }
 
+    # ---- variance subset: all repos, text-only ---------------------------
+    variance = None
+    if args.min_files >= 1:
+        var_rows = pick_subset(all_rows, None, 0, min_files=args.min_files)
+        variance = run_variance(var_rows, t_names, target_names, min_files=args.min_files)
+        var_files = variance["targets"]["files"]
+        print(
+            f"[variance] files_touched >= {args.min_files}: n={variance['n']} "
+            f"({len(variance['repo_counts'])} repos) | files target mean={var_files['mean']:.2f} "
+            f"median={var_files['median']:.0f} max={var_files['max']:.0f} | "
+            f"text-only Ridge MAE={var_files['mae_ridge']:.3f} Spearman={fmt(var_files['spearman'])}"
+        )
+
     # ---- subset ablation --------------------------------------------------
-    subset_rows = pick_subset(all_rows, args.subset_repo, args.subset_max_instances)
+    repo_list = subset_repo_list(args)
+    subset_rows = pick_subset(all_rows, repo_list, args.subset_max_instances, min_files=args.min_files)
     ablation = None
     if subset_rows and not args.no_codebase:
-        print(f"[subset] repo={args.subset_repo} n={len(subset_rows)} (from {len(all_rows)} loaded, cap {args.subset_max_instances})")
-        git: GitRepo | None = GitRepo(cache_dir, args.subset_repo)
+        print(
+            f"[subset] repos={repo_list} n={len(subset_rows)} "
+            f"(min-files={args.min_files}, per-repo cap {args.subset_max_instances})"
+        )
         radon_available = True
         try:
             import radon  # noqa: F401
@@ -1030,27 +1174,48 @@ def run_experiment(args: argparse.Namespace) -> dict:
             print("[codebase] radon missing: complexity features will be zero")
         t0 = time.time()
         try:
-            git.ensure_clone()
-            failures = 0
-            checkouts_pre = 0
-            for i, row in enumerate(subset_rows):
+            git_map: dict[str, GitRepo] = {}
+            skipped_repos: list[str] = []
+            for repo in sorted({row["repo"] for row in subset_rows}):
+                git = GitRepo(cache_dir, repo)
                 try:
-                    feats, info = codebase_features(
-                        git, row["base_commit"], row["problem_statement"], radon_available=radon_available
-                    )
-                    row["codebase"] = feats
-                    if info["checked_out"]:
-                        checkouts_pre += 1
-                except Exception as exc:  # noqa: BLE001 - keep the experiment running
-                    failures += 1
-                    print(f"[codebase] WARNING {row['instance_id']}: {exc}", file=sys.stderr)
-                    row["codebase"] = {name: 0.0 for name in CODEBASE_FEATURES}
-                if (i + 1) % 10 == 0 or i + 1 == len(subset_rows):
-                    print(
-                        f"[codebase] {i + 1}/{len(subset_rows)} instances "
-                        f"({time.time() - t0:.0f}s, checkouts={checkouts_pre})"
-                    )
-            ablation = run_ablation(subset_rows, t_names, failures, radon_available, args)
+                    git.ensure_clone()
+                    git_map[repo] = git
+                except Exception as exc:  # noqa: BLE001 - a missing repo clone drops that repo only
+                    print(f"[codebase] repo {repo} unavailable: {exc}", file=sys.stderr)
+                    skipped_repos.append(repo)
+            if skipped_repos:
+                subset_rows = [row for row in subset_rows if row["repo"] in git_map]
+                print(f"[codebase] dropped {skipped_repos}: ablation n={len(subset_rows)}")
+
+            if not subset_rows:
+                print("[codebase] ABLATION SKIPPED: no usable repo clones", file=sys.stderr)
+                ablation = None
+            else:
+                failures = 0
+                checkouts_pre = 0
+                for i, row in enumerate(subset_rows):
+                    try:
+                        feats, info = codebase_features(
+                            git_map[row["repo"]],
+                            row["base_commit"],
+                            row["problem_statement"],
+                            radon_available=radon_available,
+                        )
+                        row["codebase"] = feats
+                        if info["checked_out"]:
+                            checkouts_pre += 1
+                    except Exception as exc:  # noqa: BLE001 - keep the experiment running
+                        failures += 1
+                        print(f"[codebase] WARNING {row['instance_id']}: {exc}", file=sys.stderr)
+                        row["codebase"] = {name: 0.0 for name in CODEBASE_FEATURES}
+                    if (i + 1) % 10 == 0 or i + 1 == len(subset_rows):
+                        print(
+                            f"[codebase] {i + 1}/{len(subset_rows)} instances "
+                            f"({time.time() - t0:.0f}s, checkouts={checkouts_pre})"
+                        )
+                ablation = run_ablation(subset_rows, t_names, failures, radon_available, target_names)
+                ablation["coverage"]["repos_skipped"] = skipped_repos
         except Exception as exc:  # noqa: BLE001 - clone/network failure is a known risk
             print(f"[codebase] ABLATION SKIPPED: {exc}", file=sys.stderr)
             ablation = None
@@ -1061,6 +1226,7 @@ def run_experiment(args: argparse.Namespace) -> dict:
         "n_loaded": len(all_rows),
         "repo_counts": _repo_counts(all_rows),
         "full": full_results,
+        "variance": variance,
         "ablation": ablation,
         "repo_names": repo_names,
     }
@@ -1078,10 +1244,9 @@ def run_ablation(
     t_names: list[str],
     failures: int,
     radon_available: bool,
-    args: argparse.Namespace,
+    targets: list[str],
 ) -> dict:
     c_names = sorted(CODEBASE_FEATURES)
-    y = np.array([row["gt"]["files_touched"] for row in subset_rows], dtype=float)
     merged = [{**row["features"], **row["codebase"]} for row in subset_rows]
     x_text = design_matrix(subset_rows, t_names)
     x_full = design_matrix(merged, t_names + c_names)
@@ -1089,21 +1254,10 @@ def run_ablation(
     y_existing = np.array([row["gt"]["touches_existing"] for row in subset_rows])
     y_new = np.array([row["gt"]["adds_new_file"] for row in subset_rows])
 
-    arms: dict[str, dict] = {}
+    # Binary targets are regression-target independent: fit them once per arm.
+    binary: dict[str, dict] = {}
     for arm, x in (("text", x_text), ("codebase", x_full)):
-        pred = oof_regression(x, y, kind="ridge", n_splits=5)
-        pred_hgb = oof_regression(x, y, kind="hgb", n_splits=5)
-        err = np.abs(y - pred)
-        folds = fold_indices(len(y), 5)
-        per_fold = [float(np.mean(err[test_idx])) for _, test_idx in folds]
-        arms[arm] = {
-            "mae": mae(y, pred),
-            "rmse": rmse(y, pred),
-            "mae_hgb": mae(y, pred_hgb),
-            "spearman": spearman(y, pred),
-            "per_fold": per_fold,
-            "err": err,
-            "pred": pred,
+        binary[arm] = {
             "acc_multi": accuracy(y_multi, oof_logistic(x, y_multi)),
             "maj_multi": majority_rate(y_multi),
             "acc_existing": accuracy(y_existing, oof_logistic(x, y_existing)),
@@ -1112,36 +1266,81 @@ def run_ablation(
             "maj_new": majority_rate(y_new),
         }
 
-    median_pred = median_baseline_oof(y)
-    ci_lo, ci_hi, diff = paired_bootstrap_ci(arms["text"]["err"], arms["codebase"]["err"])
-
     mentions = int(sum(1 for row in subset_rows if row["codebase"].get("c_has_mentions", 0) > 0))
     fanin_fired = int(sum(1 for row in subset_rows if row["codebase"].get("c_fanin_max", 0) > 0))
     cc_fired = int(sum(1 for row in subset_rows if row["codebase"].get("c_cc_files_ok", 0) > 0))
-
-    # Subgroup diagnostic: does the codebase arm help where its features fire?
     mask = np.array([row["codebase"].get("c_has_mentions", 0) > 0 for row in subset_rows])
-    subgroup = None
-    if int(mask.sum()) >= 20:
-        y_sub = y[mask]
-        pred_t = oof_regression(x_text[mask], y_sub, kind="ridge", n_splits=5)
-        pred_c = oof_regression(x_full[mask], y_sub, kind="ridge", n_splits=5)
-        pred_only = oof_regression(x_full[mask][:, len(t_names):], y_sub, kind="ridge", n_splits=5)
-        subgroup = {
-            "n": int(mask.sum()),
-            "mae_text": mae(y_sub, pred_t),
-            "mae_codebase": mae(y_sub, pred_c),
-            "mae_codebase_only": mae(y_sub, pred_only),
-            "mae_median": mae(y_sub, median_baseline_oof(y_sub)),
+
+    per_target: dict[str, dict] = {}
+    for name in targets:
+        _, clip_min = TARGETS[name]
+        y = target_values(subset_rows, name)
+        arms: dict[str, dict] = {}
+        for arm, x in (("text", x_text), ("codebase", x_full)):
+            pred = oof_regression(x, y, kind="ridge", n_splits=5, clip_min=clip_min)
+            pred_hgb = oof_regression(x, y, kind="hgb", n_splits=5, clip_min=clip_min)
+            err = np.abs(y - pred)
+            folds = fold_indices(len(y), 5)
+            per_fold = [float(np.mean(err[test_idx])) for _, test_idx in folds]
+            arms[arm] = {
+                "mae": mae(y, pred),
+                "rmse": rmse(y, pred),
+                "mae_hgb": mae(y, pred_hgb),
+                "spearman": spearman(y, pred),
+                "per_fold": per_fold,
+                "err": err,
+                "pred": pred,
+                **binary[arm],
+            }
+        ci_lo, ci_hi, diff = paired_bootstrap_ci(arms["text"]["err"], arms["codebase"]["err"])
+
+        # Subgroup diagnostic: does the codebase arm help where its features fire?
+        subgroup = None
+        if int(mask.sum()) >= 20:
+            y_sub = y[mask]
+            pred_t = oof_regression(x_text[mask], y_sub, kind="ridge", n_splits=5, clip_min=clip_min)
+            pred_c = oof_regression(x_full[mask], y_sub, kind="ridge", n_splits=5, clip_min=clip_min)
+            pred_only = oof_regression(
+                x_full[mask][:, len(t_names):], y_sub, kind="ridge", n_splits=5, clip_min=clip_min
+            )
+            subgroup = {
+                "n": int(mask.sum()),
+                "mae_text": mae(y_sub, pred_t),
+                "mae_codebase": mae(y_sub, pred_c),
+                "mae_codebase_only": mae(y_sub, pred_only),
+                "mae_median": mae(y_sub, median_baseline_oof(y_sub)),
+                "mae_const2": constant_baseline_mae(y_sub, 2.0),
+            }
+
+        per_target[name] = {
+            "target": name,
+            "gt": {
+                "mean": float(y.mean()),
+                "median": float(np.median(y)),
+                "max": float(y.max()),
+            },
+            "mae_median": mae(y, median_baseline_oof(y)),
+            "mae_const2": constant_baseline_mae(y, 2.0),
+            "arms": arms,
+            "subgroup": subgroup,
+            "bootstrap": {"ci_low": ci_lo, "ci_high": ci_hi, "mean_diff": diff},
         }
 
+    primary = targets[0]
+    repos = sorted({row["repo"] for row in subset_rows})
+    y_files = target_values(subset_rows, "files")
     return {
         "n": len(subset_rows),
-        "repo": args.subset_repo,
-        "mae_median": mae(y, median_pred),
-        "arms": arms,
-        "subgroup": subgroup,
-        "bootstrap": {"ci_low": ci_lo, "ci_high": ci_hi, "mean_diff": diff},
+        "repo": repos[0] if len(repos) == 1 else "+".join(repos),
+        "repos": repos,
+        "repo_counts": _repo_counts(subset_rows),
+        "target": primary,
+        "targets": per_target,
+        "mae_median": per_target[primary]["mae_median"],
+        "mae_const2": per_target[primary]["mae_const2"],
+        "arms": per_target[primary]["arms"],
+        "subgroup": per_target[primary]["subgroup"],
+        "bootstrap": per_target[primary]["bootstrap"],
         "coverage": {
             "mentions": mentions,
             "fanin": fanin_fired,
@@ -1150,9 +1349,9 @@ def run_ablation(
             "radon": radon_available,
         },
         "gt": {
-            "mean": float(y.mean()),
-            "median": float(np.median(y)),
-            "max": float(y.max()),
+            "mean": float(y_files.mean()),
+            "median": float(np.median(y_files)),
+            "max": float(y_files.max()),
             "multi_rate": float(np.mean(y_multi)),
         },
     }
@@ -1181,13 +1380,29 @@ def print_report(ctx: dict) -> None:
         f"(majority {fmt(full['maj_existing'])})"
     )
 
+    var = ctx.get("variance")
+    if var:
+        print(
+            f"\n--- variance subset (files_touched >= {var['min_files']}, all repos, text-only) "
+            f"n={var['n']} ---"
+        )
+        for name, t in var["targets"].items():
+            print(
+                f"  target={name:<12} mean={fmt(t['mean'])} median={t['median']:.0f} max={t['max']:.0f} | "
+                f"Ridge MAE={fmt(t['mae_ridge'])} HGB={fmt(t['mae_hgb'])} median-base={fmt(t['mae_median'])} "
+                f"always-2={fmt(t['mae_const2'])} | RMSE={fmt(t['rmse'])} rho={fmt(t['spearman'])}"
+            )
+
     abl = ctx.get("ablation")
     if abl is None:
         print("\n[ablation] NOT RUN (codebase arm unavailable)")
         return
 
     arms = abl["arms"]
-    print(f"\n--- subset ablation: repo={abl['repo']} n={abl['n']} (5-fold CV, identical folds) ---")
+    print(
+        f"\n--- subset ablation: repo={abl['repo']} target={abl.get('target', 'files')} "
+        f"n={abl['n']} (5-fold CV, identical folds) ---"
+    )
     print(
         f"ground truth: mean={fmt(abl['gt']['mean'])} median={abl['gt']['median']:.0f} "
         f"max={abl['gt']['max']:.0f} multi-file={abl['gt']['multi_rate']:.1%}"
@@ -1223,6 +1438,21 @@ def print_report(ctx: dict) -> None:
             f"text+codebase MAE={fmt(sg['mae_codebase'])} | codebase-only MAE={fmt(sg['mae_codebase_only'])} | "
             f"median baseline={fmt(sg['mae_median'])}"
         )
+
+    target_map = abl.get("targets") or {}
+    if len(target_map) > 1:
+        print(f"\n--- per-target ablation (Ridge, same folds, n={abl['n']}) ---")
+        print(
+            f"  {'target':<12} {'median':>7} {'always-2':>8} {'text':>8} {'+code':>8} "
+            f"{'HGB txt':>8} {'HGB cod':>8} {'rho txt':>8} {'rho cod':>8}"
+        )
+        for name, t in target_map.items():
+            at, ac = t["arms"]["text"], t["arms"]["codebase"]
+            print(
+                f"  {name:<12} {fmt(t['mae_median']):>7} {fmt(t['mae_const2']):>8} "
+                f"{fmt(at['mae']):>8} {fmt(ac['mae']):>8} {fmt(at['mae_hgb']):>8} {fmt(ac['mae_hgb']):>8} "
+                f"{fmt(at['spearman']):>8} {fmt(ac['spearman']):>8}"
+            )
 
     diff = abl["bootstrap"]["mean_diff"]
     rel = 100.0 * diff / arms["text"]["mae"] if arms["text"]["mae"] > 1e-12 else 0.0
@@ -1401,6 +1631,163 @@ def render_docs(ctx: dict) -> str:
     return "\n".join(lines)
 
 
+def render_refinement(ctx: dict) -> str:
+    """Render the appended "Multi-file refinement" section.
+
+    Kept separate from ``render_docs`` so the original report section is never
+    overwritten; ``main`` appends/replaces only this section.
+    """
+    args = ctx["args"]
+    var = ctx.get("variance")
+    abl = ctx.get("ablation")
+    lines: list[str] = []
+    add = lines.append
+    add("## Multi-file refinement (2026-10-17)")
+    add("")
+    add("Why: 1723 of 2294 full-split patches (75.1%) touch exactly one file, so the")
+    add("original MAE target is near-degenerate. This refinement re-runs the ablation on")
+    add("the variance subset (`files_touched >= 2`, n=571) and on two alternative")
+    add("patch-derived targets (`modified_files`, `added_lines`). The section above is")
+    add("kept unchanged; this is a refinement, not a retraction.")
+    add("")
+    add("### Method delta")
+    add("")
+    add(f"- `--min-files {args['min_files']}`: the variance subset and the ablation subset keep only")
+    add(f"  patches touching >= {args['min_files']} files (default 0 = original behaviour).")
+    add("- `--target files|modified|added_lines|all`: regression-target switch; labels come")
+    add("  from the same patch parser. Same seeded 5-fold CV, same features, same Ridge/HGB;")
+    add("  `log1p` targets, predictions clipped to >= 1 (`files`) or >= 0 (others).")
+    add("- Codebase arm spans several repos, one blob-filtered `--no-checkout` clone each")
+    add("  (per-instance checkout at `base_commit`, exactly as before).")
+    add("- Extra baselines: per-fold median of the training subset and constant `always-2`.")
+    add("- Leakage controls unchanged from the section above (features never read the patch;")
+    add("  `hints_text` ignored; all codebase reads are at `base_commit`).")
+    add("")
+    add("### Data")
+    add("")
+    if var:
+        add(f"- Variance subset (`files_touched >= {var['min_files']}`, all repos, text-only): n={var['n']},")
+        add("  repos: " + ", ".join(f"{r} {c}" for r, c in list(var["repo_counts"].items())[:8]) + ".")
+    if abl:
+        add(f"- Codebase ablation subset: n={abl['n']} ("
+            + ", ".join(f"{r} {c}" for r, c in abl["repo_counts"].items()) + ").")
+        add("- Codebase feature coverage: mentions of existing modules/files in issue text")
+        add(f"  {abl['coverage']['mentions']}/{abl['n']}, fan-in fired {abl['coverage']['fanin']}, "
+            f"complexity fired {abl['coverage']['complexity']} "
+            f"(radon {'installed' if abl['coverage']['radon'] else 'MISSING - cc zeroed'}), "
+            f"extraction failures {abl['coverage']['failures']}.")
+        if abl["coverage"].get("repos_skipped"):
+            add(f"- Repos dropped (clone unavailable): {', '.join(abl['coverage']['repos_skipped'])}.")
+    else:
+        add("- Codebase arm unavailable in this run (clone/network failure): text-only rows only.")
+    add("")
+    add("### Results")
+    add("")
+    if var:
+        add(f"Variance subset, text-only (all repos, n={var['n']}):")
+        add("")
+        add("| target | mean | median | max | MAE Ridge | MAE HGB | RMSE | Spearman | median base | always-2 |")
+        add("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+        for name, t in var["targets"].items():
+            add(f"| {name} | {t['mean']:.2f} | {t['median']:.0f} | {t['max']:.0f} | {t['mae_ridge']:.3f} | "
+                f"{t['mae_hgb']:.3f} | {t['rmse']:.3f} | {fmt(t['spearman'])} | "
+                f"{t['mae_median']:.3f} | {t['mae_const2']:.3f} |")
+        add("")
+    if abl:
+        for name, t in abl["targets"].items():
+            at, ac = t["arms"]["text"], t["arms"]["codebase"]
+            add(f"Codebase subset, target `{name}` (n={abl['n']}, identical folds):")
+            add("")
+            add("| arm | MAE | MAE HGB | RMSE | Spearman |")
+            add("|---|---:|---:|---:|---:|")
+            add(f"| median baseline | {t['mae_median']:.3f} | - | - | - |")
+            add(f"| always-2 | {t['mae_const2']:.3f} | - | - | - |")
+            add(f"| text-only | {at['mae']:.3f} | {at['mae_hgb']:.3f} | {at['rmse']:.3f} | {fmt(at['spearman'])} |")
+            add(f"| text+codebase | {ac['mae']:.3f} | {ac['mae_hgb']:.3f} | {ac['rmse']:.3f} | {fmt(ac['spearman'])} |")
+            add("")
+            sg = t.get("subgroup")
+            if sg:
+                note = ""
+                if sg["mae_text"] > 10 * sg["mae_median"] or sg["mae_codebase"] > 10 * sg["mae_median"]:
+                    note = " (UNSTABLE Ridge extrapolation on this heavy-tailed target - treat as invalid)"
+                add(f"Mention subgroup where codebase features fired (n={sg['n']}): text-only MAE "
+                    f"{sg['mae_text']:.3f}, text+codebase {sg['mae_codebase']:.3f}, codebase-only "
+                    f"{sg['mae_codebase_only']:.3f}, median baseline {sg['mae_median']:.3f}.{note}")
+                add("")
+        add("| target | ΔMAE (codebase - text) | 95% CI | gate |")
+        add("|---|---:|---|---|")
+        for name, t in abl["targets"].items():
+            bt = t["bootstrap"]
+            add(f"| {name} | {bt['mean_diff']:+.3f} | "
+                f"[{bt['ci_low']:+.3f}, {bt['ci_high']:+.3f}] | {decision_gate(t)} |")
+        add("")
+        add("### Decision (multi-file subset)")
+        add("")
+        decision_t = abl["targets"].get("files") or abl["targets"][abl["target"]]
+        decision_label = "files" if "files" in abl["targets"] else abl["target"]
+        text_mae = decision_t["arms"]["text"]["mae"]
+        code_mae = decision_t["arms"]["codebase"]["mae"]
+        bt = decision_t["bootstrap"]
+        rel = 100.0 * bt["mean_diff"] / text_mae if text_mae > 1e-12 else 0.0
+        verdict = decision_gate(decision_t)
+        add(f"Target `{decision_label}`, n={abl['n']}, paired MAE difference (text+codebase - "
+            f"text-only): **{bt['mean_diff']:+.4f} ({rel:+.1f}%)**, 95% bootstrap CI "
+            f"**[{bt['ci_low']:+.4f}, {bt['ci_high']:+.4f}]**.")
+        add("")
+        if verdict == "IMPROVED":
+            add(f"**Result: IMPROVED on the variance subset** for target `{decision_label}`: "
+                f"text-only MAE {text_mae:.3f} vs text+codebase MAE {code_mae:.3f} on n={abl['n']} "
+                f"instances. Caveats: n is one order of magnitude smaller than the full split, the")
+            add("repos are three open-source Python projects (domain mismatch above still applies),")
+            add("and the gain must be read together with the HGB robustness row and the CI width.")
+        elif verdict.startswith("NOT IMPROVED"):
+            add(f"**Result: NOT IMPROVED (codebase arm equal or worse)**: text-only MAE {text_mae:.3f} "
+                f"vs text+codebase MAE {code_mae:.3f} on n={abl['n']} instances. On the subset with")
+            add("actual target variance, codebase signals still do not add measurable accuracy; the")
+            add("original negative result is not an artefact of the degenerate single-file majority.")
+        else:
+            add(f"**Result: INCONCLUSIVE**: text-only MAE {text_mae:.3f} vs text+codebase MAE "
+                f"{code_mae:.3f} on n={abl['n']} instances (CI includes 0, point estimate negative).")
+            add("Directionally the codebase arm is better, but the pre-registered gate is not met;")
+            add("treat this as a weak signal needing more instances, not as an improvement. The gate")
+            add("is not met for any of the three targets, so the original negative result is not")
+            add("overturned by this refinement.")
+        add("")
+        add("The multi-file-vs-single-file binary classification is only meaningful on the full set")
+        add("(kept above); on this subset it is degenerate (all positives).")
+        add("")
+    else:
+        add("**Result: INCONCLUSIVE for the codebase arm** (ablation did not run); the variance-subset")
+        add("text-only numbers above stand.")
+        add("")
+    add("### Caveats")
+    add("")
+    add("- Small n (single-repo families, 571 variance rows, 132 codebase rows) and OSS-only")
+    add("  domain: magnitudes should not be transferred to B2B SaaS estimation.")
+    add("- Codebase features only fire when the issue text resolves to existing modules/files;")
+    add("  the mention subgroup is reported per target where n >= 20.")
+    add("- `modified_files` can be 0 (new-file-only patches) and `added_lines` is heavy-tailed;")
+    add("  the always-2 baseline is shown for comparability, the median baseline is the fairer one.")
+    add("- Ridge on `added_lines` is unstable (log1p inversion of extrapolated predictions can")
+    add("  blow up on heavy-tailed rows; the subgroup line is flagged). HGB and the median")
+    add("  baseline are the robust rows for that target. The codebase arm does not beat the")
+    add("  median baseline on any target.")
+    add("- Rank signal on the variance subset is ~0 for `files`/`modified` (-0.02/-0.00) and")
+    add("  weakly positive for `added_lines` (+0.19) under the text-only arm.")
+    add("")
+    add("### Reproduce (refinement)")
+    add("")
+    add("```bash")
+    add("cd backend && PYTHONPATH=. /root/venvs/estimator/bin/python \\")
+    add(f"  {args['cmd']}")
+    add("```")
+    add("")
+    add("Rerun with the same command reproduces identical numbers (seeded folds; base-commit")
+    add("checkouts are read-only queries of git objects).")
+    add("")
+    return "\n".join(lines)
+
+
 # --------------------------------------------------------------------------
 # Self-test (offline: embedded rows + synthetic parser cases)
 # --------------------------------------------------------------------------
@@ -1535,6 +1922,31 @@ def run_self_test(verbose: bool = True) -> int:
     check("majority rate sane", 0.5 <= majority_rate(yb) <= 1.0)
     lo, hi, mean_diff = paired_bootstrap_ci(np.array([1.0, 2, 3]), np.array([1.5, 2.5, 3.5]))
     check("bootstrap CI ordered", lo <= mean_diff <= hi, f"[{lo:.3f}, {hi:.3f}] mean={mean_diff:.3f}")
+
+    # 6. refinement plumbing: targets, min-files filter, multi-target ablation, docs
+    check("parse_targets single", parse_targets("files") == ["files"])
+    check("parse_targets all", parse_targets("all") == ["files", "modified", "added_lines"])
+    check(
+        "target_values files",
+        np.allclose(target_values(rows, "files"), [r["gt"]["files_touched"] for r in rows]),
+    )
+    check(
+        "target_values added_lines",
+        np.allclose(target_values(rows, "added_lines"), [r["gt"]["added_lines"] for r in rows]),
+    )
+    check("constant baseline", abs(constant_baseline_mae(np.array([1.0, 3.0]), 2.0) - 1.0) < 1e-12)
+    var_rows = pick_subset(rows, None, 0, min_files=2)
+    check(
+        "min-files filter keeps multi-file only",
+        [r["instance_id"] for r in var_rows] == ["psf__requests-2821"],
+        str([r["instance_id"] for r in var_rows]),
+    )
+    pick_a = [r["instance_id"] for r in pick_subset(rows, ["psf/requests"], 1)]
+    pick_b = [r["instance_id"] for r in pick_subset(rows, ["psf/requests"], 1)]
+    check("pick_subset deterministic", pick_a == pick_b and len(pick_a) == 1, str(pick_a))
+    pred_zero = oof_regression(x_text, np.zeros(len(rows)), kind="ridge", n_splits=5, clip_min=0.0)
+    check("clip_min 0 allows below-1 preds", float(pred_zero.min()) >= 0.0 and float(pred_zero.min()) < 1.0)
+
     ctx = {"args": {"dataset": "full", "cmd": "self-test", "write_docs": False},
            "n_repos": 1, "repo_counts": {"x/y": 1}, "repo_names": repo_names,
            "full": {"n": len(rows), "mae_ridge": mae(y, pred_a), "mae_hgb": float("nan"),
@@ -1544,6 +1956,22 @@ def run_self_test(verbose: bool = True) -> int:
                      "target_multi": float(np.mean(yb)), "target_new": 0.0}}
     docs = render_docs(ctx)
     check("docs render", "Decision gate" in docs and len(docs.splitlines()) < 200)
+    for row in rows:
+        row["codebase"] = {name: 0.0 for name in c_names}
+    mini_abl = run_ablation(rows, feat_names, 0, False, ["files", "added_lines"])
+    mini_var = run_variance(rows, feat_names, ["files", "added_lines"], min_files=2)
+    refinement = render_refinement(
+        {"args": {"min_files": 2, "target": "all", "cmd": "self-test"},
+         "variance": mini_var, "ablation": mini_abl}
+    )
+    check(
+        "refinement docs render",
+        "Multi-file refinement" in refinement and "### Decision" in refinement and "always-2" in refinement,
+    )
+    check(
+        "refinement decision present",
+        any(word in refinement for word in ("IMPROVED", "NOT IMPROVED", "INCONCLUSIVE")),
+    )
     # decision gate rule
     fake = {"arms": {"text": {"mae": 1.0}, "codebase": {"mae": 0.9}}, "bootstrap": {"ci_high": -0.05}}
     check("gate improved rule", decision_gate(fake) == "IMPROVED")
@@ -1575,8 +2003,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help="cap on dataset instances for the full-set model (0 = all).")
     parser.add_argument("--subset-repo", default="sympy/sympy",
                         help="single repo used for the codebase-signal ablation arm.")
+    parser.add_argument("--subset-repos", default="",
+                        help="comma-separated repo list for the codebase arm (overrides "
+                             "--subset-repo), e.g. sympy/sympy,pytest-dev/pytest,psf/requests.")
     parser.add_argument("--subset-max-instances", type=int, default=150,
-                        help="cap on subset instances (0 = all instances of that repo).")
+                        help="cap on subset instances PER REPO (0 = all instances of that repo).")
+    parser.add_argument("--min-files", type=int, default=0,
+                        help="keep only patches touching >= N files in the variance/ablation "
+                             "subsets (0 = original behaviour, all patches).")
+    parser.add_argument("--target", choices=TARGET_CHOICES + ("all",), default="files",
+                        help="regression target: files_touched | modified_files | added_lines | "
+                             "all (all = run the three targets in one pass).")
     parser.add_argument("--dataset", choices=sorted(DATASET_SOURCES), default="full",
                         help="full = SWE-bench test (2294); lite = SWE-bench Lite (300, "
                              "all single-file patches, degenerate primary target).")
@@ -1605,28 +2042,48 @@ def main(argv: list[str] | None = None) -> int:
     if args.self_test:
         return run_self_test()
 
-    cmd = " ".join(
-        ["scripts/swebench_validation.py"]
-        + [
-            f"--dataset {args.dataset}",
-            f"--max-instances {args.max_instances}",
-            f"--subset-repo {args.subset_repo}",
-            f"--subset-max-instances {args.subset_max_instances}",
-        ]
-        + (["--write"] if args.write else [])
-    )
-    args.cmd = cmd
+    repo_list = subset_repo_list(args)
+    refinement_mode = args.min_files >= 2 or args.target != "files" or len(repo_list) > 1
+    cmd_parts = [
+        "scripts/swebench_validation.py",
+        f"--dataset {args.dataset}",
+        f"--max-instances {args.max_instances}",
+    ]
+    if args.subset_repos:
+        cmd_parts.append(f"--subset-repos {args.subset_repos}")
+    else:
+        cmd_parts.append(f"--subset-repo {args.subset_repo}")
+    cmd_parts.append(f"--subset-max-instances {args.subset_max_instances}")
+    if args.min_files:
+        cmd_parts.append(f"--min-files {args.min_files}")
+    if args.target != "files":
+        cmd_parts.append(f"--target {args.target}")
+    if args.write:
+        cmd_parts.append("--write")
+    args.cmd = " ".join(cmd_parts)
 
     ctx = run_experiment(args)
     print_report(ctx)
 
     if args.write:
-        docs = render_docs(ctx)
         DOCS_PATH.parent.mkdir(parents=True, exist_ok=True)
-        DOCS_PATH.write_text(docs + "\n", encoding="utf-8")
+        if refinement_mode and DOCS_PATH.exists():
+            # Keep the original report section byte-for-byte; replace only the
+            # appended refinement section (idempotent re-runs).
+            existing = DOCS_PATH.read_text(encoding="utf-8")
+            marker = "\n## Multi-file refinement ("
+            idx = existing.find(marker)
+            if idx >= 0:
+                existing = existing[:idx]
+            docs = existing.rstrip("\n") + "\n\n" + render_refinement(ctx) + "\n"
+        else:
+            docs = render_docs(ctx).rstrip("\n") + "\n"
+            if refinement_mode:
+                docs = docs.rstrip("\n") + "\n\n" + render_refinement(ctx) + "\n"
+        DOCS_PATH.write_text(docs, encoding="utf-8")
         n_lines = len(docs.splitlines())
         print(f"\n[docs] wrote {DOCS_PATH} ({n_lines} lines)")
-        if n_lines > 120:
+        if not refinement_mode and n_lines > 120:
             print(f"[docs] WARNING: {n_lines} lines exceeds the 120-line budget")
     return 0
 

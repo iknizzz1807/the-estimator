@@ -111,3 +111,119 @@ cd backend && PYTHONPATH=. /root/venvs/estimator/bin/python \
 /root/venvs/estimator/bin/python scripts/swebench_validation.py --self-test
 ```
 
+## Multi-file refinement (2026-10-17)
+
+Why: 1723 of 2294 full-split patches (75.1%) touch exactly one file, so the
+original MAE target is near-degenerate. This refinement re-runs the ablation on
+the variance subset (`files_touched >= 2`, n=571) and on two alternative
+patch-derived targets (`modified_files`, `added_lines`). The section above is
+kept unchanged; this is a refinement, not a retraction.
+
+### Method delta
+
+- `--min-files 2`: the variance subset and the ablation subset keep only
+  patches touching >= 2 files (default 0 = original behaviour).
+- `--target files|modified|added_lines|all`: regression-target switch; labels come
+  from the same patch parser. Same seeded 5-fold CV, same features, same Ridge/HGB;
+  `log1p` targets, predictions clipped to >= 1 (`files`) or >= 0 (others).
+- Codebase arm spans several repos, one blob-filtered `--no-checkout` clone each
+  (per-instance checkout at `base_commit`, exactly as before).
+- Extra baselines: per-fold median of the training subset and constant `always-2`.
+- Leakage controls unchanged from the section above (features never read the patch;
+  `hints_text` ignored; all codebase reads are at `base_commit`).
+
+### Data
+
+- Variance subset (`files_touched >= 2`, all repos, text-only): n=571,
+  repos: django/django 182, sympy/sympy 94, scikit-learn/scikit-learn 53, sphinx-doc/sphinx 51, pydata/xarray 45, matplotlib/matplotlib 43, astropy/astropy 27, pytest-dev/pytest 26.
+- Codebase ablation subset: n=132 (sympy/sympy 94, pytest-dev/pytest 26, psf/requests 12).
+- Codebase feature coverage: mentions of existing modules/files in issue text
+  38/132, fan-in fired 21, complexity fired 37 (radon installed), extraction failures 0.
+
+### Results
+
+Variance subset, text-only (all repos, n=571):
+
+| target | mean | median | max | MAE Ridge | MAE HGB | RMSE | Spearman | median base | always-2 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| files | 3.64 | 2 | 31 | 1.846 | 1.869 | 3.541 | -0.019 | 1.643 | 1.643 |
+| modified | 3.54 | 2 | 30 | 1.803 | 1.815 | 3.438 | -0.003 | 1.587 | 1.587 |
+| added_lines | 69.25 | 28 | 4562 | 56.853 | 56.551 | 249.607 | 0.191 | 55.797 | 67.264 |
+
+Codebase subset, target `files` (n=132, identical folds):
+
+| arm | MAE | MAE HGB | RMSE | Spearman |
+|---|---:|---:|---:|---:|
+| median baseline | 2.152 | - | - | - |
+| always-2 | 2.212 | - | - | - |
+| text-only | 3.356 | 2.638 | 5.822 | 0.068 |
+| text+codebase | 3.260 | 2.499 | 5.240 | 0.076 |
+
+Mention subgroup where codebase features fired (n=38): text-only MAE 6.120, text+codebase 8.380, codebase-only 4.413, median baseline 2.816.
+
+Codebase subset, target `modified` (n=132, identical folds):
+
+| arm | MAE | MAE HGB | RMSE | Spearman |
+|---|---:|---:|---:|---:|
+| median baseline | 2.129 | - | - | - |
+| always-2 | 2.174 | - | - | - |
+| text-only | 3.553 | 2.612 | 6.607 | 0.047 |
+| text+codebase | 3.407 | 2.459 | 5.462 | 0.054 |
+
+Mention subgroup where codebase features fired (n=38): text-only MAE 5.756, text+codebase 8.335, codebase-only 4.261, median baseline 2.737.
+
+Codebase subset, target `added_lines` (n=132, identical folds):
+
+| arm | MAE | MAE HGB | RMSE | Spearman |
+|---|---:|---:|---:|---:|
+| median baseline | 41.652 | - | - | - |
+| always-2 | 55.121 | - | - | - |
+| text-only | 187.059 | 45.838 | 1565.766 | 0.065 |
+| text+codebase | 90.190 | 44.470 | 324.024 | -0.065 |
+
+Mention subgroup where codebase features fired (n=38): text-only MAE 758182.803, text+codebase 3875500466.478, codebase-only 70.683, median baseline 60.289. (UNSTABLE Ridge extrapolation on this heavy-tailed target - treat as invalid)
+
+| target | ΔMAE (codebase - text) | 95% CI | gate |
+|---|---:|---|---|
+| files | -0.095 | [-0.545, +0.238] | INCONCLUSIVE |
+| modified | -0.146 | [-0.715, +0.269] | INCONCLUSIVE |
+| added_lines | -96.869 | [-394.841, +82.074] | INCONCLUSIVE |
+
+### Decision (multi-file subset)
+
+Target `files`, n=132, paired MAE difference (text+codebase - text-only): **-0.0954 (-2.8%)**, 95% bootstrap CI **[-0.5447, +0.2380]**.
+
+**Result: INCONCLUSIVE**: text-only MAE 3.356 vs text+codebase MAE 3.260 on n=132 instances (CI includes 0, point estimate negative).
+Directionally the codebase arm is better, but the pre-registered gate is not met;
+treat this as a weak signal needing more instances, not as an improvement. The gate
+is not met for any of the three targets, so the original negative result is not
+overturned by this refinement.
+
+The multi-file-vs-single-file binary classification is only meaningful on the full set
+(kept above); on this subset it is degenerate (all positives).
+
+### Caveats
+
+- Small n (single-repo families, 571 variance rows, 132 codebase rows) and OSS-only
+  domain: magnitudes should not be transferred to B2B SaaS estimation.
+- Codebase features only fire when the issue text resolves to existing modules/files;
+  the mention subgroup is reported per target where n >= 20.
+- `modified_files` can be 0 (new-file-only patches) and `added_lines` is heavy-tailed;
+  the always-2 baseline is shown for comparability, the median baseline is the fairer one.
+- Ridge on `added_lines` is unstable (log1p inversion of extrapolated predictions can
+  blow up on heavy-tailed rows; the subgroup line is flagged). HGB and the median
+  baseline are the robust rows for that target. The codebase arm does not beat the
+  median baseline on any target.
+- Rank signal on the variance subset is ~0 for `files`/`modified` (-0.02/-0.00) and
+  weakly positive for `added_lines` (+0.19) under the text-only arm.
+
+### Reproduce (refinement)
+
+```bash
+cd backend && PYTHONPATH=. /root/venvs/estimator/bin/python \
+  scripts/swebench_validation.py --dataset full --max-instances 0 --subset-repos sympy/sympy,pytest-dev/pytest,psf/requests --subset-max-instances 0 --min-files 2 --target all --write
+```
+
+Rerun with the same command reproduces identical numbers (seeded folds; base-commit
+checkouts are read-only queries of git objects).
+
