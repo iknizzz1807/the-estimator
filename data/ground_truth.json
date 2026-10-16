@@ -62,9 +62,18 @@
     "factor": 1.22
   },
   "outliers": {
-    "P012": 2.75,
-    "P021": 2.91,
-    "P034": 2.35
+    "P031": 2.75,
+    "P045": 2.88,
+    "P056": 2.52,
+    "P061": 2.78,
+    "P082": 2.4,
+    "P084": 2.15,
+    "P089": 2.99,
+    "P113": 2.14,
+    "P135": 2.27,
+    "P191": 2.4,
+    "P224": 2.47,
+    "P228": 2.83
   },
   "projects": {
     "P001": {
@@ -77,69 +86,35 @@
         "multi_currency": 0,
         "multi_tenancy": 0,
         "realtime_ui": 0,
-        "mobile_app": 0,
+        "mobile_app": 1,
         "offline_mode": 1,
-        "pci_dss": 0,
+        "pci_dss": 1,
         "privacy_compliance": 0,
-        "audit_logging": 1,
-        "legacy_tech_stack": 0,
-        "cross_team_coordination": 1
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
       },
       "mentioned": [
-        "audit_logging"
-      ],
-      "omitted": [
+        "mobile_app",
         "offline_mode",
-        "cross_team_coordination"
+        "pci_dss",
+        "legacy_tech_stack"
       ],
+      "omitted": [],
       "negated": [],
-      "actual_days": 23,
-      "team_estimate": 20,
-      "interaction_multiplier": 1.0,
+      "actual_days": 52,
+      "team_estimate": 44,
+      "interaction_multiplier": 1.1,
       "drift_factor": 1.0,
       "outlier_shock": null
     },
     "P002": {
       "features": {
-        "third_party_api": 0,
+        "third_party_api": 1,
         "payment_gateway": 0,
         "identity_provider": 1,
         "external_data_sync": 0,
-        "data_migration": 0,
-        "multi_currency": 1,
-        "multi_tenancy": 1,
-        "realtime_ui": 1,
-        "mobile_app": 0,
-        "offline_mode": 0,
-        "pci_dss": 0,
-        "privacy_compliance": 1,
-        "audit_logging": 0,
-        "legacy_tech_stack": 0,
-        "cross_team_coordination": 0
-      },
-      "mentioned": [
-        "multi_currency",
-        "multi_tenancy",
-        "privacy_compliance"
-      ],
-      "omitted": [
-        "identity_provider",
-        "realtime_ui"
-      ],
-      "negated": [],
-      "actual_days": 64,
-      "team_estimate": 39,
-      "interaction_multiplier": 1.0,
-      "drift_factor": 1.0,
-      "outlier_shock": null
-    },
-    "P003": {
-      "features": {
-        "third_party_api": 0,
-        "payment_gateway": 1,
-        "identity_provider": 0,
-        "external_data_sync": 0,
-        "data_migration": 0,
+        "data_migration": 1,
         "multi_currency": 0,
         "multi_tenancy": 0,
         "realtime_ui": 0,
@@ -149,16 +124,57 @@
         "privacy_compliance": 0,
         "audit_logging": 0,
         "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider"
+      ],
+      "omitted": [
+        "data_migration"
+      ],
+      "negated": [
+        "multi_currency",
+        "mobile_app",
+        "offline_mode"
+      ],
+      "actual_days": 35,
+      "team_estimate": 22,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P003": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
         "cross_team_coordination": 1
       },
       "mentioned": [
-        "payment_gateway",
+        "external_data_sync",
         "cross_team_coordination"
       ],
-      "omitted": [],
-      "negated": [],
-      "actual_days": 28,
-      "team_estimate": 19,
+      "omitted": [
+        "offline_mode"
+      ],
+      "negated": [
+        "data_migration",
+        "realtime_ui"
+      ],
+      "actual_days": 31,
+      "team_estimate": 24,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.0,
       "outlier_shock": null
@@ -172,25 +188,25 @@
         "data_migration": 0,
         "multi_currency": 0,
         "multi_tenancy": 0,
-        "realtime_ui": 1,
+        "realtime_ui": 0,
         "mobile_app": 0,
         "offline_mode": 0,
         "pci_dss": 0,
         "privacy_compliance": 0,
-        "audit_logging": 0,
+        "audit_logging": 1,
         "legacy_tech_stack": 0,
         "cross_team_coordination": 0
       },
       "mentioned": [
         "external_data_sync",
-        "realtime_ui"
+        "audit_logging"
       ],
       "omitted": [],
       "negated": [
-        "third_party_api"
+        "payment_gateway"
       ],
-      "actual_days": 27,
-      "team_estimate": 19,
+      "actual_days": 15,
+      "team_estimate": 17,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.0,
       "outlier_shock": null
@@ -204,32 +220,62 @@
         "data_migration": 0,
         "multi_currency": 0,
         "multi_tenancy": 0,
-        "realtime_ui": 1,
+        "realtime_ui": 0,
         "mobile_app": 0,
         "offline_mode": 0,
         "pci_dss": 0,
         "privacy_compliance": 0,
-        "audit_logging": 0,
-        "legacy_tech_stack": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
         "cross_team_coordination": 0
       },
       "mentioned": [
         "third_party_api",
         "payment_gateway",
-        "realtime_ui",
-        "legacy_tech_stack"
+        "audit_logging"
       ],
       "omitted": [],
-      "negated": [
-        "cross_team_coordination"
-      ],
-      "actual_days": 46,
-      "team_estimate": 36,
+      "negated": [],
+      "actual_days": 37,
+      "team_estimate": 22,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.0,
       "outlier_shock": null
     },
     "P006": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "data_migration"
+      ],
+      "omitted": [],
+      "negated": [
+        "privacy_compliance"
+      ],
+      "actual_days": 42,
+      "team_estimate": 24,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P007": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -238,42 +284,7 @@
         "data_migration": 0,
         "multi_currency": 0,
         "multi_tenancy": 0,
-        "realtime_ui": 1,
-        "mobile_app": 1,
-        "offline_mode": 0,
-        "pci_dss": 1,
-        "privacy_compliance": 0,
-        "audit_logging": 1,
-        "legacy_tech_stack": 0,
-        "cross_team_coordination": 0
-      },
-      "mentioned": [
-        "realtime_ui",
-        "mobile_app",
-        "pci_dss"
-      ],
-      "omitted": [
-        "audit_logging"
-      ],
-      "negated": [
-        "privacy_compliance"
-      ],
-      "actual_days": 47,
-      "team_estimate": 40,
-      "interaction_multiplier": 1.0,
-      "drift_factor": 1.0,
-      "outlier_shock": null
-    },
-    "P007": {
-      "features": {
-        "third_party_api": 1,
-        "payment_gateway": 0,
-        "identity_provider": 0,
-        "external_data_sync": 0,
-        "data_migration": 0,
-        "multi_currency": 0,
-        "multi_tenancy": 0,
-        "realtime_ui": 1,
+        "realtime_ui": 0,
         "mobile_app": 0,
         "offline_mode": 0,
         "pci_dss": 0,
@@ -282,16 +293,13 @@
         "legacy_tech_stack": 0,
         "cross_team_coordination": 0
       },
-      "mentioned": [
-        "third_party_api",
-        "realtime_ui"
-      ],
+      "mentioned": [],
       "omitted": [],
       "negated": [
-        "mobile_app"
+        "cross_team_coordination"
       ],
-      "actual_days": 25,
-      "team_estimate": 16,
+      "actual_days": 20,
+      "team_estimate": 12,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.0,
       "outlier_shock": null
@@ -302,25 +310,29 @@
         "payment_gateway": 0,
         "identity_provider": 0,
         "external_data_sync": 0,
-        "data_migration": 0,
-        "multi_currency": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
         "multi_tenancy": 0,
         "realtime_ui": 0,
         "mobile_app": 0,
         "offline_mode": 0,
         "pci_dss": 0,
-        "privacy_compliance": 1,
-        "audit_logging": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
         "legacy_tech_stack": 0,
         "cross_team_coordination": 0
       },
       "mentioned": [
-        "multi_currency",
-        "privacy_compliance"
+        "data_migration",
+        "audit_logging"
       ],
       "omitted": [],
-      "negated": [],
-      "actual_days": 29,
+      "negated": [
+        "identity_provider",
+        "multi_tenancy",
+        "mobile_app"
+      ],
+      "actual_days": 22,
       "team_estimate": 16,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.0,
@@ -329,32 +341,32 @@
     "P009": {
       "features": {
         "third_party_api": 0,
-        "payment_gateway": 1,
+        "payment_gateway": 0,
         "identity_provider": 0,
         "external_data_sync": 0,
-        "data_migration": 0,
+        "data_migration": 1,
         "multi_currency": 0,
         "multi_tenancy": 0,
         "realtime_ui": 0,
         "mobile_app": 0,
         "offline_mode": 0,
-        "pci_dss": 0,
-        "privacy_compliance": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
         "audit_logging": 0,
-        "legacy_tech_stack": 1,
-        "cross_team_coordination": 0
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
       },
       "mentioned": [
-        "payment_gateway",
-        "legacy_tech_stack"
-      ],
-      "omitted": [],
-      "negated": [
         "data_migration",
-        "audit_logging"
+        "privacy_compliance"
       ],
-      "actual_days": 40,
-      "team_estimate": 25,
+      "omitted": [
+        "pci_dss",
+        "cross_team_coordination"
+      ],
+      "negated": [],
+      "actual_days": 55,
+      "team_estimate": 35,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.0,
       "outlier_shock": null
@@ -364,103 +376,34 @@
         "third_party_api": 0,
         "payment_gateway": 0,
         "identity_provider": 0,
-        "external_data_sync": 0,
+        "external_data_sync": 1,
         "data_migration": 0,
         "multi_currency": 0,
-        "multi_tenancy": 1,
-        "realtime_ui": 1,
-        "mobile_app": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
         "offline_mode": 0,
-        "pci_dss": 0,
+        "pci_dss": 1,
         "privacy_compliance": 1,
         "audit_logging": 0,
         "legacy_tech_stack": 0,
-        "cross_team_coordination": 1
+        "cross_team_coordination": 0
       },
       "mentioned": [
-        "multi_tenancy",
-        "realtime_ui",
-        "mobile_app",
-        "privacy_compliance",
-        "cross_team_coordination"
+        "external_data_sync",
+        "privacy_compliance"
       ],
-      "omitted": [],
-      "negated": [
-        "external_data_sync"
+      "omitted": [
+        "pci_dss"
       ],
-      "actual_days": 87,
-      "team_estimate": 52,
+      "negated": [],
+      "actual_days": 36,
+      "team_estimate": 28,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.0,
       "outlier_shock": null
     },
     "P011": {
-      "features": {
-        "third_party_api": 0,
-        "payment_gateway": 1,
-        "identity_provider": 0,
-        "external_data_sync": 1,
-        "data_migration": 0,
-        "multi_currency": 0,
-        "multi_tenancy": 0,
-        "realtime_ui": 1,
-        "mobile_app": 0,
-        "offline_mode": 1,
-        "pci_dss": 0,
-        "privacy_compliance": 0,
-        "audit_logging": 0,
-        "legacy_tech_stack": 0,
-        "cross_team_coordination": 0
-      },
-      "mentioned": [
-        "payment_gateway",
-        "external_data_sync",
-        "realtime_ui",
-        "offline_mode"
-      ],
-      "omitted": [],
-      "negated": [],
-      "actual_days": 52,
-      "team_estimate": 39,
-      "interaction_multiplier": 1.0,
-      "drift_factor": 1.0,
-      "outlier_shock": null
-    },
-    "P012": {
-      "features": {
-        "third_party_api": 1,
-        "payment_gateway": 0,
-        "identity_provider": 0,
-        "external_data_sync": 0,
-        "data_migration": 1,
-        "multi_currency": 1,
-        "multi_tenancy": 1,
-        "realtime_ui": 0,
-        "mobile_app": 0,
-        "offline_mode": 0,
-        "pci_dss": 0,
-        "privacy_compliance": 1,
-        "audit_logging": 1,
-        "legacy_tech_stack": 0,
-        "cross_team_coordination": 0
-      },
-      "mentioned": [
-        "third_party_api",
-        "data_migration",
-        "multi_currency",
-        "multi_tenancy",
-        "privacy_compliance",
-        "audit_logging"
-      ],
-      "omitted": [],
-      "negated": [],
-      "actual_days": 247,
-      "team_estimate": 50,
-      "interaction_multiplier": 1.0,
-      "drift_factor": 1.0,
-      "outlier_shock": 2.75
-    },
-    "P013": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -491,7 +434,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P014": {
+    "P012": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -527,7 +470,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P015": {
+    "P013": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -559,7 +502,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P016": {
+    "P014": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 1,
@@ -592,7 +535,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P017": {
+    "P015": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 1,
@@ -627,7 +570,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P018": {
+    "P016": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -659,7 +602,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P019": {
+    "P017": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -695,7 +638,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P020": {
+    "P018": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -729,7 +672,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P021": {
+    "P019": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 1,
@@ -757,13 +700,13 @@
       "negated": [
         "multi_tenancy"
       ],
-      "actual_days": 138,
+      "actual_days": 48,
       "team_estimate": 36,
       "interaction_multiplier": 1.15,
       "drift_factor": 1.0,
-      "outlier_shock": 2.91
+      "outlier_shock": null
     },
-    "P022": {
+    "P020": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -794,7 +737,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P023": {
+    "P021": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -826,7 +769,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P024": {
+    "P022": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -857,7 +800,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P025": {
+    "P023": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 1,
@@ -892,7 +835,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P026": {
+    "P024": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 1,
@@ -926,7 +869,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P027": {
+    "P025": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -959,7 +902,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P028": {
+    "P026": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -991,7 +934,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P029": {
+    "P027": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -1025,7 +968,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P030": {
+    "P028": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 1,
@@ -1059,7 +1002,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P031": {
+    "P029": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1094,7 +1037,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P032": {
+    "P030": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1127,7 +1070,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P033": {
+    "P031": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1153,13 +1096,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 47,
+      "actual_days": 129,
       "team_estimate": 39,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.0,
-      "outlier_shock": null
+      "outlier_shock": 2.75
     },
-    "P034": {
+    "P032": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1188,13 +1131,13 @@
         "third_party_api",
         "data_migration"
       ],
-      "actual_days": 96,
+      "actual_days": 41,
       "team_estimate": 47,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.0,
-      "outlier_shock": 2.35
+      "outlier_shock": null
     },
-    "P035": {
+    "P033": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -1228,7 +1171,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P036": {
+    "P034": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 1,
@@ -1261,7 +1204,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P037": {
+    "P035": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1295,7 +1238,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P038": {
+    "P036": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1330,7 +1273,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P039": {
+    "P037": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1362,7 +1305,7 @@
       "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P040": {
+    "P038": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -1388,13 +1331,13 @@
       "negated": [
         "pci_dss"
       ],
-      "actual_days": 45,
+      "actual_days": 37,
       "team_estimate": 17,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P041": {
+    "P039": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 1,
@@ -1419,13 +1362,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 45,
+      "actual_days": 37,
       "team_estimate": 25,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P042": {
+    "P040": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -1451,13 +1394,13 @@
         "legacy_tech_stack"
       ],
       "negated": [],
-      "actual_days": 65,
+      "actual_days": 53,
       "team_estimate": 29,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P043": {
+    "P041": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 1,
@@ -1483,13 +1426,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 46,
+      "actual_days": 38,
       "team_estimate": 36,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P044": {
+    "P042": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1521,13 +1464,13 @@
         "third_party_api",
         "identity_provider"
       ],
-      "actual_days": 135,
+      "actual_days": 110,
       "team_estimate": 61,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P045": {
+    "P043": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1554,13 +1497,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 85,
+      "actual_days": 70,
       "team_estimate": 44,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P046": {
+    "P044": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1586,13 +1529,13 @@
         "external_data_sync",
         "realtime_ui"
       ],
-      "actual_days": 19,
+      "actual_days": 16,
       "team_estimate": 13,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P047": {
+    "P045": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 1,
@@ -1620,13 +1563,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 130,
+      "actual_days": 308,
       "team_estimate": 58,
       "interaction_multiplier": 1.1,
-      "drift_factor": 1.22,
-      "outlier_shock": null
+      "drift_factor": 1.0,
+      "outlier_shock": 2.88
     },
-    "P048": {
+    "P046": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1650,13 +1593,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 29,
+      "actual_days": 23,
       "team_estimate": 23,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P049": {
+    "P047": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1684,13 +1627,13 @@
       "negated": [
         "privacy_compliance"
       ],
-      "actual_days": 79,
+      "actual_days": 64,
       "team_estimate": 34,
       "interaction_multiplier": 1.12,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P050": {
+    "P048": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1716,13 +1659,13 @@
         "third_party_api",
         "multi_currency"
       ],
-      "actual_days": 34,
+      "actual_days": 28,
       "team_estimate": 16,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P051": {
+    "P049": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1751,13 +1694,13 @@
       "negated": [
         "identity_provider"
       ],
-      "actual_days": 70,
+      "actual_days": 58,
       "team_estimate": 36,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P052": {
+    "P050": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 1,
@@ -1782,13 +1725,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": 56,
+      "actual_days": 46,
       "team_estimate": 29,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P053": {
+    "P051": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 1,
@@ -1815,13 +1758,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": null,
+      "actual_days": 95,
       "team_estimate": 71,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P054": {
+    "P052": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -1850,13 +1793,13 @@
       "negated": [
         "privacy_compliance"
       ],
-      "actual_days": null,
+      "actual_days": 92,
       "team_estimate": 53,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P055": {
+    "P053": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -1887,13 +1830,13 @@
       "negated": [
         "legacy_tech_stack"
       ],
-      "actual_days": null,
+      "actual_days": 88,
       "team_estimate": 46,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P056": {
+    "P054": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -1922,13 +1865,13 @@
       "negated": [
         "multi_currency"
       ],
-      "actual_days": null,
+      "actual_days": 65,
       "team_estimate": 40,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P057": {
+    "P055": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 1,
@@ -1956,13 +1899,13 @@
       "negated": [
         "mobile_app"
       ],
-      "actual_days": null,
+      "actual_days": 50,
       "team_estimate": 32,
       "interaction_multiplier": 1.0,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P058": {
+    "P056": {
       "features": {
         "third_party_api": 1,
         "payment_gateway": 0,
@@ -1991,13 +1934,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": null,
+      "actual_days": 439,
       "team_estimate": 97,
       "interaction_multiplier": 1.1,
-      "drift_factor": 1.22,
-      "outlier_shock": null
+      "drift_factor": 1.0,
+      "outlier_shock": 2.52
     },
-    "P059": {
+    "P057": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -2022,13 +1965,13 @@
       ],
       "omitted": [],
       "negated": [],
-      "actual_days": null,
+      "actual_days": 64,
       "team_estimate": 23,
       "interaction_multiplier": 1.12,
-      "drift_factor": 1.22,
+      "drift_factor": 1.0,
       "outlier_shock": null
     },
-    "P060": {
+    "P058": {
       "features": {
         "third_party_api": 0,
         "payment_gateway": 0,
@@ -2053,8 +1996,6146 @@
         "cross_team_coordination"
       ],
       "negated": [],
-      "actual_days": null,
+      "actual_days": 26,
       "team_estimate": 18,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P059": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "identity_provider",
+        "data_migration",
+        "legacy_tech_stack"
+      ],
+      "omitted": [
+        "realtime_ui"
+      ],
+      "negated": [],
+      "actual_days": 128,
+      "team_estimate": 63,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P060": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "payment_gateway",
+        "offline_mode",
+        "privacy_compliance",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "data_migration",
+        "pci_dss"
+      ],
+      "actual_days": 57,
+      "team_estimate": 47,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P061": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "multi_currency",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 98,
+      "team_estimate": 26,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": 2.78
+    },
+    "P062": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "data_migration",
+        "mobile_app",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway"
+      ],
+      "actual_days": 78,
+      "team_estimate": 38,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P063": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_tenancy"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 24,
+      "team_estimate": 20,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P064": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [],
+      "omitted": [
+        "payment_gateway",
+        "data_migration"
+      ],
+      "negated": [
+        "privacy_compliance"
+      ],
+      "actual_days": 38,
+      "team_estimate": 21,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P065": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "audit_logging"
+      ],
+      "omitted": [
+        "third_party_api",
+        "pci_dss"
+      ],
+      "negated": [
+        "realtime_ui"
+      ],
+      "actual_days": 59,
+      "team_estimate": 27,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P066": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "multi_tenancy",
+        "mobile_app",
+        "audit_logging"
+      ],
+      "omitted": [
+        "privacy_compliance"
+      ],
+      "negated": [],
+      "actual_days": 63,
+      "team_estimate": 38,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P067": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "multi_tenancy",
+        "realtime_ui",
+        "offline_mode",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [
+        "identity_provider"
+      ],
+      "actual_days": 40,
+      "team_estimate": 38,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P068": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "offline_mode",
+        "pci_dss",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "privacy_compliance"
+      ],
+      "actual_days": 47,
+      "team_estimate": 34,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P069": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "external_data_sync",
+        "offline_mode",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "data_migration"
+      ],
+      "negated": [
+        "realtime_ui",
+        "pci_dss"
+      ],
+      "actual_days": 49,
+      "team_estimate": 32,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P070": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "multi_tenancy",
+        "mobile_app",
+        "offline_mode",
+        "audit_logging"
+      ],
+      "omitted": [
+        "data_migration"
+      ],
+      "negated": [],
+      "actual_days": 105,
+      "team_estimate": 52,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P071": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "realtime_ui",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 72,
+      "team_estimate": 37,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P072": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "offline_mode"
+      ],
+      "omitted": [
+        "third_party_api"
+      ],
+      "negated": [
+        "realtime_ui"
+      ],
+      "actual_days": 24,
+      "team_estimate": 17,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P073": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "offline_mode",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "realtime_ui"
+      ],
+      "actual_days": 42,
+      "team_estimate": 22,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P074": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "identity_provider",
+        "multi_currency",
+        "mobile_app"
+      ],
+      "omitted": [
+        "data_migration"
+      ],
+      "negated": [
+        "external_data_sync",
+        "offline_mode"
+      ],
+      "actual_days": 53,
+      "team_estimate": 32,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P075": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "data_migration",
+        "offline_mode"
+      ],
+      "omitted": [],
+      "negated": [
+        "pci_dss"
+      ],
+      "actual_days": 57,
+      "team_estimate": 37,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P076": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "multi_tenancy"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 16,
+      "team_estimate": 15,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P077": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "data_migration",
+        "multi_tenancy"
+      ],
+      "omitted": [],
+      "negated": [
+        "cross_team_coordination"
+      ],
+      "actual_days": 55,
+      "team_estimate": 40,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P078": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "pci_dss",
+        "privacy_compliance",
+        "audit_logging",
+        "legacy_tech_stack"
+      ],
+      "omitted": [
+        "third_party_api"
+      ],
+      "negated": [],
+      "actual_days": 63,
+      "team_estimate": 43,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P079": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_tenancy",
+        "realtime_ui"
+      ],
+      "actual_days": 31,
+      "team_estimate": 21,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P080": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "offline_mode"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway",
+        "cross_team_coordination"
+      ],
+      "actual_days": 22,
+      "team_estimate": 14,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P081": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_currency",
+        "pci_dss",
+        "privacy_compliance",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 76,
+      "team_estimate": 54,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P082": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [],
+      "omitted": [
+        "mobile_app"
+      ],
+      "negated": [
+        "external_data_sync",
+        "legacy_tech_stack"
+      ],
+      "actual_days": 53,
+      "team_estimate": 17,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": 2.4
+    },
+    "P083": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_tenancy",
+        "offline_mode"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 36,
+      "team_estimate": 27,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P084": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "multi_tenancy",
+        "mobile_app",
+        "pci_dss",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [
+        "identity_provider",
+        "multi_currency",
+        "cross_team_coordination"
+      ],
+      "actual_days": 276,
+      "team_estimate": 86,
+      "interaction_multiplier": 1.15,
+      "drift_factor": 1.0,
+      "outlier_shock": 2.15
+    },
+    "P085": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "data_migration",
+        "multi_currency"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 38,
+      "team_estimate": 23,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P086": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "data_migration",
+        "multi_tenancy",
+        "realtime_ui",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 57,
+      "team_estimate": 34,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P087": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync",
+        "data_migration",
+        "privacy_compliance",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 65,
+      "team_estimate": 35,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P088": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "identity_provider",
+        "data_migration",
+        "mobile_app",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_currency",
+        "offline_mode"
+      ],
+      "actual_days": 119,
+      "team_estimate": 62,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P089": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_currency",
+        "multi_tenancy"
+      ],
+      "actual_days": 50,
+      "team_estimate": 16,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": 2.99
+    },
+    "P090": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [],
+      "omitted": [],
+      "negated": [
+        "data_migration"
+      ],
+      "actual_days": 15,
+      "team_estimate": 13,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P091": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "offline_mode",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "identity_provider"
+      ],
+      "negated": [
+        "multi_tenancy"
+      ],
+      "actual_days": 23,
+      "team_estimate": 20,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P092": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "data_migration",
+        "multi_tenancy",
+        "mobile_app"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway"
+      ],
+      "actual_days": 92,
+      "team_estimate": 44,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P093": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "external_data_sync",
+        "multi_currency",
+        "privacy_compliance",
+        "legacy_tech_stack"
+      ],
+      "omitted": [
+        "cross_team_coordination"
+      ],
+      "negated": [],
+      "actual_days": 61,
+      "team_estimate": 38,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P094": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "pci_dss",
+        "audit_logging"
+      ],
+      "omitted": [
+        "data_migration",
+        "realtime_ui"
+      ],
+      "negated": [
+        "offline_mode"
+      ],
+      "actual_days": 60,
+      "team_estimate": 32,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P095": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "offline_mode",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [
+        "third_party_api",
+        "multi_currency"
+      ],
+      "actual_days": 32,
+      "team_estimate": 24,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P096": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "mobile_app",
+        "privacy_compliance",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "data_migration",
+        "realtime_ui"
+      ],
+      "actual_days": 70,
+      "team_estimate": 38,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P097": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "identity_provider",
+        "offline_mode",
+        "pci_dss",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 59,
+      "team_estimate": 34,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P098": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "external_data_sync",
+        "multi_tenancy",
+        "realtime_ui",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "pci_dss"
+      ],
+      "negated": [
+        "multi_currency"
+      ],
+      "actual_days": 93,
+      "team_estimate": 70,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P099": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "identity_provider",
+        "multi_tenancy",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "payment_gateway"
+      ],
+      "negated": [
+        "third_party_api",
+        "mobile_app",
+        "audit_logging"
+      ],
+      "actual_days": 81,
+      "team_estimate": 67,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P100": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "multi_currency",
+        "offline_mode",
+        "privacy_compliance",
+        "audit_logging",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "mobile_app"
+      ],
+      "actual_days": 111,
+      "team_estimate": 61,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P101": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_currency",
+        "mobile_app",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 46,
+      "team_estimate": 33,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P102": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "realtime_ui"
+      ],
+      "omitted": [],
+      "negated": [
+        "external_data_sync",
+        "multi_tenancy",
+        "pci_dss"
+      ],
+      "actual_days": 34,
+      "team_estimate": 18,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P103": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "mobile_app",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway",
+        "legacy_tech_stack"
+      ],
+      "actual_days": 33,
+      "team_estimate": 25,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P104": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "multi_tenancy",
+        "mobile_app",
+        "pci_dss",
+        "audit_logging",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "data_migration",
+        "realtime_ui"
+      ],
+      "actual_days": 93,
+      "team_estimate": 71,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P105": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "multi_tenancy",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 49,
+      "team_estimate": 39,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P106": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "realtime_ui",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 25,
+      "team_estimate": 21,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P107": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "realtime_ui",
+        "offline_mode"
+      ],
+      "omitted": [
+        "legacy_tech_stack"
+      ],
+      "negated": [
+        "identity_provider"
+      ],
+      "actual_days": 44,
+      "team_estimate": 36,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P108": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "realtime_ui",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_currency"
+      ],
+      "actual_days": 24,
+      "team_estimate": 22,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P109": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "data_migration",
+        "multi_currency",
+        "realtime_ui"
+      ],
+      "omitted": [
+        "cross_team_coordination"
+      ],
+      "negated": [
+        "multi_tenancy"
+      ],
+      "actual_days": 83,
+      "team_estimate": 52,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P110": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "offline_mode",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "third_party_api",
+        "pci_dss"
+      ],
+      "negated": [
+        "external_data_sync"
+      ],
+      "actual_days": 36,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P111": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync",
+        "multi_currency",
+        "multi_tenancy"
+      ],
+      "omitted": [],
+      "negated": [
+        "data_migration"
+      ],
+      "actual_days": 43,
+      "team_estimate": 23,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P112": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "multi_tenancy",
+        "realtime_ui",
+        "mobile_app",
+        "pci_dss",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway",
+        "external_data_sync"
+      ],
+      "actual_days": 116,
+      "team_estimate": 90,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P113": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [],
+      "omitted": [
+        "audit_logging"
+      ],
+      "negated": [
+        "multi_tenancy"
+      ],
+      "actual_days": 32,
+      "team_estimate": 14,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": 2.14
+    },
+    "P114": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "data_migration"
+      ],
+      "omitted": [
+        "mobile_app"
+      ],
+      "negated": [],
+      "actual_days": 62,
+      "team_estimate": 34,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P115": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "multi_tenancy",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 29,
+      "team_estimate": 23,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P116": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_currency",
+        "multi_tenancy",
+        "pci_dss",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 49,
+      "team_estimate": 45,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P117": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "external_data_sync",
+        "data_migration",
+        "realtime_ui",
+        "mobile_app",
+        "pci_dss",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "privacy_compliance",
+        "legacy_tech_stack"
+      ],
+      "actual_days": 118,
+      "team_estimate": 61,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P118": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [],
+      "omitted": [
+        "privacy_compliance"
+      ],
+      "negated": [
+        "third_party_api",
+        "multi_tenancy"
+      ],
+      "actual_days": 25,
+      "team_estimate": 16,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P119": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "data_migration",
+        "privacy_compliance"
+      ],
+      "omitted": [
+        "multi_currency"
+      ],
+      "negated": [
+        "legacy_tech_stack"
+      ],
+      "actual_days": 41,
+      "team_estimate": 27,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P120": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "realtime_ui",
+        "offline_mode"
+      ],
+      "omitted": [],
+      "negated": [
+        "external_data_sync",
+        "multi_currency",
+        "multi_tenancy"
+      ],
+      "actual_days": 50,
+      "team_estimate": 23,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P121": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "identity_provider"
+      ],
+      "omitted": [],
+      "negated": [
+        "privacy_compliance"
+      ],
+      "actual_days": 34,
+      "team_estimate": 25,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P122": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "realtime_ui",
+        "mobile_app"
+      ],
+      "omitted": [
+        "cross_team_coordination"
+      ],
+      "negated": [],
+      "actual_days": 57,
+      "team_estimate": 33,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P123": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "identity_provider",
+        "multi_currency",
+        "multi_tenancy",
+        "offline_mode",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 59,
+      "team_estimate": 32,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P124": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [
+        "data_migration",
+        "privacy_compliance"
+      ],
+      "actual_days": 48,
+      "team_estimate": 30,
+      "interaction_multiplier": 1.15,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P125": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync",
+        "multi_currency",
+        "offline_mode",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [
+        "data_migration",
+        "pci_dss"
+      ],
+      "actual_days": 37,
+      "team_estimate": 26,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P126": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [],
+      "omitted": [],
+      "negated": [
+        "cross_team_coordination"
+      ],
+      "actual_days": 17,
+      "team_estimate": 9,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P127": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "external_data_sync",
+        "privacy_compliance",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [
+        "realtime_ui"
+      ],
+      "actual_days": 57,
+      "team_estimate": 36,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P128": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync",
+        "data_migration",
+        "privacy_compliance"
+      ],
+      "omitted": [
+        "realtime_ui",
+        "legacy_tech_stack"
+      ],
+      "negated": [],
+      "actual_days": 94,
+      "team_estimate": 51,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P129": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "payment_gateway",
+        "external_data_sync",
+        "data_migration",
+        "mobile_app",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "pci_dss"
+      ],
+      "actual_days": 170,
+      "team_estimate": 71,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P130": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration"
+      ],
+      "omitted": [
+        "multi_currency",
+        "legacy_tech_stack"
+      ],
+      "negated": [
+        "offline_mode",
+        "cross_team_coordination"
+      ],
+      "actual_days": 37,
+      "team_estimate": 25,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P131": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync",
+        "offline_mode"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway",
+        "multi_tenancy",
+        "privacy_compliance"
+      ],
+      "actual_days": 24,
+      "team_estimate": 17,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P132": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "external_data_sync",
+        "multi_tenancy",
+        "realtime_ui",
+        "mobile_app"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_currency",
+        "audit_logging"
+      ],
+      "actual_days": 92,
+      "team_estimate": 64,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P133": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [],
+      "omitted": [
+        "data_migration"
+      ],
+      "negated": [
+        "audit_logging",
+        "legacy_tech_stack"
+      ],
+      "actual_days": 23,
+      "team_estimate": 14,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P134": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "data_migration",
+        "mobile_app",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 81,
+      "team_estimate": 42,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P135": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "mobile_app",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [
+        "data_migration",
+        "realtime_ui",
+        "cross_team_coordination"
+      ],
+      "actual_days": 56,
+      "team_estimate": 21,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": 2.27
+    },
+    "P136": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_tenancy"
+      ],
+      "actual_days": 13,
+      "team_estimate": 15,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P137": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "external_data_sync",
+        "multi_tenancy",
+        "realtime_ui",
+        "audit_logging",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "identity_provider"
+      ],
+      "actual_days": 125,
+      "team_estimate": 75,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P138": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "data_migration",
+        "mobile_app",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "identity_provider",
+        "privacy_compliance"
+      ],
+      "actual_days": 115,
+      "team_estimate": 48,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P139": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "payment_gateway",
+        "identity_provider",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "third_party_api",
+        "data_migration"
+      ],
+      "negated": [],
+      "actual_days": 171,
+      "team_estimate": 63,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P140": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "payment_gateway",
+        "multi_currency",
+        "pci_dss",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 55,
+      "team_estimate": 39,
+      "interaction_multiplier": 1.15,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P141": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "data_migration",
+        "multi_currency",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 50,
+      "team_estimate": 34,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P142": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_currency",
+        "multi_tenancy",
+        "mobile_app",
+        "offline_mode",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway"
+      ],
+      "actual_days": 97,
+      "team_estimate": 64,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P143": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "data_migration",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "external_data_sync",
+        "multi_currency"
+      ],
+      "actual_days": 64,
+      "team_estimate": 35,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P144": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "identity_provider",
+        "external_data_sync",
+        "multi_currency",
+        "mobile_app",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [
+        "offline_mode"
+      ],
+      "actual_days": 60,
+      "team_estimate": 45,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P145": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "multi_currency",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "realtime_ui"
+      ],
+      "actual_days": 23,
+      "team_estimate": 21,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P146": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync"
+      ],
+      "omitted": [
+        "mobile_app",
+        "offline_mode"
+      ],
+      "negated": [
+        "legacy_tech_stack"
+      ],
+      "actual_days": 55,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P147": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "data_migration",
+        "realtime_ui",
+        "mobile_app",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "identity_provider"
+      ],
+      "actual_days": 67,
+      "team_estimate": 38,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P148": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "pci_dss"
+      ],
+      "actual_days": 27,
+      "team_estimate": 20,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P149": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "data_migration",
+        "realtime_ui",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [
+        "offline_mode",
+        "pci_dss"
+      ],
+      "actual_days": 75,
+      "team_estimate": 39,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P150": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "data_migration",
+        "pci_dss",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "privacy_compliance"
+      ],
+      "actual_days": 68,
+      "team_estimate": 32,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P151": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "privacy_compliance",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 29,
+      "team_estimate": 18,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P152": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [],
+      "omitted": [
+        "payment_gateway",
+        "privacy_compliance"
+      ],
+      "negated": [
+        "identity_provider",
+        "offline_mode"
+      ],
+      "actual_days": 31,
+      "team_estimate": 19,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P153": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "identity_provider",
+        "external_data_sync"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 23,
+      "team_estimate": 17,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P154": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "offline_mode",
+        "privacy_compliance",
+        "audit_logging"
+      ],
+      "omitted": [
+        "realtime_ui"
+      ],
+      "negated": [],
+      "actual_days": 84,
+      "team_estimate": 53,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P155": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "data_migration",
+        "multi_currency"
+      ],
+      "omitted": [],
+      "negated": [
+        "offline_mode"
+      ],
+      "actual_days": 30,
+      "team_estimate": 20,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P156": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "data_migration",
+        "multi_currency",
+        "mobile_app",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "realtime_ui"
+      ],
+      "negated": [
+        "audit_logging"
+      ],
+      "actual_days": 169,
+      "team_estimate": 74,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P157": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "payment_gateway",
+        "realtime_ui",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "mobile_app"
+      ],
+      "negated": [],
+      "actual_days": 45,
+      "team_estimate": 44,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.0,
+      "outlier_shock": null
+    },
+    "P158": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "external_data_sync",
+        "data_migration",
+        "mobile_app",
+        "offline_mode",
+        "pci_dss",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 453,
+      "team_estimate": 113,
+      "interaction_multiplier": 1.4168,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P159": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync",
+        "data_migration",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 53,
+      "team_estimate": 24,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P160": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "multi_currency",
+        "offline_mode",
+        "pci_dss"
+      ],
+      "omitted": [
+        "multi_tenancy"
+      ],
+      "negated": [],
+      "actual_days": 97,
+      "team_estimate": 46,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P161": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "pci_dss",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 60,
+      "team_estimate": 26,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P162": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_tenancy",
+        "realtime_ui"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway"
+      ],
+      "actual_days": 42,
+      "team_estimate": 22,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P163": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "mobile_app",
+        "offline_mode",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [
+        "legacy_tech_stack"
+      ],
+      "actual_days": 74,
+      "team_estimate": 45,
+      "interaction_multiplier": 1.265,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P164": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "realtime_ui",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [
+        "privacy_compliance"
+      ],
+      "actual_days": 51,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P165": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 40,
+      "team_estimate": 19,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P166": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "identity_provider",
+        "data_migration",
+        "offline_mode",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 54,
+      "team_estimate": 30,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P167": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 1,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "payment_gateway",
+        "identity_provider",
+        "data_migration",
+        "multi_currency",
+        "offline_mode",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "external_data_sync",
+        "mobile_app"
+      ],
+      "negated": [
+        "realtime_ui"
+      ],
+      "actual_days": 169,
+      "team_estimate": 101,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P168": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "data_migration",
+        "realtime_ui",
+        "mobile_app"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 65,
+      "team_estimate": 33,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P169": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "data_migration",
+        "mobile_app"
+      ],
+      "negated": [
+        "identity_provider",
+        "multi_currency",
+        "offline_mode",
+        "legacy_tech_stack"
+      ],
+      "actual_days": 120,
+      "team_estimate": 49,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P170": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "offline_mode"
+      ],
+      "omitted": [
+        "privacy_compliance"
+      ],
+      "negated": [],
+      "actual_days": 38,
+      "team_estimate": 20,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P171": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "external_data_sync",
+        "audit_logging",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_currency"
+      ],
+      "actual_days": 23,
+      "team_estimate": 22,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P172": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 1,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "identity_provider",
+        "external_data_sync",
+        "data_migration",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "realtime_ui"
+      ],
+      "negated": [],
+      "actual_days": 209,
+      "team_estimate": 66,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P173": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "multi_currency"
+      ],
+      "omitted": [
+        "multi_tenancy"
+      ],
+      "negated": [
+        "offline_mode"
+      ],
+      "actual_days": 40,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P174": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "audit_logging",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway"
+      ],
+      "actual_days": 44,
+      "team_estimate": 22,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P175": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "mobile_app"
+      ],
+      "omitted": [],
+      "negated": [
+        "cross_team_coordination"
+      ],
+      "actual_days": 53,
+      "team_estimate": 33,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P176": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "pci_dss",
+        "privacy_compliance",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "legacy_tech_stack"
+      ],
+      "actual_days": 76,
+      "team_estimate": 44,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P177": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_tenancy",
+        "offline_mode",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [
+        "privacy_compliance"
+      ],
+      "actual_days": 66,
+      "team_estimate": 33,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P178": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "multi_tenancy"
+      ],
+      "omitted": [
+        "identity_provider",
+        "data_migration"
+      ],
+      "negated": [],
+      "actual_days": 56,
+      "team_estimate": 26,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P179": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "identity_provider",
+        "data_migration",
+        "multi_tenancy",
+        "mobile_app"
+      ],
+      "omitted": [],
+      "negated": [
+        "legacy_tech_stack"
+      ],
+      "actual_days": 73,
+      "team_estimate": 44,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P180": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "realtime_ui",
+        "offline_mode"
+      ],
+      "omitted": [
+        "privacy_compliance"
+      ],
+      "negated": [
+        "audit_logging"
+      ],
+      "actual_days": 51,
+      "team_estimate": 35,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P181": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "data_migration",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "legacy_tech_stack"
+      ],
+      "actual_days": 39,
+      "team_estimate": 18,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P182": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 43,
+      "team_estimate": 18,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P183": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync",
+        "mobile_app",
+        "offline_mode",
+        "legacy_tech_stack"
+      ],
+      "omitted": [
+        "identity_provider"
+      ],
+      "negated": [
+        "multi_currency",
+        "privacy_compliance"
+      ],
+      "actual_days": 69,
+      "team_estimate": 58,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P184": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "data_migration",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "mobile_app"
+      ],
+      "actual_days": 80,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P185": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "data_migration",
+        "privacy_compliance",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "pci_dss",
+        "legacy_tech_stack"
+      ],
+      "actual_days": 66,
+      "team_estimate": 28,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P186": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "multi_tenancy",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [
+        "realtime_ui"
+      ],
+      "actual_days": 31,
+      "team_estimate": 20,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P187": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_currency",
+        "realtime_ui",
+        "mobile_app"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_tenancy"
+      ],
+      "actual_days": 69,
+      "team_estimate": 30,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P188": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "external_data_sync",
+        "multi_currency",
+        "mobile_app",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 98,
+      "team_estimate": 52,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P189": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [],
+      "omitted": [
+        "external_data_sync"
+      ],
+      "negated": [
+        "data_migration",
+        "pci_dss",
+        "privacy_compliance"
+      ],
+      "actual_days": 22,
+      "team_estimate": 15,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P190": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 51,
+      "team_estimate": 20,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P191": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "mobile_app",
+        "offline_mode"
+      ],
+      "omitted": [
+        "data_migration",
+        "cross_team_coordination"
+      ],
+      "negated": [],
+      "actual_days": 209,
+      "team_estimate": 35,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.22,
+      "outlier_shock": 2.4
+    },
+    "P192": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [
+        "realtime_ui",
+        "privacy_compliance"
+      ],
+      "actual_days": 45,
+      "team_estimate": 22,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P193": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "identity_provider",
+        "data_migration"
+      ],
+      "omitted": [
+        "third_party_api",
+        "payment_gateway"
+      ],
+      "negated": [
+        "external_data_sync"
+      ],
+      "actual_days": 64,
+      "team_estimate": 37,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P194": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api"
+      ],
+      "omitted": [
+        "offline_mode",
+        "legacy_tech_stack"
+      ],
+      "negated": [
+        "multi_tenancy",
+        "mobile_app"
+      ],
+      "actual_days": 36,
+      "team_estimate": 27,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P195": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "external_data_sync"
+      ],
+      "omitted": [],
+      "negated": [
+        "pci_dss"
+      ],
+      "actual_days": 36,
+      "team_estimate": 23,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P196": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "realtime_ui",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 45,
+      "team_estimate": 24,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P197": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "realtime_ui",
+        "mobile_app"
+      ],
+      "omitted": [],
+      "negated": [
+        "legacy_tech_stack"
+      ],
+      "actual_days": 57,
+      "team_estimate": 32,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P198": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "data_migration",
+        "multi_tenancy"
+      ],
+      "omitted": [],
+      "negated": [
+        "privacy_compliance"
+      ],
+      "actual_days": 61,
+      "team_estimate": 36,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P199": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "realtime_ui",
+        "offline_mode",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 59,
+      "team_estimate": 32,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P200": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "realtime_ui",
+        "pci_dss",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway",
+        "legacy_tech_stack"
+      ],
+      "actual_days": 82,
+      "team_estimate": 43,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P201": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "external_data_sync",
+        "data_migration",
+        "mobile_app",
+        "offline_mode",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [
+        "identity_provider"
+      ],
+      "actual_days": 231,
+      "team_estimate": 82,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P202": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "data_migration",
+        "offline_mode"
+      ],
+      "omitted": [
+        "mobile_app"
+      ],
+      "negated": [
+        "cross_team_coordination"
+      ],
+      "actual_days": 85,
+      "team_estimate": 40,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P203": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "data_migration",
+        "offline_mode"
+      ],
+      "omitted": [],
+      "negated": [
+        "legacy_tech_stack"
+      ],
+      "actual_days": 54,
+      "team_estimate": 21,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P204": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "mobile_app"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_currency",
+        "offline_mode"
+      ],
+      "actual_days": 50,
+      "team_estimate": 21,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P205": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [],
+      "omitted": [
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "negated": [
+        "identity_provider",
+        "offline_mode"
+      ],
+      "actual_days": 30,
+      "team_estimate": 22,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P206": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync",
+        "data_migration",
+        "offline_mode",
+        "privacy_compliance"
+      ],
+      "omitted": [
+        "payment_gateway",
+        "realtime_ui"
+      ],
+      "negated": [
+        "pci_dss"
+      ],
+      "actual_days": 90,
+      "team_estimate": 63,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P207": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "realtime_ui"
+      ],
+      "omitted": [
+        "multi_tenancy",
+        "cross_team_coordination"
+      ],
+      "negated": [],
+      "actual_days": 65,
+      "team_estimate": 30,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P208": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_tenancy",
+        "realtime_ui",
+        "pci_dss",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 66,
+      "team_estimate": 48,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P209": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "data_migration",
+        "realtime_ui",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_currency",
+        "multi_tenancy"
+      ],
+      "actual_days": 95,
+      "team_estimate": 44,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P210": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "payment_gateway",
+        "mobile_app",
+        "pci_dss",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "realtime_ui"
+      ],
+      "negated": [],
+      "actual_days": 148,
+      "team_estimate": 86,
+      "interaction_multiplier": 1.15,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P211": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "multi_tenancy",
+        "pci_dss",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "external_data_sync",
+        "mobile_app",
+        "audit_logging"
+      ],
+      "actual_days": 133,
+      "team_estimate": 62,
+      "interaction_multiplier": 1.15,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P212": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "multi_currency",
+        "offline_mode",
+        "pci_dss",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "audit_logging"
+      ],
+      "negated": [
+        "payment_gateway"
+      ],
+      "actual_days": 59,
+      "team_estimate": 55,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P213": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "identity_provider",
+        "multi_currency",
+        "multi_tenancy",
+        "realtime_ui",
+        "mobile_app",
+        "offline_mode",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 130,
+      "team_estimate": 91,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P214": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "multi_tenancy",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 68,
+      "team_estimate": 33,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P215": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "external_data_sync",
+        "realtime_ui",
+        "pci_dss",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "offline_mode"
+      ],
+      "actual_days": 103,
+      "team_estimate": 48,
+      "interaction_multiplier": 1.15,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P216": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "data_migration",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 66,
+      "team_estimate": 35,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P217": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "multi_tenancy",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 44,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P218": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "pci_dss",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_currency",
+        "realtime_ui"
+      ],
+      "actual_days": 71,
+      "team_estimate": 30,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P219": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "realtime_ui",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [
+        "third_party_api"
+      ],
+      "actual_days": 23,
+      "team_estimate": 19,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P220": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "external_data_sync",
+        "pci_dss",
+        "audit_logging"
+      ],
+      "omitted": [
+        "identity_provider"
+      ],
+      "negated": [
+        "multi_currency",
+        "mobile_app"
+      ],
+      "actual_days": 63,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P221": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "realtime_ui",
+        "pci_dss",
+        "privacy_compliance",
+        "audit_logging",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "identity_provider",
+        "cross_team_coordination"
+      ],
+      "actual_days": 128,
+      "team_estimate": 73,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P222": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [],
+      "omitted": [
+        "multi_currency",
+        "cross_team_coordination"
+      ],
+      "negated": [
+        "data_migration",
+        "offline_mode"
+      ],
+      "actual_days": 24,
+      "team_estimate": 17,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P223": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "mobile_app",
+        "pci_dss",
+        "audit_logging",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 116,
+      "team_estimate": 62,
+      "interaction_multiplier": 1.15,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P224": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "identity_provider",
+        "external_data_sync",
+        "data_migration",
+        "realtime_ui",
+        "pci_dss",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "offline_mode",
+        "audit_logging"
+      ],
+      "actual_days": 284,
+      "team_estimate": 52,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": 2.47
+    },
+    "P225": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "data_migration"
+      ],
+      "omitted": [
+        "pci_dss",
+        "cross_team_coordination"
+      ],
+      "negated": [],
+      "actual_days": 41,
+      "team_estimate": 23,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P226": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "external_data_sync",
+        "multi_tenancy",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 76,
+      "team_estimate": 43,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P227": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "privacy_compliance",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "audit_logging"
+      ],
+      "actual_days": 51,
+      "team_estimate": 33,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P228": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "pci_dss",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": 97,
+      "team_estimate": 23,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": 2.83
+    },
+    "P229": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "payment_gateway",
+        "privacy_compliance",
+        "audit_logging",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "pci_dss"
+      ],
+      "actual_days": null,
+      "team_estimate": 35,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P230": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration",
+        "multi_currency",
+        "pci_dss",
+        "legacy_tech_stack"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway"
+      ],
+      "actual_days": null,
+      "team_estimate": 38,
+      "interaction_multiplier": 1.12,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P231": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 1,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "external_data_sync",
+        "multi_tenancy",
+        "offline_mode",
+        "privacy_compliance"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": null,
+      "team_estimate": 43,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P232": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 1,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "privacy_compliance",
+        "audit_logging"
+      ],
+      "omitted": [],
+      "negated": [
+        "payment_gateway"
+      ],
+      "actual_days": null,
+      "team_estimate": 29,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P233": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "identity_provider",
+        "privacy_compliance",
+        "legacy_tech_stack",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": null,
+      "team_estimate": 31,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P234": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 1,
+        "identity_provider": 0,
+        "external_data_sync": 1,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 1,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "payment_gateway",
+        "external_data_sync",
+        "data_migration",
+        "multi_currency",
+        "multi_tenancy"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": null,
+      "team_estimate": 49,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P235": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "realtime_ui",
+        "mobile_app"
+      ],
+      "omitted": [],
+      "negated": [
+        "multi_currency",
+        "legacy_tech_stack"
+      ],
+      "actual_days": null,
+      "team_estimate": 34,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P236": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 1,
+        "offline_mode": 1,
+        "pci_dss": 1,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 1,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "multi_tenancy",
+        "realtime_ui",
+        "offline_mode",
+        "pci_dss",
+        "privacy_compliance",
+        "legacy_tech_stack"
+      ],
+      "omitted": [
+        "mobile_app"
+      ],
+      "negated": [],
+      "actual_days": null,
+      "team_estimate": 123,
+      "interaction_multiplier": 1.1,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P237": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 1,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "data_migration",
+        "multi_currency",
+        "privacy_compliance",
+        "cross_team_coordination"
+      ],
+      "omitted": [],
+      "negated": [
+        "external_data_sync"
+      ],
+      "actual_days": null,
+      "team_estimate": 31,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P238": {
+      "features": {
+        "third_party_api": 0,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 0,
+        "realtime_ui": 0,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "data_migration"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": null,
+      "team_estimate": 15,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P239": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 1,
+        "external_data_sync": 0,
+        "data_migration": 0,
+        "multi_currency": 1,
+        "multi_tenancy": 0,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 1,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 0
+      },
+      "mentioned": [
+        "third_party_api",
+        "identity_provider",
+        "multi_currency",
+        "realtime_ui",
+        "pci_dss"
+      ],
+      "omitted": [],
+      "negated": [],
+      "actual_days": null,
+      "team_estimate": 36,
+      "interaction_multiplier": 1.0,
+      "drift_factor": 1.22,
+      "outlier_shock": null
+    },
+    "P240": {
+      "features": {
+        "third_party_api": 1,
+        "payment_gateway": 0,
+        "identity_provider": 0,
+        "external_data_sync": 0,
+        "data_migration": 1,
+        "multi_currency": 0,
+        "multi_tenancy": 1,
+        "realtime_ui": 1,
+        "mobile_app": 0,
+        "offline_mode": 0,
+        "pci_dss": 0,
+        "privacy_compliance": 0,
+        "audit_logging": 0,
+        "legacy_tech_stack": 0,
+        "cross_team_coordination": 1
+      },
+      "mentioned": [
+        "third_party_api",
+        "data_migration",
+        "multi_tenancy",
+        "cross_team_coordination"
+      ],
+      "omitted": [
+        "realtime_ui"
+      ],
+      "negated": [
+        "offline_mode"
+      ],
+      "actual_days": null,
+      "team_estimate": 40,
       "interaction_multiplier": 1.0,
       "drift_factor": 1.22,
       "outlier_shock": null

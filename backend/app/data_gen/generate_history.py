@@ -28,7 +28,7 @@ Template-based, offline and fully deterministic: the same ``--seed`` always
 produces byte-identical CSV and JSON outputs.
 
 CLI:
-    python -m app.data_gen.generate_history --n 60 --seed 42 \\
+    python -m app.data_gen.generate_history --n 240 --seed 42 \\
         --out data/synthetic_history.csv --truth data/ground_truth.json
 """
 
@@ -106,7 +106,7 @@ TEAM_NOISE_SIGMA = 0.08
 
 #: Extra joint multipliers when both features co-occur (integration/rework
 #: overhead on top of the independent main effects). Kept small (~1.1) so the
-#: main effects stay recoverable from the 52-project training corpus
+#: main effects stay recoverable from the 228-project training corpus
 #: (Ridge log-space coefficient error <= 20%, checked in the test suite).
 INTERACTION_MULTIPLIERS: dict[tuple[str, str], float] = {
     ("payment_gateway", "pci_dss"): 1.15,
@@ -135,9 +135,10 @@ DATE_END = date(2026, 10, 10)
 DATE_START = date(2024, 10, 10)
 DATE_JITTER_DAYS = 6
 
-RECENT_PROJECT_COUNT = 8  # newest projects stay open for the "Enter Actuals" demo
+RECENT_PROJECT_COUNT = 12  # newest projects stay open for the "Enter Actuals" demo
 RECENT_STATUSES = ("in_progress", "in_progress", "in_progress", "in_progress",
-                   "in_progress", "pending", "pending", "pending")
+                   "in_progress", "in_progress", "in_progress",
+                   "pending", "pending", "pending", "pending", "pending")
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CSV_PATH = REPO_ROOT / "data" / "synthetic_history.csv"
@@ -224,7 +225,7 @@ def _project_dates(rng: random.Random, n: int) -> list[str]:
     return [d.isoformat() for d in days]
 
 
-def generate(n: int = 60, seed: int = 42) -> tuple[list[ProjectRecord], dict[str, Any]]:
+def generate(n: int = 240, seed: int = 42) -> tuple[list[ProjectRecord], dict[str, Any]]:
     """Generate ``n`` projects plus ground truth for the given seed.
 
     Args:
@@ -376,7 +377,7 @@ def write_ground_truth(ground_truth: Mapping[str, Any], path: str | Path) -> Pat
 def build_parser() -> argparse.ArgumentParser:
     """CLI parser; defaults resolve to the repo-root data/ dir regardless of CWD."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--n", type=int, default=60, help="number of projects (default: 60)")
+    parser.add_argument("--n", type=int, default=240, help="number of projects (default: 240)")
     parser.add_argument("--seed", type=int, default=42, help="RNG seed (default: 42)")
     parser.add_argument("--out", type=Path, default=DEFAULT_CSV_PATH, help=f"CSV output path (default: {DEFAULT_CSV_PATH})")
     parser.add_argument("--truth", type=Path, default=DEFAULT_TRUTH_PATH, help=f"ground-truth JSON path (default: {DEFAULT_TRUTH_PATH})")
