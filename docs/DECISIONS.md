@@ -1,0 +1,23 @@
+# Decision log — The Estimator
+
+Short entries, newest last. One paragraph per decision: what, why, what we gave up.
+
+## D1 — Stack: FastAPI + SQLite + Next.js 15 (2026-10-16)
+
+Chosen per docs/SPEC.md §8.3 and checklist Phase 0 defaults: FastAPI + SQLite backend, Next.js 15 + TailwindCSS frontend, deploy Vercel + Render. Trade-off: Next.js adds build weight on-device, but maximizes familiarity and deployment options.
+
+## D2 — LLM provider: Gemini Flash by default, pluggable + offline stub (2026-10-16)
+
+No API key available during the build, so the extraction service is provider-agnostic (gemini | openai | stub). The `stub` provider is a deterministic rule-based extractor so tests, replay and demos run with zero network. Real Gemini calls activate as soon as `GEMINI_API_KEY` is set. Trade-off: stub quality < real LLM, must be disclosed in UI/README.
+
+## D3 — No sentence-transformers / torch (2026-10-16)
+
+The spec suggested sentence-transformers for similar-project retrieval. Installing torch (~GBs) on an Android proot is slow and fragile, so similarity uses a hybrid of BM25 + TF-IDF cosine + rapidfuzz (no torch). Trade-off: slightly weaker semantic matching; acceptable for demo, documented as a limitation. Embeddings can be swapped in later behind the same interface.
+
+## D4 — Synthetic data with hidden formula, generated offline (2026-10-16)
+
+Phase 1 data generator is template-based (no LLM calls) and deterministic (seeded): hidden multiplicative formula over 15 features + lognormal noise, systematic underestimation bias in `team_estimate`, ~30% of emails omit 1–2 present features. Ground truth dumped to data/ground_truth.json for validation only — the estimator never reads it. Trade-off: emails are less varied than real RFP text; disclosed in README.
+
+## D5 — Parallel agent execution with file ownership (2026-10-16)
+
+Two agents build Phase 1 (data + DB) and Phase 2 (core services) in parallel with disjoint file ownership; interfaces frozen in docs/API.md (canonical row + CSV format). Avoids merge conflict and integration drift. Trade-off: integration wiring happens in wave 2 (API layer).
