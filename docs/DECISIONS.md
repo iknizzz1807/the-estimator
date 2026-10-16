@@ -21,3 +21,8 @@ Phase 1 data generator is template-based (no LLM calls) and deterministic (seede
 ## D5 — Parallel agent execution with file ownership (2026-10-16)
 
 Two agents build Phase 1 (data + DB) and Phase 2 (core services) in parallel with disjoint file ownership; interfaces frozen in docs/API.md (canonical row + CSV format). Avoids merge conflict and integration drift. Trade-off: integration wiring happens in wave 2 (API layer).
+
+## D6 — Wave 2: API layer, SSE streaming, replay cache (2026-10-16)
+
+FastAPI endpoints implemented exactly per docs/API.md (10 routes + SSE stream). Startup computes the walk-forward replay once, persists it (`model_version "replay-v1"`) and caches it in memory; History/Proof read from this cache so the UI stays fast. Conformal tail quantiles widened ×1.10 → seeded replay coverage 73.8% → 78.6% (target 75–85%), MAE unchanged. Demo DB note: `data/estimator.db` accumulates smoke projects (P061+) on this device — delete the file to auto-reseed 60 pristine projects on next startup.
+
