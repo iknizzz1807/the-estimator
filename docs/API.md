@@ -180,6 +180,22 @@ Body: `{ "email_text": "...", "budget_days": 30 }`
 
 Tiers differ by which optional capabilities are phased out (`excluded`); `over_budget_prob` = P(actual days > budget) under the tier's predictive distribution. Deterministic (seeded MC).
 
+Each response also includes a top-level `pricing` block computed from the Full-scope interval via a lognormal fit of the conformal interval — this powers the interactive **pricing curve** (quote days → overrun risk + implied margin):
+
+```json
+{ "pricing": {
+    "scope": "full",
+    "p10": 87.3, "p50": 138.0, "p90": 248.2,
+    "curve": [ { "days": 60.0, "over_prob": 0.42 }, "…~25 log-spaced points…" ],
+    "safe_quote_25": 154.3,
+    "safe_quote_10": 208.7
+} }
+```
+
+- `curve[].over_prob` = P(actual days > quote days) — same lognormal model as `over_budget_prob` (so at `days == budget`, the Full-tier numbers must agree).
+- `safe_quote_25` / `safe_quote_10` = smallest quote such that P(overrun) ≤ 25% / 10% respectively.
+- Implied margin at a quote = `(quote − p50) / p50` (display + tooltip only; no extra API field needed).
+
 ### POST /api/ab — third baseline (LLM with history)
 
 Response keeps all existing fields and adds:
