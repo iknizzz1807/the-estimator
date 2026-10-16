@@ -13,6 +13,7 @@ import {
   SkeletonLines,
   Spinner,
 } from "./ui";
+import { PricingCurve } from "./PricingCurve";
 import { GLOSSARY, Term } from "./Tooltip";
 
 const TIER_ORDER: Record<string, number> = { core: 0, standard: 1, full: 2 };
@@ -307,6 +308,13 @@ export function PackageBuilder({
                 />
               ))}
             </div>
+
+            {data.pricing && (
+              <PricingCurve
+                pricing={data.pricing}
+                budgetDays={data.budget_days}
+              />
+            )}
 
             <p className="text-[11px] leading-5 text-[var(--faint)]">
               Over-budget probability comes from each tier&apos;s own P10/P50/P90

@@ -20,6 +20,8 @@ import type {
   Health,
   ImportResponse,
   PackagesResponse,
+  PricingBlock,
+  PricingCurvePoint,
   ProjectRow,
   ReplayResponse,
   ReplayStep,
@@ -383,6 +385,38 @@ const TIER_LABELS: Record<string, string> = {
 const RISK_NOTE =
   "all packages exceed the 25% over-budget threshold; Essential (core) is the minimum-risk scope — renegotiate the budget or timeline";
 
+/**
+ * Contract v0.2 `pricing` block: ~25 log-spaced {days, over_prob} points from
+ * p10*0.6 to p90*1.5 plus the smallest safe quotes at 25% / 10% risk — the
+ * same lognormal fit the tier probabilities use (mirrors the backend).
+ */
+function mockPricingBlock(estimate: EstimateRange): PricingBlock {
+  const { p10, p50, p90 } = estimate;
+  const mu = Math.log(Math.max(p50, 0.1));
+  const sigma =
+    p10 > 0 && p90 > p10 ? (Math.log(p90) - Math.log(p10)) / (2 * 1.2816) : 0;
+  const start = Math.max(0.1, p10 > 0 ? p10 * 0.6 : p50 * 0.6);
+  const end = Math.max(start * 1.0001, p90 > 0 ? p90 * 1.5 : start * 2.5);
+  const logStart = Math.log(start);
+  const step = (Math.log(end) - logStart) / 24;
+  const curve: PricingCurvePoint[] = Array.from({ length: 25 }, (_, index) => {
+    const days = Math.max(
+      0.1,
+      Number(Math.exp(logStart + step * index).toFixed(1))
+    );
+    return { days, over_prob: overBudgetProb(estimate, days) };
+  });
+  return {
+    scope: "full",
+    p10,
+    p50,
+    p90,
+    curve,
+    safe_quote_25: Number(Math.exp(mu + 0.6745 * sigma).toFixed(1)),
+    safe_quote_10: Number(Math.exp(mu + 1.2816 * sigma).toFixed(1)),
+  };
+}
+
 export async function mockEstimatePackages(
   emailText: string,
   budgetDays: number
@@ -463,6 +497,8 @@ export async function mockEstimatePackages(
     packages,
     recommendation,
     method: unknownCount > 0 ? "mc" : "point",
+    // Fitted from the Full-scope interval (last package), like the backend.
+    pricing: mockPricingBlock(packages[packages.length - 1].estimate),
   };
   if (recommendationNote) response.recommendation_note = recommendationNote;
   return response;

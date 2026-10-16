@@ -172,6 +172,26 @@ export interface QuotePackage {
   notes: string;
 }
 
+export interface PricingCurvePoint {
+  days: number;
+  /** P(actual days > days) under the interval's lognormal fit (0..1). */
+  over_prob: number;
+}
+
+/** Interactive pricing curve, fitted from the Full-scope interval (v0.2). */
+export interface PricingBlock {
+  /** Scope the interval was fitted from — always "full". */
+  scope: string;
+  p10: number;
+  p50: number;
+  p90: number;
+  /** ~25 log-spaced points spanning [p10 * 0.6, p90 * 1.5]. */
+  curve: PricingCurvePoint[];
+  /** Smallest quotes keeping P(overrun) ≤ 25% / ≤ 10%. */
+  safe_quote_25: number;
+  safe_quote_10: number;
+}
+
 export interface PackagesResponse {
   budget_days: number | null;
   packages: QuotePackage[];
@@ -180,6 +200,8 @@ export interface PackagesResponse {
   method?: EstimateMethod;
   /** Present when every tier exceeds the 25% over-budget threshold. */
   recommendation_note?: string;
+  /** v0.2 pricing curve; optional so older payloads still render. */
+  pricing?: PricingBlock;
 }
 
 export interface ResetResponse {
