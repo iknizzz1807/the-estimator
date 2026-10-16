@@ -8,6 +8,7 @@ import {
   STREAM_STEPS,
   type AnswersMap,
   type EstimateResponse,
+  type RepoChoice,
   type StreamEvent,
 } from "@/lib/types";
 import { fmtInt, humanDuration } from "@/lib/format";
@@ -25,6 +26,7 @@ import { ContributionBar } from "@/components/ContributionBar";
 import { PackageBuilder } from "@/components/PackageBuilder";
 import { CoefficientsTable } from "@/components/CoefficientsTable";
 import { ProposalPrintView } from "@/components/ProposalPrintView";
+import { CodebasePanel } from "@/components/CodebasePanel";
 import { EmptyState, Panel, Spinner } from "@/components/ui";
 import { GLOSSARY, Term } from "@/components/Tooltip";
 
@@ -36,6 +38,18 @@ const STEP_META: Record<string, { title: string; detail: string }> = {
   questions: { title: "Questions", detail: "ranking missing info by Value of Information" },
   done: { title: "Done", detail: "assembling the result" },
 };
+
+/** Codebase Lab repo selector (contract v0.2 `repo` body field). */
+const REPO_OPTIONS: Array<{
+  value: RepoChoice | null;
+  label: string;
+  hint: string;
+}> = [
+  { value: null, label: "None", hint: "no codebase context" },
+  { value: "demo_a", label: "Demo A (plugin)", hint: "clean plugin-pattern repo" },
+  { value: "demo_b", label: "Demo B (spaghetti)", hint: "messy repo — higher friction" },
+  { value: "self", label: "This project", hint: "the server's own checkout" },
+];
 
 function ProviderBadge({ provider }: { provider: string | undefined }) {
   if (!provider) return null;
@@ -68,6 +82,8 @@ export default function EstimatePage() {
   const [copied, setCopied] = useState(false);
   const [durationMs, setDurationMs] = useState<number | null>(null);
   const [generatedAt, setGeneratedAt] = useState("");
+  // Codebase Lab (contract v0.2): repository context for the next run.
+  const [repo, setRepo] = useState<RepoChoice | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // Interactive answers (contract v0.2): derived estimate + original result.
@@ -149,7 +165,7 @@ export default function EstimatePage() {
           setStreamError(event.message ?? "Estimation failed — please retry.");
           setActiveStep(null);
         }
-      }, controller.signal);
+      }, controller.signal, repo);
     } catch (err) {
       if (!controller.signal.aborted) {
         setStreamError(errMessage(err));
@@ -178,7 +194,7 @@ export default function EstimatePage() {
     setAnswering(true);
     const seq = ++answerSeqRef.current;
     try {
-      const refined = await api.estimate(estimateEmail, next);
+      const refined = await api.estimate(estimateEmail, next, repo);
       if (seq !== answerSeqRef.current) return;
       setEstimate(refined);
       confirmedAnswersRef.current = next;
@@ -291,6 +307,44 @@ export default function EstimatePage() {
             running={running}
             validationError={validationError}
           />
+          <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-3">
+            <span className="text-[11px] uppercase tracking-[0.1em] text-[var(--dim)]">
+              Codebase context
+            </span>
+            <div
+              className="flex flex-wrap gap-1.5"
+              role="radiogroup"
+              aria-label="Codebase context repository"
+            >
+              {REPO_OPTIONS.map((option) => {
+                const active = repo === option.value;
+                return (
+                  <button
+                    key={option.label}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    title={option.hint}
+                    disabled={running}
+                    onClick={() => setRepo(option.value)}
+                    className={`chip cursor-pointer disabled:cursor-not-allowed disabled:opacity-45 ${
+                      active ? "chip-info" : ""
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+            {repo && (
+              <span className="text-[11px] text-[var(--faint)]">
+                {REPO_OPTIONS.find((option) => option.value === repo)?.hint}
+              </span>
+            )}
+            {estimate && !running && (estimate.codebase?.repo ?? null) !== repo && (
+              <span className="chip chip-unknown">press Estimate to apply</span>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -357,6 +411,14 @@ export default function EstimatePage() {
             })}
           </ol>
         </Panel>
+      )}
+
+      {repo && running && (
+        <CodebasePanel
+          codebase={null}
+          loading
+          repoLabel={REPO_OPTIONS.find((option) => option.value === repo)?.label}
+        />
       )}
 
       {streamError && !running && (
@@ -486,6 +548,8 @@ export default function EstimatePage() {
               )}
             </Panel>
           </div>
+
+          {estimate.codebase && <CodebasePanel codebase={estimate.codebase} />}
 
           <Panel
             title="Extracted features (15)"

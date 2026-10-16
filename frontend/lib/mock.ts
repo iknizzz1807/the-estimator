@@ -12,6 +12,8 @@ import type {
   ABResponse,
   ActualUpdateResponse,
   AnswersMap,
+  CodebaseBlock,
+  CodebaseSimilarChange,
   Coefficient,
   EstimateRange,
   EstimateResponse,
@@ -23,6 +25,7 @@ import type {
   PricingBlock,
   PricingCurvePoint,
   ProjectRow,
+  RepoChoice,
   ReplayResponse,
   ReplayStep,
   ResetResponse,
@@ -251,7 +254,8 @@ const MOCK_COEFFICIENTS: Coefficient[] = [
 
 export function mockEstimate(
   emailText: string,
-  answers?: AnswersMap
+  answers?: AnswersMap,
+  repo?: RepoChoice | null
 ): EstimateResponse {
   const resolved = answers ?? {};
   const findings = mockExtractFindings(emailText).map((finding) => {
@@ -276,6 +280,14 @@ export function mockEstimate(
     (0.3 + 0.035 * initialUnknown) * Math.pow(0.82, answeredCount);
   const p10 = Math.max(5, Math.round(p50 * (1 - spread)));
   const p90 = Math.round(p50 * (1 + spread * 1.12));
+  const baseEstimate: EstimateRange = {
+    p10,
+    p50,
+    p90,
+    unit: "days",
+    mode: "calibrated",
+    method: unknown.length > 0 ? "mc" : "point",
+  };
 
   const questions: VoIQuestion[] = unknown
     .map((f) => ({
@@ -315,21 +327,157 @@ export function mockEstimate(
     warnings.push("No features were detected — please review the email before using this estimate.");
   }
 
-  return {
+  const response: EstimateResponse = {
     project_id: "P061",
     findings,
-    estimate: {
-      p10,
-      p50,
-      p90,
-      unit: "days",
-      mode: "calibrated",
-      method: unknown.length > 0 ? "mc" : "point",
-    },
+    estimate: baseEstimate,
     similar_projects: similar,
     questions,
     coefficients: MOCK_COEFFICIENTS,
     warnings,
+  };
+
+  // Codebase Lab (contract v0.2): the adjusted estimate replaces the base at
+  // the top level; the block carries the base for the before/after visual.
+  if (repo) {
+    const block = mockCodebaseBlock(repo, baseEstimate);
+    response.codebase = block;
+    response.estimate = block.adjusted_estimate;
+  }
+  return response;
+}
+
+/* ------------------------------------------------------------------ */
+/* Codebase Lab block (contract v0.2) — mirrors the backend formulas   */
+/* ------------------------------------------------------------------ */
+
+const MOCK_CODEBASE_NOTE =
+  "DEMO-ASSUMED coefficients; the similar-past-changes mechanism is validated on 29k real commits (docs/CODEBASE_HISTORY_VALIDATION.md); no text-prediction accuracy claim (docs/CODEBASE_VALIDATION.md). One-directional by design: surcharge only, never a discount.";
+
+interface MockCodebaseSeed {
+  friction: { score: number; level: string; components: Record<string, number | null> };
+  invasiveness: { modified_ratio: number; mean_files_touched: number; based_on_commits: number } | null;
+  similar_changes: CodebaseSimilarChange[];
+}
+
+/** Values below mirror real analyzer output on the deterministic demo repos. */
+const MOCK_CODEBASE_SEEDS: Record<string, MockCodebaseSeed> = {
+  demo_a: {
+    friction: {
+      score: 0.111,
+      level: "low",
+      components: {
+        churn: 0.0,
+        fan_in: 0.5,
+        complexity: 0.1,
+        coverage_gap: 0.06,
+        author_concentration: 0.0,
+      },
+    },
+    invasiveness: { modified_ratio: 0.3636, mean_files_touched: 2.2, based_on_commits: 5 },
+    similar_changes: [
+      { commit: "ac035ed", date: "2026-02-01", files_touched: 2, new_files: 1, modified_files: 1 },
+      { commit: "b1a2c3d", date: "2026-01-15", files_touched: 2, new_files: 0, modified_files: 2 },
+      { commit: "d4e5f60", date: "2025-12-01", files_touched: 2, new_files: 1, modified_files: 1 },
+      { commit: "9c8b7a6", date: "2025-11-10", files_touched: 3, new_files: 3, modified_files: 0 },
+      { commit: "5f4e3d2", date: "2025-11-02", files_touched: 2, new_files: 2, modified_files: 0 },
+    ],
+  },
+  demo_b: {
+    friction: {
+      score: 0.3958,
+      level: "medium",
+      components: {
+        churn: 0.0,
+        fan_in: 0.875,
+        complexity: 0.75,
+        coverage_gap: null,
+        author_concentration: 0.0,
+      },
+    },
+    invasiveness: { modified_ratio: 0.8571, mean_files_touched: 5.44, based_on_commits: 9 },
+    similar_changes: [
+      { commit: "e1d1767", date: "2026-03-10", files_touched: 6, new_files: 0, modified_files: 6 },
+      { commit: "a7c4b21", date: "2026-03-02", files_touched: 6, new_files: 0, modified_files: 6 },
+      { commit: "3e9d5c8", date: "2026-02-18", files_touched: 5, new_files: 0, modified_files: 5 },
+      { commit: "f2b6a09", date: "2026-02-05", files_touched: 4, new_files: 1, modified_files: 3 },
+      { commit: "8d1f4e3", date: "2026-01-20", files_touched: 7, new_files: 0, modified_files: 7 },
+    ],
+  },
+  self: {
+    friction: {
+      score: 0.42,
+      level: "medium",
+      components: {
+        churn: 0.55,
+        fan_in: 0.5,
+        complexity: 0.45,
+        coverage_gap: null,
+        author_concentration: 0.2,
+      },
+    },
+    invasiveness: { modified_ratio: 0.61, mean_files_touched: 4.1, based_on_commits: 8 },
+    similar_changes: [
+      { commit: "c3d7e11", date: "2026-10-10", files_touched: 5, new_files: 2, modified_files: 3 },
+      { commit: "6a2b8f4", date: "2026-10-02", files_touched: 4, new_files: 1, modified_files: 3 },
+      { commit: "90e5c27", date: "2026-09-24", files_touched: 3, new_files: 0, modified_files: 3 },
+    ],
+  },
+};
+
+/**
+ * Offline codebase block: same DEMO-ASSUMED transforms as the backend
+ * (friction widens p10/p90, invasiveness shifts p50; one-directional only).
+ */
+function mockCodebaseBlock(repo: RepoChoice, base: EstimateRange): CodebaseBlock {
+  const seed = MOCK_CODEBASE_SEEDS[repo] ?? MOCK_CODEBASE_SEEDS.demo_b;
+  const score = seed.friction.score;
+  const p10Factor = Math.max(0.55, 1 - 0.3 * score);
+  const p90Factor = Math.min(1.9, 1 + 0.6 * score);
+  const p50Factor = seed.invasiveness
+    ? Math.min(1.5, 1 + 0.35 * seed.invasiveness.modified_ratio)
+    : 1;
+  const adjustedP10 = Math.max(3, Number((base.p10 * p10Factor).toFixed(1)));
+  const adjustedP90 = Math.max(base.p90, Number((base.p90 * p90Factor).toFixed(1)));
+  const adjustedP50 = Math.min(
+    adjustedP90,
+    Math.max(adjustedP10, Number((base.p50 * p50Factor).toFixed(1)))
+  );
+  const adjusted: EstimateRange = {
+    ...base,
+    p10: adjustedP10,
+    p50: adjustedP50,
+    p90: adjustedP90,
+  };
+  const modifiedRatio = seed.invasiveness?.modified_ratio;
+  return {
+    repo,
+    friction: seed.friction,
+    invasiveness: seed.invasiveness,
+    similar_changes: seed.similar_changes.slice(0, 5),
+    base_estimate: base,
+    adjusted_estimate: adjusted,
+    adjustments: [
+      {
+        what: "p10 (lower tail)",
+        factor: Number(p10Factor.toFixed(4)),
+        why: `friction widens the interval downward; median untouched (friction level ${seed.friction.level}, score ${score})`,
+      },
+      {
+        what: "p90 (upper tail)",
+        factor: Number(p90Factor.toFixed(4)),
+        why: `friction widens the interval upward; median untouched (friction level ${seed.friction.level}, score ${score})`,
+      },
+      {
+        what: "p50 (median)",
+        factor: Number(p50Factor.toFixed(4)),
+        why:
+          modifiedRatio === undefined
+            ? "no similar past changes found: no evidence, so the median is unchanged"
+            : `similar changes were ${modifiedRatio} modified (not new) files: invasiveness shifts the median (demo-assumed x (1 + 0.35 * ratio))`,
+      },
+    ],
+    note: MOCK_CODEBASE_NOTE,
   };
 }
 
@@ -512,7 +660,8 @@ export async function mockReset(): Promise<ResetResponse> {
 export async function mockEstimateStream(
   emailText: string,
   onEvent: (event: StreamEvent) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  repo?: RepoChoice | null
 ): Promise<void> {
   const steps = ["extracting", "validating", "similar", "estimating", "questions", "done"];
   for (const step of steps) {
@@ -522,7 +671,7 @@ export async function mockEstimateStream(
   }
   await sleep(220);
   if (signal?.aborted) return;
-  onEvent({ type: "result", result: mockEstimate(emailText) });
+  onEvent({ type: "result", result: mockEstimate(emailText, undefined, repo) });
 }
 
 /* ------------------------------------------------------------------ */

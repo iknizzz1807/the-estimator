@@ -38,6 +38,7 @@ import type {
   PackagesResponse,
   ProjectRow,
   ReplayResponse,
+  RepoChoice,
   ResetResponse,
   Scenario,
   StreamEvent,
@@ -255,10 +256,11 @@ async function readSseStream(
 export async function estimateStream(
   emailText: string,
   onEvent: (event: StreamEvent) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  repo?: RepoChoice | null
 ): Promise<void> {
   if (FORCED_MOCK) {
-    return mockEstimateStream(emailText, onEvent, signal);
+    return mockEstimateStream(emailText, onEvent, signal, repo);
   }
   try {
     const res = await fetch(`${API_URL}/api/estimate/stream`, {
@@ -267,7 +269,9 @@ export async function estimateStream(
         "Content-Type": "application/json",
         Accept: "text/event-stream",
       },
-      body: JSON.stringify({ email_text: emailText }),
+      // Codebase Lab (v0.2): `repo` attaches the codebase block and returns
+      // the ADJUSTED estimate; absent → unchanged v0.1 behaviour.
+      body: JSON.stringify({ email_text: emailText, ...(repo ? { repo } : {}) }),
       signal,
     });
     if (!res.ok) {
@@ -291,7 +295,7 @@ export async function estimateStream(
     if (err instanceof DOMException && err.name === "AbortError") return;
     // Network-level failure: fall back to the mock stream during development.
     setMockActive(true);
-    return mockEstimateStream(emailText, onEvent, signal);
+    return mockEstimateStream(emailText, onEvent, signal, repo);
   }
 }
 
@@ -313,7 +317,7 @@ export const api = {
       () => mockLoadScenario(id)
     ),
 
-  estimate: (emailText: string, answers?: AnswersMap) =>
+  estimate: (emailText: string, answers?: AnswersMap, repo?: RepoChoice | null) =>
     apiCall<EstimateResponse>(
       "/api/estimate",
       jsonInit({
@@ -321,8 +325,11 @@ export const api = {
         // Answer-refinement calls carry accumulated yes/no answers and are
         // side-effect free (contract v0.2); no answers → a normal estimate.
         ...(answers && Object.keys(answers).length > 0 ? { answers } : {}),
+        // Codebase Lab (v0.2): repo attaches the codebase block; refinement
+        // calls re-apply the same repo logic.
+        ...(repo ? { repo } : {}),
       }),
-      () => mockEstimate(emailText, answers)
+      () => mockEstimate(emailText, answers, repo)
     ),
 
   estimatePackages: (emailText: string, budgetDays: number) =>

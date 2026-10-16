@@ -66,6 +66,59 @@ export interface EstimateResponse {
   questions: VoIQuestion[];
   coefficients: Coefficient[];
   warnings: string[];
+  /** Codebase Lab block (contract v0.2); present only when `repo` was sent. */
+  codebase?: CodebaseBlock;
+}
+
+/* ---------------------- Codebase Lab (contract v0.2) ---------------------- */
+
+/** Repository selector for POST /api/estimate (`repo` body field). */
+export type RepoChoice = "demo_a" | "demo_b" | "self";
+
+export type FrictionLevel = "low" | "medium" | "high" | (string & {});
+
+export interface CodebaseFriction {
+  /** Weighted structural friction score in 0..1. */
+  score: number;
+  level: FrictionLevel;
+  /** churn / fan_in / complexity / coverage_gap / author_concentration; null = unknown (never faked). */
+  components: Record<string, number | null>;
+}
+
+export interface CodebaseInvasiveness {
+  /** Share of similar-change files that were modifications (vs new files). */
+  modified_ratio: number;
+  mean_files_touched: number;
+  based_on_commits: number;
+}
+
+export interface CodebaseSimilarChange {
+  commit: string;
+  date: string;
+  files_touched: number;
+  new_files: number;
+  modified_files: number;
+}
+
+export interface CodebaseAdjustment {
+  what: string;
+  factor: number;
+  why: string;
+}
+
+export interface CodebaseBlock {
+  repo: string;
+  friction: CodebaseFriction;
+  /** null when no similar past changes matched — no evidence, no median shift. */
+  invasiveness: CodebaseInvasiveness | null;
+  /** Up to 5 newest similar past changes (date + patch shape). */
+  similar_changes: CodebaseSimilarChange[];
+  base_estimate: EstimateRange;
+  /** The top-level `estimate` carries exactly these numbers. */
+  adjusted_estimate: EstimateRange;
+  adjustments: CodebaseAdjustment[];
+  /** Honest-limitations note — surfaced verbatim. */
+  note: string;
 }
 
 export interface ProjectRow {
