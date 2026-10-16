@@ -1,7 +1,9 @@
 /**
  * Typed API client for the frozen contract in docs/API.md.
  *
- * - Real API is the default path (NEXT_PUBLIC_API_URL, default http://localhost:8000).
+ * - Same-origin by default: requests go to relative /api/... paths so that a
+ *   single FastAPI process can serve both the UI and the API. NEXT_PUBLIC_API_URL
+ *   overrides the base (the dev server uses http://localhost:8000).
  * - NEXT_PUBLIC_USE_MOCK=1 forces bundled mock payloads (lib/mock.ts).
  * - When a request fails at the network level (backend not running) the client
  *   transparently falls back to mock data and flips a global flag so the UI can
@@ -41,9 +43,7 @@ import type {
   StreamEvent,
 } from "./types";
 
-const API_URL = (
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-).replace(/\/+$/, "");
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
 const FORCED_MOCK =
   process.env.NEXT_PUBLIC_USE_MOCK === "1" ||

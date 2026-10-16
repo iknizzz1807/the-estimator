@@ -1,17 +1,16 @@
-# Render blueprint — backend API (free tier).
+# Render blueprint — ONE web service: FastAPI serves the API and the
+# statically-exported Next.js frontend on a single port (one public link,
+# no CORS, no two-service drift). Vercel is only a documented fallback.
 # Deploy: Render dashboard → New + → Blueprint → pick this repo.
 services:
   - type: web
-    name: estimator-api
-    runtime: python
+    name: the-estimator
+    runtime: docker
     plan: free
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: HOST=0.0.0.0 bash scripts/run_api.sh
+    dockerfilePath: backend/Dockerfile
+    dockerContext: .
     healthCheckPath: /api/health
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.13.5"
       # "stub" works with zero keys (offline rule-based extractor).
       # Switch to "deepseek" and set DEEPSEEK_API_KEY for real LLM extraction
       # (or "gemini" + GEMINI_API_KEY).
@@ -21,7 +20,3 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
-      # Set this to your Vercel URL after the frontend is deployed
-      # (comma-separated list is supported).
-      - key: CORS_ORIGINS
-        value: http://localhost:3000

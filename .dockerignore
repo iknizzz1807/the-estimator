@@ -1,0 +1,30 @@
+# Docker build context (repo root). Keeps the image build small and ensures
+# no secrets or host-built artifacts (node_modules/.next/out, local DBs) are
+# sent to the Docker daemon.
+.git
+.env
+.env.*
+!.env.example
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.venv/
+
+# Node / Next.js (built inside the image, stage 1)
+**/node_modules/
+**/.next/
+**/out/
+
+# Data & logs (only data/synthetic_history.csv is copied by the Dockerfile)
+data/*.db
+data/*.db-journal
+data/*.sqlite*
+*.log
+
+# Local planning docs (in-repo copies live in docs/)
+/checklist.md
+/info.md
+/spec.md
