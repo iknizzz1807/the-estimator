@@ -13,9 +13,12 @@ services:
       - key: PYTHON_VERSION
         value: "3.13.5"
       # "stub" works with zero keys (offline rule-based extractor).
-      # Switch to "gemini" + set GEMINI_API_KEY for real LLM extraction.
+      # Switch to "deepseek" and set DEEPSEEK_API_KEY for real LLM extraction
+      # (or "gemini" + GEMINI_API_KEY).
       - key: LLM_PROVIDER
         value: stub
+      - key: DEEPSEEK_API_KEY
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       # Set this to your Vercel URL after the frontend is deployed

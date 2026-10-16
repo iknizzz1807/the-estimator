@@ -45,6 +45,8 @@ class AppSettings(BaseSettings):
     gemini_model: str = "gemini-2.5-flash"
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
+    deepseek_api_key: str = ""
+    deepseek_model: str = "deepseek-flash"
     database_path: str = DEFAULT_DB_RELATIVE
     cors_origins: str = "http://localhost:3000"
 

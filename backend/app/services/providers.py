@@ -1,4 +1,4 @@
-"""LLM provider abstraction for The Estimator (gemini | openai | stub).
+"""LLM provider abstraction for The Estimator (deepseek | gemini | openai | stub).
 
 docs/DECISIONS.md (D2): the product must run fully offline, so ``stub`` is a
 deterministic rule-based extractor that returns the exact JSON shape the real
@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
+DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
 
 REQUEST_TIMEOUT_SECONDS = 30.0
 MAX_RETRIES = 2  # + initial attempt = 3 tries total
@@ -57,6 +58,8 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-2.5-flash"
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
+    deepseek_api_key: str = ""
+    deepseek_model: str = "deepseek-flash"
 
 
 def get_settings() -> Settings:
@@ -206,6 +209,61 @@ class OpenAIProvider:
                 if attempt < self.max_retries:
                     time.sleep(RETRY_BACKOFF_SECONDS * (2**attempt))
         raise ValueError(f"OpenAI call failed after {self.max_retries + 1} attempts: {last_error}")
+
+
+class DeepSeekProvider:
+    """DeepSeek chat completions (OpenAI-compatible) with forced JSON output.
+
+    ``deepseek-flash`` (DeepSeek-V4.1-Flash) enables *thinking* mode by default;
+    feature extraction wants fast, cheap, deterministic JSON, so thinking is
+    explicitly disabled. Output is forced with
+    ``response_format={"type": "json_object"}`` (the extraction prompt asks for
+    a JSON object, as the API requires the word "json" in the prompt).
+    """
+
+    name = "deepseek"
+
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "deepseek-flash",
+        timeout: float = REQUEST_TIMEOUT_SECONDS,
+        max_retries: int = MAX_RETRIES,
+    ) -> None:
+        if not api_key:
+            raise ValueError("DeepSeekProvider requires a non-empty API key")
+        self.api_key = api_key
+        self.model = model
+        self.timeout = timeout
+        self.max_retries = max_retries
+
+    def complete_json(self, prompt: str, system: str | None = None) -> dict[str, Any]:
+        messages: list[dict[str, str]] = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+        payload: dict[str, Any] = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0,
+            "response_format": {"type": "json_object"},
+            "thinking": {"type": "disabled"},
+        }
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+        last_error: Exception | None = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                with httpx.Client(timeout=self.timeout) as client:
+                    response = client.post(DEEPSEEK_URL, json=payload, headers=headers)
+                    response.raise_for_status()
+                    data = response.json()
+                text = data["choices"][0]["message"]["content"]
+                return parse_json_response(text)
+            except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError) as exc:
+                last_error = exc
+                if attempt < self.max_retries:
+                    time.sleep(RETRY_BACKOFF_SECONDS * (2**attempt))
+        raise ValueError(f"DeepSeek call failed after {self.max_retries + 1} attempts: {last_error}")
 
 
 # --------------------------------------------------------------------------- #
@@ -558,6 +616,12 @@ def get_provider(name: str | None = None) -> tuple[LLMProvider, str]:
         if settings.openai_api_key:
             return OpenAIProvider(settings.openai_api_key, settings.openai_model), "openai"
         logger.warning("OPENAI_API_KEY is not set - falling back to the offline stub provider")
+        return StubProvider(), "stub"
+
+    if requested == "deepseek":
+        if settings.deepseek_api_key:
+            return DeepSeekProvider(settings.deepseek_api_key, settings.deepseek_model), "deepseek"
+        logger.warning("DEEPSEEK_API_KEY is not set - falling back to the offline stub provider")
         return StubProvider(), "stub"
 
     if requested not in ("stub", ""):

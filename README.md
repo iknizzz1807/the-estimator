@@ -9,7 +9,7 @@
 
 ## Tóm tắt tiếng Việt
 
-Dán email/RFP của khách → hệ thống trích xuất **15 features** (kèm trích dẫn gốc làm bằng chứng), ước lượng effort bằng **Ridge Regression + Conformal Prediction** trả về **khoảng P10/P50/P90** thay vì một con số, phát hiện thông tin còn thiếu và **xếp hạng câu hỏi làm rõ theo mức ảnh hưởng (ngày)**. Nhập số ngày thực tế khi dự án xong → hệ số cập nhật ngay, độ chính xác hiển thị theo thời gian. Màn **Proof** chứng minh hệ thống "học thật": Replay walk-forward (System vs Team vs LLM-only) + A/B so sánh độ dao động của LLM thuần. Chạy offline hoàn toàn bằng stub extractor; gắn `GEMINI_API_KEY` là dùng LLM thật ngay, không đổi code.
+Dán email/RFP của khách → hệ thống trích xuất **15 features** (kèm trích dẫn gốc làm bằng chứng), ước lượng effort bằng **Ridge Regression + Conformal Prediction** trả về **khoảng P10/P50/P90** thay vì một con số, phát hiện thông tin còn thiếu và **xếp hạng câu hỏi làm rõ theo mức ảnh hưởng (ngày)**. Nhập số ngày thực tế khi dự án xong → hệ số cập nhật ngay, độ chính xác hiển thị theo thời gian. Màn **Proof** chứng minh hệ thống "học thật": Replay walk-forward (System vs Team vs LLM-only) + A/B so sánh độ dao động của LLM thuần. Chạy offline hoàn toàn bằng stub extractor; gắn `DEEPSEEK_API_KEY` (hoặc Gemini) là dùng LLM thật ngay, không đổi code.
 
 ## The problem
 
@@ -37,7 +37,7 @@ flowchart LR
 
     subgraph BE["FastAPI — backend/"]
         R["/api routes<br/>docs/API.md"] --> PIPE[Estimate pipeline]
-        PIPE --> EX[LLM extraction<br/>Gemini / OpenAI / stub]
+        PIPE --> EX[LLM extraction<br/>DeepSeek / Gemini / OpenAI / stub]
         PIPE --> ENG[Estimation engine<br/>Ridge + conformal]
         PIPE --> SIM[Similar projects<br/>BM25 + TF-IDF + fuzzy]
         PIPE --> VOI[Question ranker<br/>Value of Information]
@@ -90,14 +90,14 @@ cp .env.local.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:8000
 npm install && npm run dev
 ```
 
-No API key required: without one the app uses the deterministic **stub extractor** and labels it in the UI. For real LLM extraction, set `GEMINI_API_KEY` in `.env` (see `.env.example`).
+No API key required: without one the app uses the deterministic **stub extractor** and labels it in the UI. For real LLM extraction, set `DEEPSEEK_API_KEY` (default, model `deepseek-flash`) or `GEMINI_API_KEY` in `.env` (see `.env.example`).
 
 ## Deploy (production)
 
 **Backend → Render** (free tier): create a Blueprint from this repo — [`render.yaml`](render.yaml) configures the service (rootDir `backend`, health check `/api/health`). Set env vars in the dashboard:
 
 - `CORS_ORIGINS` = your Vercel URL (e.g. `https://your-app.vercel.app`)
-- optionally `LLM_PROVIDER=gemini` + `GEMINI_API_KEY` for real LLM extraction (stub otherwise)
+- optionally `LLM_PROVIDER=deepseek` + `DEEPSEEK_API_KEY` (or Gemini) for real LLM extraction (stub otherwise)
 
 > Note: on the free tier the SQLite file is ephemeral — the demo reseeds its 60 synthetic projects on every restart, so "entered actuals" are lost after a cold start. Expected for a demo.
 
@@ -145,7 +145,7 @@ cd backend && python -m pytest tests/ -q
 |---|---|
 | Frontend | Next.js 15 (App Router, TypeScript) + TailwindCSS + Recharts — dark, workflow-first, no chat UI |
 | Backend | FastAPI + SSE streaming, SQLite |
-| AI | Gemini Flash / OpenAI (pluggable) + deterministic offline stub |
+| AI | DeepSeek V4.1 Flash (default) / Gemini / OpenAI — pluggable + deterministic offline stub |
 | Math | scikit-learn Ridge + split conformal prediction |
 | Tests | pytest — 86 offline tests |
 

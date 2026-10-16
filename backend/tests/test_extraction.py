@@ -11,7 +11,7 @@ from app.services.extraction import (
     ExtractionResult,
     extract_features,
 )
-from app.services.providers import StubProvider, get_provider, parse_json_response
+from app.services.providers import DEEPSEEK_URL, DeepSeekProvider, StubProvider, get_provider, parse_json_response
 
 EN_EMAIL = (
     "Hello, we need to integrate with a third-party CRM through an external API. "
@@ -195,6 +195,7 @@ def test_get_provider_falls_back_to_stub_without_api_key(monkeypatch) -> None:
     # Env vars take precedence over any .env file, so explicitly blank the keys.
     monkeypatch.setenv("GEMINI_API_KEY", "")
     monkeypatch.setenv("OPENAI_API_KEY", "")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "")
     monkeypatch.setenv("LLM_PROVIDER", "gemini")
 
     provider, name = get_provider()
@@ -202,5 +203,17 @@ def test_get_provider_falls_back_to_stub_without_api_key(monkeypatch) -> None:
     assert isinstance(provider, StubProvider)
 
     assert get_provider("openai")[1] == "stub"
+    assert get_provider("deepseek")[1] == "stub"
     assert get_provider("stub")[1] == "stub"
     assert get_provider("nonsense-provider")[1] == "stub"
+
+
+def test_get_provider_builds_deepseek_when_key_set(monkeypatch) -> None:
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key-not-real")
+    monkeypatch.setenv("LLM_PROVIDER", "deepseek")
+
+    provider, name = get_provider()
+    assert name == "deepseek"
+    assert isinstance(provider, DeepSeekProvider)
+    assert provider.model == "deepseek-flash"
+    assert DEEPSEEK_URL.endswith("/chat/completions")

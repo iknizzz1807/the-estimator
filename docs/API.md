@@ -40,7 +40,7 @@ feat_legacy_tech_stack,feat_cross_team_coordination
 ### GET /api/health
 
 ```json
-{ "status": "ok", "model_loaded": true, "llm_provider": "stub|gemini", "projects_count": 60 }
+{ "status": "ok", "model_loaded": true, "llm_provider": "stub|deepseek|gemini|openai", "projects_count": 60 }
 ```
 
 ### POST /api/estimate
@@ -131,5 +131,5 @@ Runs a full estimate on a sample scenario (powers the 1-click "Load Sample Data"
 
 ## Notes
 
-- LLM provider is pluggable (gemini | openai | stub). Without an API key the app runs with `stub` and must say so in the UI (`llm_provider` in /api/health).
+- LLM provider is pluggable (deepseek | gemini | openai | stub). Without an API key the app runs with `stub` and must say so in the UI (`llm_provider` in /api/health).
 - Everything must work with zero network access (offline demo mode).

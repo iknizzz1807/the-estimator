@@ -40,5 +40,10 @@ Multi-seed CV sweep on the seeded 52-project dataset: alpha 0.1 → 8.90, 0.3 �
 
 Official TAWOS dump (637 MB) was too slow to download (~75 KB/s) → used a GitHub mirror; subset committed as `data/tawos_subset.csv` (5,850 stories / 39 projects, Apache-2.0 attribution in `data/tawos_README.txt`). Offline stub extraction fires on only 22.3% of rows (Jira story vocabulary ≠ RFP vocabulary) and the 3-day prediction floor binds on ~85% of test rows (story points ≠ person-days — exactly the spec §11.1 warning). Cross-project result: MAE 2.48 SP ≈ global-median baseline (2.48 SP), R² ≈ −0.02 → **no learning signal**. Documented honestly in `docs/TAWOS_VALIDATION.md` + README limitations. Real cross-dataset validation requires LLM-based extraction and person-day data.
 
+## D10 — Default LLM provider: DeepSeek V4.1 Flash (2026-10-16)
+
+Added `DeepSeekProvider` (`deepseek-flash` = DeepSeek-V4.1-Flash, OpenAI-compatible chat completions at https://api.deepseek.com, JSON output mode, thinking mode explicitly disabled for fast cheap deterministic extraction) and made `deepseek` the recommended provider in `.env.example` (user preference over Gemini). Reference pricing per 1M tokens: input $0.15/$0.30 off-peak/peak (cache hit ~$0.003–0.006), output $0.60/$1.20 — roughly 2–4× cheaper than Gemini 2.5 Flash; the whole 60-email extraction batch costs ≈ $0.03–0.07. Gemini/OpenAI providers remain; the zero-key default stays the offline stub.
+
+
 
 
