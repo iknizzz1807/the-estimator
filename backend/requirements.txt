@@ -12,3 +12,4 @@ rank-bm25==0.2.2
 python-multipart==0.0.32
 pytest==9.1.1
 radon==6.0.1
+pyarrow==26.0.0
