@@ -66,7 +66,7 @@ Approved after the measured learning curve (CV MAE 10.2 @60 → 8.5 @120 → ~8.
 
 - **SWE-bench (C2 + multi-file refinement C8)**: predicting patch invasiveness from issue text ± codebase signals does **not** improve (original 2,294 instances and the 571-instance multi-file subset; paired CIs include 0) → no accuracy claim; the module stays "risk explanation".
 - **Similar past changes (C9) — POSITIVE**: on 29,058 targets / 4 real repos, "similar-message → median of K=5" beats the repo-median baseline (−2.8% MAE, 95% CI [−0.060, −0.022]; Spearman 0.323 vs 0.034; oracle 0.881). Per-repo mixed (pytest/flask win, sympy ties, requests loses slightly) — reported as-is.
-- **Itemlet (C7)**: 204 real projects with absolute logged hours — conformal coverage 76–86% (target 75–85 ✓; TAWOS's 48.5% failure does not reproduce) but the point estimate ties the median: only 6.5% of issues have logged time.
+- **Itemlet (C7)**: 114 real projects with absolute logged hours (of 204; 90 have zero logs) — conformal coverage 76–86% (target 75–85 ✓; TAWOS's 48.5% failure does not reproduce) but the point estimate ties the median: only 6.5% of issues have logged time.
 - **Distillation (C6)**: teacher DeepSeek F1 0.923 vs student 0.442 at n=240, plateaued → "replace the LLM when enough data" is real but far off at demo scale; `LLM_PROVIDER=distilled` ships offline with a stub fallback and honest labels.
 
 ## D15 — Codebase Lab integration + positioning (2026-10-17)

@@ -78,13 +78,13 @@ Full report: [docs/EXTRACTION_EVAL.md](docs/EXTRACTION_EVAL.md). Cost: the whole
 
 ## Codebase Lab — risk context (validated honestly)
 
-Same email, two codebases, two different answers (live demo — repo selector on the Estimate screen):
+Same email, two codebases, two different answers (live demo — repo selector on the Estimate screen; scenario A email, measured 2026-10-17):
 
 | | `payment_plugin` (clean) | `payment_spaghetti` (messy) |
 |---|---|---|
-| Friction (churn/fan-in/complexity/authors/coverage) | 0.21 LOW | 0.69 HIGH |
-| Invasiveness of similar past changes | 33% files modified | **87% files modified** |
-| Range | {9.4, 22.3, 45.0} | {7.9, **26.0**, 56.5} |
+| Friction (churn/fan-in/complexity/authors/coverage) | 0.11 LOW | 0.40 MEDIUM |
+| Invasiveness of similar past changes | 36% files modified | **86% files modified** |
+| Range | {110.1, 233.7, 473.9} | {100.4, **269.5**, 549.8} |
 
 What is validated (and what is not):
 
@@ -156,8 +156,8 @@ cd backend && python -m pytest tests/ -q
 9. **Free-tier hosting** — on Render the SQLite file is ephemeral: the demo reseeds on every restart; entered actuals are lost on cold start (use Reset to restore deliberately).
 10. **Interval width is not strictly monotone per single answer** — answering "yes" to an expensive feature raises P50 (absolute width can grow); the *relative* uncertainty always shrinks (live-measured 1.99 → 1.38).
 11. **Codebase adjustments are one-directional and demo-assumed** — the mechanism (similar past changes) is validated on real commits, but the magnitude coefficients are placeholders until a pilot records (repo signals + actuals) pairs; a clean repo never gets a discount today.
-12. **Itemlet cross-check** — on 204 real projects (absolute logged hours) the conformal intervals calibrated correctly (coverage 76–86%) but the point estimate tied the median baseline: only 6.5% of issues have logged time, so the binding constraint is data quality, not the estimator ([docs/ITEMLET_VALIDATION.md](docs/ITEMLET_VALIDATION.md)).
-13. **LLM→classifier distillation is not there yet** — a student trained on 240 LLM-labeled emails reaches F1 0.44 vs the teacher's 0.93 and has plateaued; replacing the LLM needs far more (and real) data ([docs/DISTILLATION_EXPERIMENT.md](docs/DISTILLATION_EXPERIMENT.md)).
+12. **Itemlet cross-check** — on 114 real projects with logged hours (of 204) the conformal intervals calibrated correctly (coverage 76–86%) but the point estimate tied the median baseline: only 6.5% of issues have logged time, so the binding constraint is data quality, not the estimator ([docs/ITEMLET_VALIDATION.md](docs/ITEMLET_VALIDATION.md)).
+13. **LLM→classifier distillation is not there yet** — a student trained on 240 LLM-labeled emails reaches F1 0.44 vs the teacher's 0.92 and has plateaued; replacing the LLM needs far more (and real) data ([docs/DISTILLATION_EXPERIMENT.md](docs/DISTILLATION_EXPERIMENT.md)).
 
 ## We do NOT claim
 

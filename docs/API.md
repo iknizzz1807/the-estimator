@@ -96,9 +96,9 @@ Validation per docs/SPEC.md §9: reject `actual_days <= 0` (422); accept `actual
 
 ```json
 {
-  "steps": [ { "i": 12, "project_id": "P012", "p10": 20, "p50": 33, "p90": 48,
-               "actual": 42, "mae_system": 8.1, "mae_team": 12.4, "in_interval": true } ],
-  "summary": { "mae_system": 9.2, "mae_team": 14.7, "mae_llm_only": 13.1, "coverage_pct": 79.4 }
+  "steps": [ { "i": 12, "project_id": "P013", "p10": 20.9, "p50": 40.4, "p90": 53.7,
+               "actual": 34.0, "mae_system": 21.0, "mae_team": 5.33, "in_interval": true } ],
+  "summary": { "mae_system": 17.36, "mae_team": 32.93, "mae_llm_only": 20.81, "coverage_pct": 86.7 }
 }
 ```
 
@@ -203,15 +203,17 @@ Body may include `"repo": "demo_a" | "demo_b" | "self"` — the two built-in dem
 ```json
 { "codebase": {
     "repo": "demo_b",
-    "friction": { "score": 0.687, "level": "high", "components": { "churn": 0.45, "...": 0.0 } },
-    "invasiveness": { "modified_ratio": 0.857, "mean_files_touched": 5.44, "based_on_commits": 9 },
-    "similar_changes": [ { "commit": "abc1234", "date": "2026-03-02", "files_touched": 6, "new_files": 1, "modified_files": 5 } ],
-    "base_estimate": { "p10": 7.9, "p50": 20.0, "p90": 40.0, "mode": "calibrated", "unit": "days", "method": "mc" },
-    "adjusted_estimate": { "p10": 6.2, "p50": 26.0, "p90": 56.5, "mode": "calibrated", "unit": "days", "method": "mc" },
-    "adjustments": [ { "what": "p90 widened", "factor": 1.41, "why": "friction 0.687 (high)" } ],
+    "friction": { "score": 0.3958, "level": "medium", "components": { "churn": 0.0, "fan_in": 0.875, "complexity": 0.75, "coverage_gap": null, "author_concentration": 0.0 } },
+    "invasiveness": { "modified_ratio": 0.8571, "mean_files_touched": 5.44, "based_on_commits": 9 },
+    "similar_changes": [ { "commit": "e1d1767", "date": "2026-03-10", "files_touched": 6, "new_files": 0, "modified_files": 6 } ],
+    "base_estimate": { "p10": 113.9, "p50": 207.3, "p90": 444.3, "mode": "calibrated", "unit": "days", "method": "mc" },
+    "adjusted_estimate": { "p10": 100.4, "p50": 269.5, "p90": 549.8, "mode": "calibrated", "unit": "days", "method": "mc" },
+    "adjustments": [ { "what": "p90 (upper tail)", "factor": 1.2375, "why": "friction widens the interval upward; median untouched (friction level medium, score 0.3958)" } ],
     "note": "DEMO-ASSUMED coefficients; the similar-past-changes mechanism is validated on 29k real commits (docs/CODEBASE_HISTORY_VALIDATION.md); no text-prediction accuracy claim (docs/CODEBASE_VALIDATION.md). One-directional by design: surcharge only, never a discount."
 } }
 ```
+
+(Example values: live `demo_b` response for the scenario A email, measured 2026-10-17.)
 
 - Keywords for `find_similar_changes` are derived from the extracted features (documented mapping in the API layer).
 - Unknown `repo` value → 422; `repo` absent → response unchanged (backward compatible). Persistence rule unchanged.
