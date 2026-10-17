@@ -87,13 +87,34 @@ a small consistent gain (analog hit@10 +1.7 to +5.7pp) and are kept optional.
 * `hit@k` over file SETS favors key files but a human still decides which
   candidates matter — this is a *locate* aid, not an automatic scope.
 
-## Integration status (recommendation)
+## Positioning (plain language): what this is and what it is not
 
-Ship the panel shape before any numeric coupling: top candidate files (with
-matched chunk), top-3 analog commits (sha/date/files touched), all labelled
-`retrieval`, as risk explanation. **Do not** feed retrieval into the estimate
-adjustment yet: the direction/magnitude of such an adjustment is a separate,
-unvalidated question (same discipline that retired the text-prediction claim).
+* **Friction answers "how expensive is change in this repo, overall?"** — whole-repo
+  structural signals (churn, fan-in, complexity, coverage, author concentration)
+  that widen the interval and shift the median. It does not know what the
+  request touches.
+* **Retrieval answers "which files does this request touch, and what did similar
+  past changes touch?"** — a locator/evidence layer. It is **not** a second
+  friction, it does not add to friction, and it does not touch the estimate
+  numbers. It ships (if wired) as an information panel: candidate files +
+  analog commits (sha/date/files), each with its match scores, labelled
+  `retrieval — candidates, not a verdict`.
+
+Two levels of "better", kept apart on purpose:
+
+1. **Locates the right place** — PROVEN and measured: hit@10 0.65–0.81 across
+   flask/requests vs ~0 for random guessing. Useful for orientation.
+2. **Makes the estimate more accurate** — NOT proven, therefore NOT used. No
+   numeric coupling until the next gate passes.
+
+## Next gate (proposed, pre-registered before running)
+
+Targeted friction ablation, in walk-forward replay, same targets:
+(a) current whole-repo friction vs (b) friction computed **only on the file
+set retrieval selects**. Pre-registered pass bar: (b) improves `mae_system`
+by >= 5% relative while coverage stays within the 75–85% band. Fail => the
+panel stays display-only forever; pass => targeted friction becomes a D19
+entry and only then may feed the estimate.
 
 Reproduce: `backend/scripts/retrieval_eval.py --repo <path> [--embed-model X]`
 (eval checkouts cached outside the repo, not committed).

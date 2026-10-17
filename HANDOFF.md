@@ -4,11 +4,11 @@
 
 ## 0. TL;DR
 
-- **Product is complete AND DEPLOYED**: 201 backend tests green, single-service app (FastAPI serves the static Next.js UI + API on one port), 240-project demo dataset, real DeepSeek extraction live.
+- **Product is complete AND DEPLOYED**: 211 backend tests green, single-service app (FastAPI serves the static Next.js UI + API on one port), 240-project demo dataset, real DeepSeek extraction live.
 - **Live app**: https://the-estimator-xqzc.onrender.com (Render web service, `0.5c-512mb` paid plan — no cold start; downgrade to Free or delete after ~22/10 to stop billing). Verified live 2026-10-17 (see §5).
-- **GitHub**: https://github.com/iknizzz1807/the-estimator (public, `main` @ `00afecb`).
-- **Local working copy (phone)**: `/sdcard/Documents/the-estimator` — `git pull` to sync the cafe-PC commits (Windows fixes, D17, UI copy fix).
-- **Next steps**: submit via the competition portal (paste live URL + repo URL; text in `docs/SUBMISSION.md`) → revoke tokens / rotate key (§8) → optional: D18 UI panel (gate passed; see `docs/RETRIEVAL_VALIDATION.md`).
+- **GitHub**: https://github.com/iknizzz1807/the-estimator (public, `main` @ `915a810` + this handoff docs commit).
+- **Local working copy (phone)**: `/sdcard/Documents/the-estimator` — `git pull` to sync the cafe-PC commits (Windows fixes, D17, UI copy fix, D18 retrieval spike + docs).
+- **Next steps, in order**: (1) submit via the competition portal (paste live URL + repo URL; text in `docs/SUBMISSION.md`); (2) revoke tokens / rotate key (§8); (3) optional post-submission — wire the D18 retrieval panel exactly as §5b prescribes; (4) optional P2 (`unmapped_asks` capability warnings, §5b).
 - **Deadline**: Sunday 2026-10-18 23:59 (self-imposed) / Monday 19-10 official. Competition: *Agent in the Shell* — Anduin Cybernetics, Challenge #2 "The Estimator".
 
 ## 1. What this is (one paragraph)
@@ -19,7 +19,8 @@ Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (frozen
 
 ## 2. Git state
 
-- `main` @ `7628f9e` + docs; the cafe-PC session added `2d1d322` (Windows test/script fixes), `ab6519c` (D17 conditional `.git` copy), `00afecb` (honest answer-refinement copy), `39c5afb` + `7628f9e` (D18 retrieval spike + eval arms), and this docs commit (D18 gate PASSED, RETRIEVAL_VALIDATION.md, handoff).
+- `main` @ `915a810` + this handoff commit; cafe-PC session commits: `2d1d322` (Windows test/script fixes), `ab6519c` (D17 conditional `.git` copy), `00afecb` (honest answer-refinement copy), `39c5afb` + `7628f9e` (D18 retrieval spike + eval arms), `915a810` (D18 gate + validation doc), this commit (handoff §5b for the next agent).
+- Note: the user runs parallel sessions (separate UI commits `ee90a07` "Linear-style UI" and `c648dc1` "guide + tour" landed mid-session). Pull before editing to avoid stepping on each other.
 - History was rewritten once by an agent (amend + cherry-pick race fix); content-verified, no dangling objects (`git fsck` clean).
 - Commit convention: ASCII messages, scoped prefixes (`feat(api):`, `fix(frontend):`, `docs:`, `chore(deploy):`).
 
@@ -39,7 +40,7 @@ cd backend && python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 bash scripts/run_api.sh            # API-only unless frontend/out exists
 cd ../frontend && npm install && npm run build   # builds frontend/out (served by FastAPI)
-python -m pytest tests/ -q         # 201 tests, offline
+python -m pytest tests/ -q         # 211 tests, offline
 docker build -f backend/Dockerfile -t the-estimator .   # full single-service image
 ```
 
@@ -60,13 +61,29 @@ docker build -f backend/Dockerfile -t the-estimator .   # full single-service im
 
 ## 5. DEPLOY STATUS (where the world stands)
 
-1. **GitHub** ✅ pushed (public) — `main` @ `00afecb`. Description + topics set.
+1. **GitHub** ✅ pushed (public) — `main` @ `915a810` (+ handoff docs). Description + topics set.
 2. **Render** ✅ DEPLOYED AND LIVE: https://the-estimator-xqzc.onrender.com
    - Created as a **manual Web Service** (not Blueprint): Docker runtime, branch `main`, region Singapore, root dir empty, Dockerfile path `backend/Dockerfile`, health check `/api/health`, env vars `LLM_PROVIDER=deepseek` + `DEEPSEEK_API_KEY`.
    - Plan: **0.5c-512mb (~$7/mo, no cold start)** — Render bills per-second; downgrade to Free or delete after ~22/10 to stop billing (the $1 card verification is refunded). No cron-job.org needed while on this plan.
    - First deploy failed on `COPY .git` (Render's build context has no `.git`) → fixed in `ab6519c` (D17); redeploy green.
 3. **Live verification** ✅ (2026-10-17, via API; see the session transcript): health `240 projects / deepseek / calibrated`; estimate scenario A `113.9/207.3/444.3`; Codebase Lab demo_a (friction low) vs demo_b (friction high, 5 similar changes); replay coverage 86.7% (189/218); packages (3 tiers + 25-point pricing curve; local audit: Full-tier over-budget agrees with the curve within 0.0004 at the same budget); A/B `mode:"real"`; reset restores 240. UI click-through left to the user (§6 boxes).
 4. **Next**: paste the live URL + repo URL into the submission (text ready in `docs/SUBMISSION.md`) and submit via the portal; **then revoke the GitHub token and rotate the DeepSeek key** (both were exposed during this session — see §8).
+
+## 5b. D18 retrieval — state and the path forward (for the next agent)
+
+**What it is**: a *locator/evidence* layer, NOT a second friction. Friction answers "how expensive is change in this repo, overall?"; retrieval answers "which files does this request touch, and what did similar past changes touch?". It does not add to friction, and it does not touch the estimate numbers.
+
+**State (2026-10-17)**:
+- Code: `backend/app/services/retrieval.py` (+ `tests/test_retrieval.py`, harness `scripts/retrieval_eval.py`). NOT imported by the live pipeline; fastembed is NOT in `requirements.txt` — zero runtime impact today.
+- Gate **PASSED** (pre-registered): analog hit@10 0.650–0.807, locate hit@10 0.683–0.776 (flask + requests, 300 targets each); lexical-only already passes; embedding arms add +1.7–5.7pp. Numbers + limitations: `docs/RETRIEVAL_VALIDATION.md`; decision record: D18.
+- Model A/B (measured, cafe PC): **`BAAI/bge-small-en-v1.5` stays the default** (~67 MB file; **~+190 MB RAM loaded — measured**; on the $7 plan, lexical-only is the safe deploy mode). jina-code: no measurable edge + OOM'd the locate probe (52 GB ONNX allocation attempt) — rejected. multilingual-MiniLM: tied on English, the only cheap VI-capable option — NOT adopted until a Vietnamese eval exists. BGE-M3: rejected for runtime RAM (0.6–2.2 GB, not in fastembed).
+- Eval assets (cafe PC only, NOT committed): flask/requests full clones under `%LOCALAPPDATA%\Temp\opencode\eval-repos`; demo scripts under `%LOCALAPPDATA%\Temp\opencode`. Reproduce: `python scripts/retrieval_eval.py --repo <path> [--embed-model X] [--no-embed]` (optional `pip install fastembed` for embedding arms). Needs git on PATH (MinGit).
+
+**Next actions, in order**:
+1. Default (cheapest): nothing — retrieval stays a documented, gated result.
+2. Wire the **display-only panel** (recommended if there is time): candidate files + top-3 analog commits (sha/date/files touched/scores) exposed via the `codebase` block and shown on the estimate page, labelled `retrieval — candidates, not a verdict`. Keep it OUT of the numeric adjustment. Lexical-only on Render.
+3. P2 (independent of the above): deterministic capability inventory (dependency/import scan per taxonomy feature) + an `unmapped_asks` warning for out-of-taxonomy requests.
+4. Numeric coupling (only if pursued deliberately): run the **pre-registered ablation** in `docs/RETRIEVAL_VALIDATION.md` — whole-repo friction vs friction computed on retrieval-selected files, in walk-forward replay; pass bar = `mae_system` improves ≥ 5% relative AND coverage stays inside 75–85%. Fail ⇒ the panel stays display-only forever; pass ⇒ record as D19, and only then may retrieval feed the estimate.
 
 ## 6. Live-test checklist (for the deployed URL)
 
@@ -87,7 +104,7 @@ docker build -f backend/Dockerfile -t the-estimator .   # full single-service im
 - DeepSeek occasionally returns JSON missing the final `}` → `parse_json_response` now repairs it; if extraction still fails after retries → all-null + review warning (by design, spec §9).
 - README color claims that lacked committed artifacts were softened during the QA audit (see D16).
 - Answer refinement: the *relative* spread always drops as unknowns resolve, but absolute width is not monotone (a scope-adding Yes raises P50 and can widen it); README §10 documents this and the in-app copy was made honest in `00afecb` (RangeCompare already showed the "+% — the answer added scope" chip).
-- Codebase Lab does not answer "does the request fit this codebase" (gap review 2026-10-17); the intended next signal is D18 change retrieval — **spike done, recall@k gate PASSED** (see `docs/RETRIEVAL_VALIDATION.md`): next step is the UI panel (candidate files + analog commits, labelled `retrieval`), numeric coupling stays out until separately validated.
+- Codebase Lab does not answer "does the request fit this codebase" (gap review 2026-10-17); the D18 change-retrieval spike is done and its recall@k gate **PASSED** — state, model decisions and the ordered next actions live in **§5b**; numeric coupling requires the pre-registered ablation (`docs/RETRIEVAL_VALIDATION.md`).
 
 ## 8. Secrets & credentials map (WHERE, never WHAT)
 
@@ -102,7 +119,7 @@ Audit note: `git log --all --full-history -- .env` is empty; secret scans (D16) 
 ## 9. Conventions for new agents
 
 - **Ownership discipline**: one writer per file set per wave; commit only your own paths; never `git add -A` blindly; ASCII commit messages.
-- **Tests**: keep them offline/deterministic (conftest forces the stub); `pytest tests/ -q` must stay green (201 today).
+- **Tests**: keep them offline/deterministic (conftest forces the stub); `pytest tests/ -q` must stay green (211 today).
 - **Honesty bar**: no claim without committed evidence; every number in README/docs must match a `docs/*.md` artifact (see D14/D16). Decision gates: if an ablation fails, do not claim improvement.
 - **Docs**: append a new `D17+` entry to `docs/DECISIONS.md` for any significant decision; keep `docs/API.md` in sync with the implemented contract.
 
@@ -121,4 +138,7 @@ cd frontend && npm run build
 # rebuild demo repos / reset demo DB
 cd backend && python scripts/build_demo_repos.py --force
 curl -X POST http://localhost:8000/api/reset
+
+# D18 retrieval evaluation (optional: pip install fastembed for embedding arms; git on PATH)
+cd backend && python scripts/retrieval_eval.py --repo <path> [--embed-model BAAI/bge-small-en-v1.5] [--no-embed]
 ```
