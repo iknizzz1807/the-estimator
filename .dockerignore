@@ -1,7 +1,8 @@
 # Docker build context (repo root). Keeps the image build small and ensures
 # no secrets or host-built artifacts (node_modules/.next/out, local DBs) are
 # sent to the Docker daemon.
-.git
+# NOTE: .git is intentionally NOT excluded — the image ships repo history so
+# Codebase Lab's repo="self" works in the deploy (public repo, read-only use).
 .env
 .env.*
 !.env.example
@@ -22,6 +23,7 @@
 data/*.db
 data/*.db-journal
 data/*.sqlite*
+data/demo_repos/
 *.log
 
 # Local planning docs (in-repo copies live in docs/)

@@ -106,6 +106,10 @@ def parse_json_response(text: str) -> dict[str, Any]:
     start, end = text.find("{"), text.rfind("}")
     if start != -1 and end > start:
         candidates.append(text[start : end + 1])
+    if start != -1:
+        repaired = _repair_truncated_json(text[start:].strip())
+        if repaired is not None:
+            candidates.append(repaired)
     for candidate in candidates:
         try:
             data = json.loads(candidate)
@@ -114,6 +118,37 @@ def parse_json_response(text: str) -> dict[str, Any]:
         if isinstance(data, dict):
             return data
     raise ValueError("LLM response is not a JSON object")
+
+
+def _repair_truncated_json(text: str) -> str | None:
+    """Append missing closing braces when a model response is truncated.
+
+    Counts braces outside of strings; a positive final depth means the JSON
+    object never closed (observed with ``deepseek-flash``: the final ``}`` is
+    occasionally missing even though ``finish_reason`` is ``stop``). Returns
+    ``None`` when the text looks balanced or ends inside a string.
+    """
+    depth = 0
+    in_string = False
+    escaped = False
+    for char in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+    if depth <= 0 or in_string:
+        return None
+    return text + "}" * depth
 
 
 # --------------------------------------------------------------------------- #

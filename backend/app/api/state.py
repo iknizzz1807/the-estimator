@@ -107,6 +107,10 @@ CODEBASE_DEMO_REPOS: dict[str, str] = {
     "demo_a": "payment_plugin",
     "demo_b": "payment_spaghetti",
 }
+#: Demo repos are frozen artifacts (commits dated 2025-11..2026-03); analyze
+#: them at this fixed reference date so friction values never decay as the
+#: "6 months before today" churn window slides forward.
+CODEBASE_DEMO_REFERENCE_DATE = "2026-04-01"
 #: Documented feature -> path-keyword mapping for ``find_similar_changes``
 #: (docs/API.md v0.2: "Keywords ... are derived from the extracted features").
 #: Only features extracted as PRESENT (value == 1) contribute keywords.
@@ -731,8 +735,17 @@ def build_codebase_block(
     median is unchanged (no evidence -> no fabricated shift).
     """
     repo_path = codebase_repo_path(repo)
+    if not (repo_path / ".git").exists():
+        raise RuntimeError(
+            f"Repo {repo!r} không phải là git repository (thiếu .git) — "
+            "xoá data/demo_repos để dựng lại hoặc chọn repo khác"
+        )
     keywords = codebase_keywords(features)
-    at_date = datetime.now(timezone.utc).date().isoformat()
+    at_date = (
+        CODEBASE_DEMO_REFERENCE_DATE
+        if repo in CODEBASE_DEMO_REPOS
+        else datetime.now(timezone.utc).date().isoformat()
+    )
 
     signals = collect_signals(repo_path, at_date=at_date)
     friction = compute_friction(signals)
@@ -950,14 +963,17 @@ def project_row_payload(row: Mapping[str, Any], system: Mapping[str, Any] | None
     system_p50 = system.get("p50") if system else None
     actual_days = row.get("actual_days")
 
+    # Contract (docs/API.md): delta_pct = actual vs system P50. The system-vs-team
+    # bias is a different metric and stays available as the extra key below.
     delta_pct = None
-    if system_p50 is not None and team_estimate not in (None, 0):
-        delta_pct = round((float(system_p50) - float(team_estimate)) / float(team_estimate) * 100.0, 1)
-
-    actual_vs_system_pct = None
     if actual_days is not None and system_p50:
-        actual_vs_system_pct = round(
-            (float(actual_days) - float(system_p50)) / float(system_p50) * 100.0, 1
+        delta_pct = round((float(actual_days) - float(system_p50)) / float(system_p50) * 100.0, 1)
+
+    actual_vs_system_pct = delta_pct  # kept for backwards compatibility
+    system_vs_team_pct = None
+    if system_p50 is not None and team_estimate not in (None, 0):
+        system_vs_team_pct = round(
+            (float(system_p50) - float(team_estimate)) / float(team_estimate) * 100.0, 1
         )
 
     return {
@@ -978,8 +994,10 @@ def project_row_payload(row: Mapping[str, Any], system: Mapping[str, Any] | None
         "summary": title_hint(row.get("email_text")),
         "is_synthetic": row.get("is_synthetic", 1),
         "in_interval": system.get("in_interval") if system else None,
-        # Extra convenience for the History table (system P50 vs actual).
+        # Extra convenience keys: system P50 vs actual (same value as delta_pct
+        # now) and the system-vs-team bias metric.
         "actual_vs_system_pct": actual_vs_system_pct,
+        "system_vs_team_pct": system_vs_team_pct,
     }
 
 

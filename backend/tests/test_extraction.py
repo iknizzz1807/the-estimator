@@ -191,6 +191,24 @@ def test_parse_json_response_variants() -> None:
         parse_json_response("")
 
 
+def test_parse_json_response_repairs_missing_final_brace() -> None:
+    # deepseek-flash occasionally drops the final '}' (finish_reason "stop").
+    full = '{"features": {"payment_gateway": {"value": 1, "confidence": 0.9, "evidence_quote": null}}}'
+    data = parse_json_response(full[:-1])  # one closing brace missing
+    assert data["features"]["payment_gateway"]["value"] == 1
+
+    # Braces inside strings must not confuse the repair.
+    tricky = '{"note": "ends with } inside a string", "x": 1'
+    assert parse_json_response(tricky)["x"] == 1
+
+    # Balanced-but-invalid JSON is still rejected.
+    with pytest.raises(ValueError):
+        parse_json_response('{"a": }')
+    # Unterminated string -> no repair claim.
+    with pytest.raises(ValueError):
+        parse_json_response('{"a": "unterminated')
+
+
 def test_get_provider_falls_back_to_stub_without_api_key(monkeypatch) -> None:
     # Env vars take precedence over any .env file, so explicitly blank the keys.
     monkeypatch.setenv("GEMINI_API_KEY", "")

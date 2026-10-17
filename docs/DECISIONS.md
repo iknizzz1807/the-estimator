@@ -73,6 +73,10 @@ Approved after the measured learning curve (CV MAE 10.2 @60 → 8.5 @120 → ~8.
 
 `POST /api/estimate` accepts `repo: demo_a | demo_b | self`; the response carries a `codebase` block (friction, invasiveness, similar changes, base vs adjusted estimate, adjustment breakdown, honest note). Demo repos are generated deterministically on demand; keywords for similar-changes come from the extracted features. UI: repo selector + `CodebasePanel` on the Estimate screen. **Positioning per the decision gate: risk explanation, one-directional surcharge (never a discount), demo-assumed coefficients (×0.30/×0.60 widening, ×0.35 invasiveness shift) until a real pilot learns them.**
 
+## D16 — Pre-deploy QA sweep (2026-10-17)
+
+Three parallel QA agents (backend adversarial testing, frontend/integration contract checks, repo hygiene + claims audit). Fixed before deploy: parallel-estimate id race (`BEGIN IMMEDIATE`), non-finite `actual_days` accepted (corruption + replay 500), CSV import feature-value validation, replay cache invalidation for custom `min_train`, **Docker image missing `git` (Codebase Lab would 500 on Render)**, `delta_pct` semantics aligned to the contract (actual-vs-system; the system-vs-team bias stays as the extra key `system_vs_team_pct`), demo-repo analysis pinned to reference date 2026-04-01 (friction no longer decays as the churn window slides; deterministic demo values), truncated-JSON brace repair for the `deepseek-flash` missing-`}` quirk, and clean errors for non-git/broken demo repos. Frontend: clipboard-failure false alarm, EN/VI warning dedupe, stale copy/counts, `project_id: null` typing — rebuilt and redeployed. Hygiene audit: no secrets in history, clean clone reproduces, 201 tests. Claims audit fixed 5 stale numbers in README/API.md/DECISIONS. Docker image now ships `.git` so `repo="self"` works in production.
+
 
 
 

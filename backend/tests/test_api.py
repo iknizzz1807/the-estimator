@@ -1099,3 +1099,75 @@ def test_parallel_persist_estimate_allocates_unique_ids(tmp_path: Path) -> None:
     assert len(ids) == len(set(ids)) == 8
     assert sorted(ids) == [f"P{index:03d}" for index in range(1, 9)]
     assert state.project_count() == 8
+
+
+# --------------------------------------------------------------------------- #
+# Final QA fixes: delta_pct semantics, pinned demo date, broken repos
+# --------------------------------------------------------------------------- #
+
+
+def test_delta_pct_is_actual_vs_system(client: TestClient) -> None:
+    """Contract (docs/API.md): delta_pct = (actual - system P50)/system P50."""
+    rows = client.get("/api/projects").json()
+    checked = 0
+    for row in rows:
+        if row["actual_days"] is None or row["system_p50"] in (None, 0):
+            continue
+        expected = round(
+            (float(row["actual_days"]) - float(row["system_p50"])) / float(row["system_p50"]) * 100.0,
+            1,
+        )
+        assert row["delta_pct"] == pytest.approx(expected, abs=0.05)
+        assert row["actual_vs_system_pct"] == pytest.approx(expected, abs=0.05)
+        if row["team_estimate"]:
+            bias = round(
+                (float(row["system_p50"]) - float(row["team_estimate"]))
+                / float(row["team_estimate"])
+                * 100.0,
+                1,
+            )
+            assert row["system_vs_team_pct"] == pytest.approx(bias, abs=0.05)
+        checked += 1
+    assert checked >= 5  # the seeded history has plenty of done rows
+
+
+def test_delta_pct_null_without_actual(client: TestClient) -> None:
+    rows = client.get("/api/projects").json()
+    pending = [row for row in rows if row["status"] != "done"]
+    assert pending
+    assert all(row["delta_pct"] is None for row in pending)
+
+
+def test_broken_demo_repo_returns_clean_error(
+    client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A demo-repo directory without .git must produce a clean error, not a bare 500."""
+    broken_root = tmp_path / "broken_demo_repos"
+    (broken_root / "payment_plugin").mkdir(parents=True)  # exists but is not a git repo
+    monkeypatch.setenv("ESTIMATOR_DEMO_REPOS_DIR", str(broken_root))
+
+    response = client.post(
+        "/api/estimate", json={"email_text": get_scenario("A")["email_text"], "repo": "demo_a"}
+    )
+    assert response.status_code == 500
+    assert "git repository" in response.json()["detail"]
+
+
+def test_demo_repo_analysis_uses_pinned_reference_date(
+    client: TestClient, demo_repos_env: Path
+) -> None:
+    """Demo repos are frozen artifacts: friction must not decay over time."""
+    from app.api import state as state_mod
+
+    features = {name: 0 for name in FEATURES}
+    features["payment_gateway"] = 1
+    features["third_party_api"] = 1
+    base = {"p10": 10.0, "p50": 20.0, "p90": 40.0}
+
+    block_a1 = state_mod.build_codebase_block("demo_a", features, base)
+    block_a2 = state_mod.build_codebase_block("demo_a", features, base)
+    block_b = state_mod.build_codebase_block("demo_b", features, base)
+
+    assert block_a1["friction"]["score"] == block_a2["friction"]["score"]  # deterministic
+    assert block_b["friction"]["score"] > block_a1["friction"]["score"]  # messy > clean
+    assert block_a1["friction"]["level"] != block_b["friction"]["level"]

@@ -35,6 +35,9 @@ RUN apt-get update \
 COPY backend/ ./backend/
 COPY data/synthetic_history.csv ./data/synthetic_history.csv
 COPY --from=frontend-build /build/frontend/out ./frontend/out
+# Repo history makes Codebase Lab's repo="self" work inside the image
+# (read-only git analysis; the public repo ships its own history).
+COPY .git ./.git
 
 WORKDIR /app/backend
 ENV HOST=0.0.0.0 PYTHON=python3

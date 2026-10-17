@@ -59,7 +59,7 @@ Walk-forward replay on the seeded 240-project history (228 done, 218 replay step
 | **System (calibrated P50)** | **17.36** | 218 | full walk-forward; coverage 189/218 (86.7%) |
 | Team estimate | 32.93 | 218 | full walk-forward; ignores the mid-history drift |
 | LLM + company history in prompt | 35.27 | 42 | most recent steps; the fair "LLM with context" strawman |
-| LLM-only | 258.12 | 42 | most recent steps; confuses calendar time with effort (e.g. answers "240" for a 76-day project) |
+| LLM-only | 258.12 | 42 | most recent steps; confuses calendar time with effort (measured MAE 258 vs 17.4 for the system) |
 
 Post-drift window (last 10 steps): **System 31.05 vs Team 52.90 MAE** — the model re-learns after the productivity shift; the humans keep the old habits. Full report: [docs/AB_MEASUREMENT.md](docs/AB_MEASUREMENT.md).
 
@@ -78,13 +78,13 @@ Full report: [docs/EXTRACTION_EVAL.md](docs/EXTRACTION_EVAL.md). Cost: the whole
 
 ## Codebase Lab — risk context (validated honestly)
 
-Same email, two codebases, two different answers (live demo — repo selector on the Estimate screen; scenario A email, measured 2026-10-17):
+Same email, two codebases, two different answers (live demo — repo selector on the Estimate screen; demo repos analyzed at their pinned reference date 2026-04-01, base range {10, 20, 40}):
 
 | | `payment_plugin` (clean) | `payment_spaghetti` (messy) |
 |---|---|---|
-| Friction (churn/fan-in/complexity/authors/coverage) | 0.11 LOW | 0.40 MEDIUM |
+| Friction (churn/fan-in/complexity/authors/coverage) | 0.21 LOW | 0.69 HIGH |
 | Invasiveness of similar past changes | 36% files modified | **86% files modified** |
-| Range | {110.1, 233.7, 473.9} | {100.4, **269.5**, 549.8} |
+| Range | {9.4, 22.5, 45.0} | {7.9, **26.0**, 56.5} |
 
 What is validated (and what is not):
 
