@@ -36,8 +36,12 @@ COPY backend/ ./backend/
 COPY data/synthetic_history.csv ./data/synthetic_history.csv
 COPY --from=frontend-build /build/frontend/out ./frontend/out
 # Repo history makes Codebase Lab's repo="self" work inside the image
-# (read-only git analysis; the public repo ships its own history).
-COPY .git ./.git
+# (read-only git analysis). The context only contains .git when building
+# locally from a full checkout: Render builds from GitHub, where the context
+# has no .git, so copy it conditionally and never fail the whole deploy over
+# an optional extra. Without it, repo="self" returns the existing clean
+# "not a git repository" error and demo_a/demo_b work unchanged.
+RUN --mount=type=bind,target=/ctx if [ -d /ctx/.git ]; then cp -r /ctx/.git ./.git; fi
 
 WORKDIR /app/backend
 ENV HOST=0.0.0.0 PYTHON=python3
