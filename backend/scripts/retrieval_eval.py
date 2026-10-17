@@ -43,6 +43,7 @@ from app.services.retrieval import (  # noqa: E402
 )
 
 KS = (5, 10)
+EMBED_DEFAULT = None  # module default (BAAI/bge-small-en-v1.5)
 
 
 def _targets_for(docs: list[dict], fraction: float, limit: int | None) -> list[dict]:
@@ -133,12 +134,15 @@ def _eval_locate(index: RetrievalIndex, targets: list[dict], repo: Path, k_max: 
     }
 
 
-def evaluate_repo(repo: Path, fraction: float, limit: int | None, use_embed: bool) -> dict:
+def evaluate_repo(
+    repo: Path, fraction: float, limit: int | None, use_embed: bool, embed_model: str | None
+) -> dict:
     print(f"\n=== repo: {repo} ===", flush=True)
     docs = build_commit_docs(repo)
     targets = _targets_for(docs, fraction, limit)
     print(f"commits: {len(docs)} | targets evaluated: {len(targets)}", flush=True)
-    result: dict = {"repo": str(repo), "n_commits": len(docs), "n_targets": len(targets)}
+    result: dict = {"repo": str(repo), "n_commits": len(docs), "n_targets": len(targets),
+                    "embed_model": embed_model}
 
     # --- probe 1: analog commits (message -> earlier commits -> files) ---------
     message_index_lex = RetrievalIndex(chunks=[], commits=docs, use_embeddings=False)
@@ -148,7 +152,9 @@ def evaluate_repo(repo: Path, fraction: float, limit: int | None, use_embed: boo
     if use_embed and embeddings_available():
         try:
             t0 = time.time()
-            message_index_emb = RetrievalIndex(chunks=[], commits=docs, use_embeddings=True)
+            message_index_emb = RetrievalIndex(
+                chunks=[], commits=docs, use_embeddings=True, embed_model=embed_model
+            )
             print(f"  [embeddings for {len(docs)} commit docs: {time.time()-t0:.1f}s]", flush=True)
             result["analog_hybrid_emb"] = _eval_analog(message_index_emb, targets, max(KS))
             print("  analog-commit recall (hybrid+emb):", result["analog_hybrid_emb"], flush=True)
@@ -166,7 +172,9 @@ def evaluate_repo(repo: Path, fraction: float, limit: int | None, use_embed: boo
     if use_embed and embeddings_available():
         try:
             t0 = time.time()
-            code_index_emb = RetrievalIndex(chunks=chunks, commits=[], use_embeddings=True)
+            code_index_emb = RetrievalIndex(
+                chunks=chunks, commits=[], use_embeddings=True, embed_model=embed_model
+            )
             print(f"  [embeddings for {len(chunks)} chunks: {time.time()-t0:.1f}s]", flush=True)
             result["locate_hybrid_emb_current_tree"] = _eval_locate(code_index_emb, targets, repo, max(KS))
             print("  code-locate (hybrid+emb, current-tree proxy):",
@@ -184,6 +192,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--target-fraction", type=float, default=0.4)
     parser.add_argument("--limit-targets", type=int, default=None)
     parser.add_argument("--no-embed", action="store_true", help="force lexical-only")
+    parser.add_argument(
+        "--embed-model",
+        default=None,
+        help="fastembed model name (default: module default BAAI/bge-small-en-v1.5)",
+    )
     parser.add_argument("--out", type=Path, default=None, help="write JSON report here")
     args = parser.parse_args(argv)
 
@@ -198,7 +211,9 @@ def main(argv: list[str] | None = None) -> int:
         if not (repo / ".git").exists():
             print(f"skip (not a git repo): {repo}", flush=True)
             continue
-        reports.append(evaluate_repo(repo, args.target_fraction, args.limit_targets, use_embed))
+        reports.append(
+            evaluate_repo(repo, args.target_fraction, args.limit_targets, use_embed, args.embed_model)
+        )
 
     if args.out and reports:
         args.out.write_text(json.dumps(reports, indent=2), encoding="utf-8")

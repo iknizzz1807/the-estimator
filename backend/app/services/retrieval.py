@@ -261,7 +261,7 @@ def build_commit_docs(repo: str | Path, *, at_date: str | None = None) -> list[d
 # Embeddings (optional, lazy)
 # --------------------------------------------------------------------------- #
 
-_model_cache: Any = None
+_model_cache: dict[str, Any] = {}
 _model_failed = False
 
 
@@ -278,19 +278,20 @@ def embeddings_available() -> bool:
     return True
 
 
-def _get_model() -> Any:
-    global _model_cache, _model_failed
-    if _model_cache is not None:
-        return _model_cache
-    from fastembed import TextEmbedding
+def _get_model(model_name: str | None = None) -> Any:
+    name = model_name or EMBED_MODEL_NAME
+    if name not in _model_cache:
+        from fastembed import TextEmbedding
 
-    _model_cache = TextEmbedding(model_name=EMBED_MODEL_NAME)
-    return _model_cache
+        _model_cache[name] = TextEmbedding(model_name=name)
+    return _model_cache[name]
 
 
-def _embed_texts(texts: Sequence[str]) -> np.ndarray:
+def _embed_texts(texts: Sequence[str], model_name: str | None = None) -> np.ndarray:
     """L2-normalized float32 embedding matrix (rows)."""
-    model = _get_model()
+    if not texts:
+        return np.zeros((0, 0), dtype=np.float32)
+    model = _get_model(model_name)
     vectors = np.asarray(list(model.embed(list(texts))), dtype=np.float32)
     norms = np.linalg.norm(vectors, axis=1, keepdims=True)
     norms[norms == 0] = 1.0
@@ -321,6 +322,7 @@ class RetrievalIndex:
     chunks: list[CodeChunk]
     commits: list[dict[str, Any]]
     use_embeddings: bool = False
+    embed_model: str | None = None
 
     _bm25: BM25Okapi = field(init=False, repr=False)
     _tfidf: TfidfVectorizer = field(init=False, repr=False)
@@ -348,9 +350,13 @@ class RetrievalIndex:
 
         if self.use_embeddings and embeddings_available():
             if self.chunks:
-                self._emb_matrix = _embed_texts([c.lexical[:MAX_CHUNK_CHARS] for c in self.chunks])
+                self._emb_matrix = _embed_texts(
+                    [c.lexical[:MAX_CHUNK_CHARS] for c in self.chunks], self.embed_model
+                )
             if self.commits:
-                self._emb_commit = _embed_texts([self._commit_text(c) for c in self.commits])
+                self._emb_commit = _embed_texts(
+                    [self._commit_text(c) for c in self.commits], self.embed_model
+                )
             if self.chunks or self.commits:
                 self.mode = "hybrid-emb"
 
@@ -369,7 +375,7 @@ class RetrievalIndex:
         )
         parts = {"bm25": _minmax(bm25), "tfidf": _minmax(tfidf)}
         if self._emb_matrix is not None:
-            q_emb = _embed_texts([query])[0]
+            q_emb = _embed_texts([query], self.embed_model)[0]
             parts["emb"] = _minmax(np.asarray(self._emb_matrix @ q_emb, dtype=np.float64))
             weights = WEIGHTS_HYBRID
         else:
@@ -432,7 +438,7 @@ class RetrievalIndex:
         )
         parts = {"bm25": _minmax(bm25), "tfidf": _minmax(tfidf)}
         if self._emb_commit is not None:
-            q_emb = _embed_texts([query])[0]
+            q_emb = _embed_texts([query], self.embed_model)[0]
             parts["emb"] = _minmax(np.asarray(self._emb_commit @ q_emb, dtype=np.float64))
             weights = WEIGHTS_HYBRID
         else:
