@@ -144,8 +144,9 @@ export function RankedQuestionsList({
       <p className="mb-3 text-[11px] leading-4 text-[var(--faint)]">
         Click <span className="font-medium text-[var(--dim)]">Có</span> (yes, in
         scope) or <span className="font-medium text-[var(--dim)]">Không</span>{" "}
-        (no) — the estimate re-runs with your answers and the range narrows.
-        Refinements are not stored as projects.
+        (no) — the estimate re-runs with your answers: unknowns resolve and the
+        relative uncertainty narrows (a Yes that adds scope can widen the
+        range). Refinements are not stored as projects.
       </p>
 
       <ol className="space-y-2">

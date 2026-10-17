@@ -546,7 +546,7 @@ export default function EstimatePage() {
                   </Term>
                 </span>
               }
-              subtitle="Ranked by impact; each Có/Không answer re-runs the estimate and shrinks the range. Answering stores nothing."
+              subtitle="Ranked by impact; each Có/Không answer re-runs the estimate and resolves an unknown — the relative uncertainty narrows (a Yes that adds scope can widen the interval). Answering stores nothing."
             >
               <RankedQuestionsList
                 questions={baseQuestions}

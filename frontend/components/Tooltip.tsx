@@ -32,7 +32,7 @@ export const GLOSSARY = {
   delta: "Δ%: (actual − system P50) ÷ system P50. ≤10% neutral, 10–25% review, >25% critical miss.",
   impact:
     "Estimated swing in the P50 if the feature turns out present vs absent — the bigger the swing, the more valuable the answer.",
-  mc: "Monte Carlo interval: every feature still unknown is sampled from its historical prevalence instead of being assumed absent, so the interval is honestly wider — more unknowns ⇒ wider range. Answer the ranked questions to narrow it.",
+  mc: "Monte Carlo interval: every feature still unknown is sampled from its historical prevalence instead of being assumed absent, so the interval is honestly wider — more unknowns ⇒ wider range. Answering the ranked questions resolves unknowns and narrows the relative uncertainty (a Yes that adds scope can widen the range).",
   point:
     "Point estimate: the feature vector is fully known (or the model runs cold-start), so no Monte-Carlo widening is applied.",
   overBudget:
