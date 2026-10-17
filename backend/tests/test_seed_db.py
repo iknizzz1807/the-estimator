@@ -1,12 +1,16 @@
 """Tests for the SQLite schema and the CSV -> database seed script.
 
 Uses the full-size generated corpus (n=240) in ``tmp_path``; no network, no
-side effects on the repo-root database.
+side effects on the repo-root database. Connections are wrapped in
+``contextlib.closing`` -- sqlite3's ``with conn`` only ends the transaction, it
+does not close the handle, and on Windows a stray open handle blocks deleting
+the temporary database file.
 """
 
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 import pandas as pd
@@ -44,7 +48,7 @@ def seeded(tmp_path_factory: pytest.TempPathFactory) -> dict:
 
 def test_init_db_creates_all_tables(tmp_path: Path) -> None:
     db_path = init_db(tmp_path / "empty.db")
-    with connect(db_path) as conn:
+    with closing(connect(db_path)) as conn:
         tables = {
             row["name"]
             for row in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -54,7 +58,7 @@ def test_init_db_creates_all_tables(tmp_path: Path) -> None:
 
 def test_schema_creates_expected_columns(tmp_path: Path) -> None:
     db_path = init_db(tmp_path / "empty.db")
-    with connect(db_path) as conn:
+    with closing(connect(db_path)) as conn:
         columns = {
             table: {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
             for table in EXPECTED_TABLES
@@ -72,13 +76,13 @@ def test_schema_creates_expected_columns(tmp_path: Path) -> None:
 
 def test_project_count_matches_csv_rows(seeded: dict) -> None:
     assert seeded["counts"]["projects"] == len(seeded["df"]) == N_PROJECTS
-    with connect(seeded["db"]) as conn:
+    with closing(connect(seeded["db"])) as conn:
         assert conn.execute("SELECT COUNT(*) FROM projects").fetchone()[0] == len(seeded["df"])
 
 
 def test_features_rows_are_15_per_project(seeded: dict) -> None:
     assert seeded["counts"]["features"] == 15 * N_PROJECTS
-    with connect(seeded["db"]) as conn:
+    with closing(connect(seeded["db"])) as conn:
         assert conn.execute("SELECT COUNT(*) FROM features").fetchone()[0] == 15 * N_PROJECTS
         rows_without_full_set = conn.execute(
             "SELECT project_id FROM features GROUP BY project_id HAVING COUNT(*) != 15"
@@ -88,7 +92,7 @@ def test_features_rows_are_15_per_project(seeded: dict) -> None:
 
 def test_feature_values_match_csv(seeded: dict) -> None:
     df = seeded["df"].set_index("project_id")
-    with connect(seeded["db"]) as conn:
+    with closing(connect(seeded["db"])) as conn:
         for project_id in df.index:
             project_row = conn.execute(
                 "SELECT id, date, status, actual_days FROM projects WHERE project_id = ?",
@@ -107,7 +111,7 @@ def test_feature_values_match_csv(seeded: dict) -> None:
 
 
 def test_feature_rows_have_prob_one_and_no_quote(seeded: dict) -> None:
-    with connect(seeded["db"]) as conn:
+    with closing(connect(seeded["db"])) as conn:
         stats = conn.execute(
             "SELECT COUNT(*) AS total, "
             "SUM(value_prob = 1.0) AS prob_one, "
@@ -117,7 +121,7 @@ def test_feature_rows_have_prob_one_and_no_quote(seeded: dict) -> None:
 
 
 def test_open_projects_have_null_actual_days(seeded: dict) -> None:
-    with connect(seeded["db"]) as conn:
+    with closing(connect(seeded["db"])) as conn:
         open_count = conn.execute(
             "SELECT COUNT(*) FROM projects WHERE status != 'done' AND actual_days IS NULL"
         ).fetchone()[0]
@@ -127,7 +131,7 @@ def test_open_projects_have_null_actual_days(seeded: dict) -> None:
 
 
 def test_unique_project_id_is_enforced(seeded: dict) -> None:
-    with connect(seeded["db"]) as conn:
+    with closing(connect(seeded["db"])) as conn:
         with pytest.raises(sqlite3.IntegrityError):
             conn.execute(
                 "INSERT INTO projects (project_id, date, email_text, status) VALUES (?, ?, ?, ?)",
@@ -140,7 +144,7 @@ def test_reseed_with_reset_is_idempotent(seeded: dict) -> None:
     first = seed(seeded["csv"], seeded["db"], reset=True)
     second = seed(seeded["csv"], seeded["db"], reset=True)
     assert first == second == seeded["counts"]
-    with connect(seeded["db"]) as conn:
+    with closing(connect(seeded["db"])) as conn:
         assert conn.execute("SELECT COUNT(*) FROM projects").fetchone()[0] == N_PROJECTS
         assert conn.execute("SELECT COUNT(*) FROM features").fetchone()[0] == 15 * N_PROJECTS
 
@@ -148,5 +152,5 @@ def test_reseed_with_reset_is_idempotent(seeded: dict) -> None:
 def test_seed_without_reset_upserts_without_duplicates(seeded: dict) -> None:
     counts = seed(seeded["csv"], seeded["db"], reset=False)
     assert counts == seeded["counts"]
-    with connect(seeded["db"]) as conn:
+    with closing(connect(seeded["db"])) as conn:
         assert conn.execute("SELECT COUNT(DISTINCT project_id) FROM projects").fetchone()[0] == N_PROJECTS

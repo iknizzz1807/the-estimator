@@ -24,6 +24,7 @@ import argparse
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -95,6 +96,25 @@ def _commit(repo: Path, day: str, author: tuple[str, str], message: str) -> None
 def _init_repo(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
     _run_git(path, ["init", "-q", "-b", "main"])
+
+
+def _force_rmtree(path: Path) -> None:
+    """``shutil.rmtree`` that clears read-only bits first (Git for Windows).
+
+    Git marks loose objects under ``.git/objects`` read-only; on Windows
+    ``os.unlink`` then fails with ``WinError 5``. Retry once after adding the
+    owner write bit (a no-op on POSIX, where deletion anyway depends on the
+    parent directory).
+    """
+
+    def _retry(func, failed_path, _exc_info) -> None:
+        os.chmod(failed_path, os.stat(failed_path).st_mode | stat.S_IWRITE)
+        func(failed_path)
+
+    if sys.version_info >= (3, 12):  # ``onexc`` replaced ``onerror`` in 3.12
+        shutil.rmtree(path, onexc=_retry)
+    else:  # pragma: no cover - Python < 3.12
+        shutil.rmtree(path, onerror=_retry)
 
 
 # --------------------------------------------------------------------------- #
@@ -804,7 +824,7 @@ def build_demo_repos(
             if not force:
                 repos[name] = repo
                 continue
-            shutil.rmtree(repo)
+            _force_rmtree(repo)
         builder(repo)
         repos[name] = repo
     return repos
