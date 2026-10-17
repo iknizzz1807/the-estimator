@@ -26,6 +26,12 @@ WORKDIR /app
 COPY backend/requirements.txt ./backend/requirements.txt
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
+# The Codebase Lab shells out to `git` (on-demand demo-repo builder + the
+# read-only history analyzer). python:slim images ship without it.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY backend/ ./backend/
 COPY data/synthetic_history.csv ./data/synthetic_history.csv
 COPY --from=frontend-build /build/frontend/out ./frontend/out
