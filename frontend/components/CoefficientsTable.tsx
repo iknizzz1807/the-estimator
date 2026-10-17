@@ -39,24 +39,24 @@ export function CoefficientsTable({ coefficients }: { coefficients: Coefficient[
                 <span className="flex items-center gap-2">
                   {topThree.has(coefficient.feature) && (
                     <span
-                      className="h-1.5 w-1.5 rounded-full bg-[var(--lime)]"
+                      className="h-1.5 w-1.5 rounded-full bg-[var(--primary)]"
                       title="Top 3 impact"
                     />
                   )}
                   {featureLabel(coefficient.feature)}
                 </span>
               </td>
-              <td className="num text-[var(--text)]">
+              <td className="num text-[var(--ink)] font-medium">
                 ×{coefficient.multiplier.toFixed(2)}
               </td>
-              <td className="num text-[var(--dim)]">{coefficient.sample_count}</td>
+              <td className="num text-[var(--ink-subtle)]">{coefficient.sample_count}</td>
               <td>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#18243a]">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-3)] border border-[var(--hairline)]">
                   <div
                     className={
                       topThree.has(coefficient.feature)
-                        ? "h-full bg-[var(--lime)]"
-                        : "h-full bg-[var(--cyan)]"
+                        ? "h-full bg-[var(--primary)]"
+                        : "h-full bg-[var(--brand-secure)]"
                     }
                     style={{
                       width: `${Math.max(

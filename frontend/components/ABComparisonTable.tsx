@@ -228,10 +228,11 @@ export function ABComparisonTable({ data }: { data: ABResponse }) {
               <ChartTooltip
                 cursor={{ fill: "rgba(251,191,36,0.06)" }}
                 contentStyle={{
-                  background: "#0b1322",
-                  border: "1px solid var(--border-strong)",
+                  background: "var(--surface-2)",
+                  border: "1px solid var(--hairline-strong)",
                   borderRadius: 8,
                   fontSize: 11,
+                  boxShadow: "0 12px 32px rgba(0,0,0,0.8)",
                 }}
               />
               <Bar dataKey="count" fill="rgba(251,191,36,0.55)" radius={[4, 4, 0, 0]} />

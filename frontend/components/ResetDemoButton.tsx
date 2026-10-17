@@ -12,6 +12,7 @@ type Toast = { tone: "ok" | "error"; title: string; detail?: string };
  * "Reset demo data" (contract v0.2, POST /api/reset): confirm → reseed the
  * demo DB to the pristine synthetic history → success toast + a gentle
  * refresh signal so every mounted data hook refetches (no hard reload).
+ * Styled with Linear subtle elevated surfaces, hairline borders, and semantic accents.
  */
 export default function ResetDemoButton() {
   const [loading, setLoading] = useState(false);
@@ -61,7 +62,7 @@ export default function ResetDemoButton() {
     <>
       <button
         type="button"
-        className="btn btn-warn w-full"
+        className="btn btn-warn w-full justify-center py-1.5 text-xs font-medium"
         disabled={loading}
         onClick={() => void reset()}
         title="Reseed the demo database (POST /api/reset) — wipes estimate-created projects and recorded actuals."
@@ -75,19 +76,27 @@ export default function ResetDemoButton() {
             <div
               role="status"
               aria-live="polite"
-              className={`fixed bottom-4 right-4 z-[100] max-w-sm rounded-lg border px-4 py-3 pr-7 text-sm shadow-2xl ${
+              className={`fixed bottom-4 right-4 z-[100] max-w-sm rounded-lg border border-[var(--hairline-strong)] bg-[var(--surface-2)] p-4 pr-8 text-sm shadow-[0_16px_36px_rgba(0,0,0,0.85)] ${
                 toast.tone === "ok"
-                  ? "border-[rgba(163,230,53,0.5)] bg-[#101b12] text-[#d9f99d]"
-                  : "border-[rgba(248,113,113,0.5)] bg-[#1c1114] text-[#fecaca]"
+                  ? "border-l-2 border-l-[var(--success)]"
+                  : "border-l-2 border-l-[var(--danger)]"
               }`}
             >
-              <div className="pr-5 font-medium">{toast.title}</div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    toast.tone === "ok" ? "bg-[var(--success)]" : "bg-[var(--danger)]"
+                  }`}
+                  aria-hidden
+                />
+                <div className="font-medium text-xs text-[var(--ink)]">{toast.title}</div>
+              </div>
               {toast.detail && (
-                <div className="mt-0.5 text-xs opacity-90">{toast.detail}</div>
+                <div className="mt-1 text-xs text-[var(--ink-subtle)] pl-4">{toast.detail}</div>
               )}
               <button
                 type="button"
-                className="absolute right-2 top-1.5 text-xs opacity-70 hover:opacity-100"
+                className="absolute right-2.5 top-2.5 text-xs text-[var(--ink-tertiary)] hover:text-[var(--ink)]"
                 onClick={() => setToast(null)}
                 aria-label="Dismiss notification"
               >

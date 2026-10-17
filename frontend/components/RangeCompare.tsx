@@ -18,18 +18,18 @@ function Whisker({
   const median = Math.min(100, Math.max(0, (range.p50 / domainMax) * 100));
   const barClass =
     tone === "before"
-      ? "border border-[var(--border-strong)] bg-[rgba(148,163,184,0.18)]"
-      : "border border-[rgba(34,211,238,0.7)] bg-[rgba(34,211,238,0.28)]";
+      ? "border border-[var(--hairline-strong)] bg-[var(--surface-3)]"
+      : "border border-[var(--primary)] bg-[rgba(94,106,210,0.25)]";
   return (
     <div className="relative h-5">
-      <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[var(--border)]" />
+      <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[var(--hairline)]" />
       <div
         className={`absolute top-1/2 h-3 -translate-y-1/2 rounded-full ${barClass}`}
         style={{ left: `${left}%`, width: `${Math.max(0.5, right - left)}%` }}
         title={`P10 ${fmtInt(range.p10)} → P90 ${fmtInt(range.p90)} ${range.unit}`}
       />
       <div
-        className="absolute top-1/2 h-5 w-[2px] -translate-y-1/2 rounded bg-[var(--lime)]"
+        className="absolute top-1/2 h-5 w-[2px] -translate-y-1/2 rounded bg-[var(--primary)]"
         style={{ left: `${median}%` }}
         title={`P50 ${fmtInt(range.p50)} ${range.unit}`}
       />
@@ -135,12 +135,12 @@ export function RangeCompare({
       </div>
 
       <p className="text-[10.5px] leading-4 text-[var(--faint)]">
-        <span className="inline-block h-2 w-3 rounded-full border border-[var(--border-strong)] bg-[rgba(148,163,184,0.18)] align-middle" />{" "}
+        <span className="inline-block h-2 w-3 rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-3)] align-middle" />{" "}
         original &nbsp;·&nbsp;{" "}
-        <span className="inline-block h-2 w-3 rounded-full border border-[rgba(34,211,238,0.7)] bg-[rgba(34,211,238,0.28)] align-middle" />{" "}
+        <span className="inline-block h-2 w-3 rounded-full border border-[var(--primary)] bg-[rgba(94,106,210,0.25)] align-middle" />{" "}
         refined &nbsp;·&nbsp;{" "}
-        <span className="inline-block h-2.5 w-[2px] rounded bg-[var(--lime)] align-middle" />{" "}
-        P50. The lime tick is the median; answer-refinement re-calls{" "}
+        <span className="inline-block h-2.5 w-[2px] rounded bg-[var(--primary)] align-middle" />{" "}
+        P50. The lavender tick is the median; answer-refinement re-calls{" "}
         <span className="num">POST /api/estimate</span> with{" "}
         <span className="num">answers</span> and stores nothing.{" "}
         <Term term="Monte Carlo" tip={GLOSSARY.mc}>

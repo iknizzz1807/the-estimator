@@ -23,23 +23,23 @@ function CoverageBand({ coverage }: { coverage: number }) {
   return (
     <div>
       <div className="relative h-6">
-        <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-[#18243a]" />
+        <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-[var(--surface-3)] border border-[var(--hairline)]" />
         <div
-          className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full border border-[rgba(163,230,53,0.6)] bg-[rgba(163,230,53,0.18)]"
+          className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full border border-[rgba(39,166,68,0.4)] bg-[rgba(39,166,68,0.15)]"
           style={{ left: "75%", width: "10%" }}
           title="Target band 75–85%"
         />
         <div
           className={`absolute top-1/2 h-3.5 w-1 -translate-y-1/2 rounded ${
-            inBand ? "bg-[var(--lime)]" : "bg-[var(--amber)]"
+            inBand ? "bg-[var(--success)] shadow-[0_0_8px_rgba(39,166,68,0.4)]" : "bg-[var(--warning)]"
           }`}
           style={{ left: `${clamped}%` }}
           title={`Observed coverage ${fmtPct(clamped)}`}
         />
       </div>
-      <div className="mt-1 flex justify-between text-[10px] text-[var(--faint)]">
+      <div className="mt-1 flex justify-between text-[10px] text-[var(--ink-tertiary)] font-mono">
         <span>0%</span>
-        <span className="text-[var(--lime)]">target 75–85%</span>
+        <span className="text-[var(--success)] font-sans">target 75–85%</span>
         <span>100%</span>
       </div>
     </div>
@@ -114,8 +114,8 @@ export default function ProofPage() {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-xl font-semibold">Proof — it learns</h1>
-        <p className="mt-0.5 max-w-3xl text-xs leading-5 text-[var(--dim)]">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--ink)]">Proof — it learns</h1>
+        <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[var(--ink-subtle)]">
           Walk-forward replay trains on every prefix of history and predicts the
           next project ({""}
           <Term term="MAE" tip={GLOSSARY.mae}>

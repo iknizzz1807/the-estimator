@@ -178,7 +178,7 @@ export function HistoryTable({
                         title={present.map(featureLabel).join(", ") || "No features"}
                       >
                         {present.slice(0, 3).map((name) => (
-                          <span key={name} className="chip chip-ok">
+                          <span key={name} className="chip bg-[var(--surface-2)] text-[var(--ink-muted)] border-[var(--hairline)]">
                             {featureLabel(name)}
                           </span>
                         ))}
@@ -223,7 +223,7 @@ export function HistoryTable({
                       {row.status !== "done" && (
                         <button
                           type="button"
-                          className="btn btn-warn"
+                          className="btn border-[var(--primary)] bg-[rgba(94,106,210,0.12)] text-[var(--primary-hover)] hover:bg-[var(--primary)] hover:text-white"
                           onClick={() => onEnterActual(row)}
                         >
                           Enter actual

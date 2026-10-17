@@ -406,10 +406,10 @@ export default function EstimatePage() {
                   <span
                     className={`flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${
                       done
-                        ? "border-[rgba(163,230,53,0.6)] text-[var(--lime)]"
+                        ? "border-[var(--success)] text-[var(--success)] bg-[rgba(39,166,68,0.1)]"
                         : active
-                          ? "border-[rgba(34,211,238,0.6)] text-[var(--cyan)]"
-                          : "border-[var(--border)] text-[var(--faint)]"
+                          ? "border-[var(--primary)] text-[var(--primary)] bg-[rgba(94,106,210,0.1)]"
+                          : "border-[var(--hairline)] text-[var(--ink-tertiary)]"
                     }`}
                   >
                     {done ? "✓" : active ? <Spinner className="h-2.5 w-2.5" /> : "○"}
@@ -417,14 +417,14 @@ export default function EstimatePage() {
                   <span
                     className={`text-sm ${
                       done
-                        ? "text-[var(--dim)]"
+                        ? "text-[var(--ink-muted)]"
                         : active
-                          ? "text-[var(--text)]"
-                          : "text-[var(--faint)]"
+                          ? "text-[var(--ink)] font-medium"
+                          : "text-[var(--ink-tertiary)]"
                     }`}
                   >
                     {STEP_META[step].title}
-                    <span className="ml-2 text-[11px] text-[var(--faint)]">
+                    <span className="ml-2 text-[11px] text-[var(--ink-subtle)]">
                       {STEP_META[step].detail}
                     </span>
                   </span>
@@ -497,7 +497,11 @@ export default function EstimatePage() {
               subtitle="P10/P50/P90 in days — the range is the answer, not a single number."
               right={
                 <div className="no-print flex gap-2">
-                  <button type="button" className="btn btn-lime" onClick={copyQuestions}>
+                  <button
+                    type="button"
+                    className="btn border-[var(--hairline-strong)] bg-[var(--surface-1)] text-[var(--ink)] hover:border-[var(--primary)] hover:text-[var(--primary-hover)]"
+                    onClick={copyQuestions}
+                  >
                     {copied ? "✓ Copied" : "Copy questions for email"}
                   </button>
                   <button

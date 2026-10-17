@@ -10,7 +10,7 @@ export function Term({ term, tip, children }: { term: string; tip: string; child
     <span className="term" tabIndex={0} title={`${term} — ${tip}`} aria-label={`${term}: ${tip}`}>
       {children ?? term}
       <span className="term-tip" role="tooltip">
-        <strong className="text-[var(--cyan)]">{term}</strong> — {tip}
+        <strong className="text-[var(--primary)]">{term}</strong> — {tip}
       </span>
     </span>
   );

@@ -32,23 +32,22 @@ function ReplayTooltip({
   const row = payload?.[0]?.payload;
   if (!active || !row) return null;
   return (
-    <div className="panel-2 px-2.5 py-2 text-[11px] shadow-lg">
-      <div className="num text-[var(--text)]">
+    <div className="rounded-lg border border-[var(--hairline-strong)] bg-[var(--surface-2)] px-3 py-2 text-[11px] shadow-[0_12px_32px_rgba(0,0,0,0.8)]">
+      <div className="num font-medium text-[var(--ink)]">
         step {row.i} · {row.project_id}
       </div>
-      <div className="num mt-1 text-[var(--cyan)]">
+      <div className="num mt-1 font-semibold text-[var(--primary)]">
         system MAE {fmtNum(row.system, 2)}
       </div>
-      <div className="num text-[var(--dim)]">team MAE {fmtNum(row.team, 2)}</div>
-      <div className="num text-[var(--amber)]">LLM-only {fmtNum(row.llm, 2)}</div>
+      <div className="num text-[var(--ink-subtle)]">team MAE {fmtNum(row.team, 2)}</div>
+      <div className="num text-[var(--warning)]">LLM-only {fmtNum(row.llm, 2)}</div>
     </div>
   );
 }
 
 /**
- * Walk-forward MAE over project index: system (cyan solid), team (gray),
- * LLM-only (amber dashed). The LLM-only line is flagged simulated when the
- * backend says so (stub provider, docs/DECISIONS.md D2).
+ * Walk-forward MAE over project index: system (Linear lavender solid), team (gray),
+ * LLM-only (amber dashed).
  */
 export function ReplayChart({
   steps,
@@ -72,46 +71,46 @@ export function ReplayChart({
     <div>
       <ResponsiveContainer width="100%" height={280}>
         <LineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: -12 }}>
-          <CartesianGrid stroke="var(--border)" strokeDasharray="3 6" />
+          <CartesianGrid stroke="var(--hairline)" strokeDasharray="3 6" />
           <XAxis
             dataKey="i"
-            tick={{ fill: "var(--faint)", fontSize: 10 }}
-            stroke="var(--border)"
+            tick={{ fill: "var(--ink-tertiary)", fontSize: 10 }}
+            stroke="var(--hairline)"
             label={{
               value: "project index (train on 1..i-1, predict i)",
               position: "insideBottom",
               offset: -2,
-              fill: "var(--faint)",
+              fill: "var(--ink-tertiary)",
               fontSize: 10,
             }}
           />
           <YAxis
-            tick={{ fill: "var(--faint)", fontSize: 10 }}
-            stroke="var(--border)"
+            tick={{ fill: "var(--ink-tertiary)", fontSize: 10 }}
+            stroke="var(--hairline)"
             domain={[0, "auto"]}
             tickFormatter={(value: number) => fmtInt(value)}
           />
           <ChartTooltip content={<ReplayTooltip />} />
           <ReferenceLine
             y={10}
-            stroke="var(--amber)"
+            stroke="var(--success)"
             strokeDasharray="4 4"
             label={{
               value: "target MAE < 10 d",
               position: "insideTopRight",
-              fill: "var(--amber)",
+              fill: "var(--success)",
               fontSize: 10,
             }}
           />
           <Legend
-            wrapperStyle={{ fontSize: 11, color: "var(--dim)" }}
-            formatter={(value: string) => <span className="text-[var(--dim)]">{value}</span>}
+            wrapperStyle={{ fontSize: 11, color: "var(--ink-subtle)" }}
+            formatter={(value: string) => <span className="text-[var(--ink-subtle)]">{value}</span>}
           />
           <Line
             type="monotone"
             dataKey="system"
             name="System (Ridge + conformal)"
-            stroke="var(--cyan)"
+            stroke="var(--primary)"
             strokeWidth={2}
             dot={false}
           />
@@ -119,17 +118,17 @@ export function ReplayChart({
             type="monotone"
             dataKey="team"
             name="Team estimate"
-            stroke="#64748b"
-            strokeWidth={1.6}
+            stroke="var(--ink-tertiary)"
+            strokeWidth={1.5}
             dot={false}
           />
           <Line
             type="monotone"
             dataKey="llm"
             name={`LLM-only${summary.llm_only_mode === "simulated" ? " (simulated)" : ""}`}
-            stroke="var(--amber)"
-            strokeWidth={1.6}
-            strokeDasharray="6 4"
+            stroke="var(--warning)"
+            strokeWidth={1.5}
+            strokeDasharray="5 3"
             dot={false}
           />
         </LineChart>

@@ -28,8 +28,8 @@ export default function HistoryPage() {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-xl font-semibold">Project history</h1>
-        <p className="mt-0.5 text-xs text-[var(--dim)]">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--ink)]">Project history</h1>
+        <p className="mt-1 text-sm text-[var(--ink-subtle)]">
           Estimates vs reality. Enter actuals on finished projects — every entry
           becomes a training sample and moves the coefficients.
         </p>
@@ -106,7 +106,7 @@ export default function HistoryPage() {
 
           <p className="text-[11px] text-[var(--faint)]">
             Accuracy trend and coverage live on the{" "}
-            <Link href="/proof" className="text-[var(--cyan)] hover:underline">
+            <Link href="/proof" className="text-[var(--primary)] hover:underline font-medium">
               Proof
             </Link>{" "}
             screen. Mean |Δ%| here is the raw average of entered actuals.

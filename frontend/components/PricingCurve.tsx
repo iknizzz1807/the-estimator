@@ -13,7 +13,6 @@ import {
 } from "recharts";
 import type { PricingBlock, PricingCurvePoint } from "@/lib/types";
 import { fmtInt, fmtNum } from "@/lib/format";
-import { Chip } from "./ui";
 import { Term } from "./Tooltip";
 
 /** Standard normal CDF (Zelen & Severo; |error| < 7.5e-8), parity with the backend. */
@@ -45,14 +44,29 @@ function overrunProbability(pricing: PricingBlock, days: number): number {
   return Math.min(0.999, Math.max(0.001, 1 - normalCdf(z)));
 }
 
-function riskTone(risk: number): { text: string; stroke: string; label: string } {
+function riskTone(risk: number): { text: string; stroke: string; label: string; pill: string } {
   if (risk <= 0.25) {
-    return { text: "text-[var(--lime)]", stroke: "var(--lime)", label: "comfortable" };
+    return {
+      text: "text-[#27a644]",
+      stroke: "#27a644",
+      label: "comfortable",
+      pill: "border-[rgba(39,166,68,0.3)] bg-[rgba(39,166,68,0.1)] text-[#27a644]",
+    };
   }
   if (risk <= 0.5) {
-    return { text: "text-[var(--amber)]", stroke: "var(--amber)", label: "risky" };
+    return {
+      text: "text-[#f59e0b]",
+      stroke: "#f59e0b",
+      label: "risky",
+      pill: "border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.1)] text-[#f59e0b]",
+    };
   }
-  return { text: "text-[var(--red)]", stroke: "var(--red)", label: "likely to overrun" };
+  return {
+    text: "text-[#eb5757]",
+    stroke: "#eb5757",
+    label: "likely to overrun",
+    pill: "border-[rgba(235,87,87,0.3)] bg-[rgba(235,87,87,0.1)] text-[#eb5757]",
+  };
 }
 
 function CurveTooltip({
@@ -65,9 +79,11 @@ function CurveTooltip({
   const point = payload?.[0]?.payload;
   if (!active || !point) return null;
   return (
-    <div className="panel-2 px-2.5 py-2 text-[11px] shadow-lg">
-      <div className="num text-[var(--text)]">{fmtNum(point.days, 1)} days quoted</div>
-      <div className="num mt-1 text-[var(--cyan)]">
+    <div className="rounded-lg border border-[#23252a] bg-[#0f1011] p-2.5 text-xs shadow-2xl backdrop-blur-md">
+      <div className="font-mono tabular-nums text-[#f7f8f8]">
+        {fmtNum(point.days, 1)} days quoted
+      </div>
+      <div className="mt-1 font-mono text-[11px] tabular-nums text-[#828fff]">
         {fmtNum(point.over_prob * 100, 1)}% overrun risk
       </div>
     </div>
@@ -78,6 +94,9 @@ function CurveTooltip({
  * Interactive pricing curve (contract v0.2 `pricing` block, fitted from the
  * Full-scope interval): drag the quote slider over the curve to read the
  * overrun risk + implied margin, or jump to the smallest ≤25% / ≤10% quotes.
+ * Adheres strictly to Linear design language: Surface-1 card (#0f1011),
+ * hairline borders (#23252a), Linear lavender chart curve (#5e6ad2), and
+ * high-precision tabular typography.
  */
 export function PricingCurve({
   pricing,
@@ -121,45 +140,67 @@ export function PricingCurve({
   const maxRisk = overrunProbability(pricing, sliderMax);
 
   return (
-    <div className="panel-2 space-y-3 p-3 sm:p-4" id="pricing-curve">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--dim)]">
-          Pricing curve — if I quote X days, what&apos;s my overrun risk?
+    <div
+      className="space-y-4 rounded-lg border border-[#23252a] bg-[#0f1011] p-5 sm:p-6"
+      id="pricing-curve"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#23252a]/70 pb-3">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8a8f98]">
+            Pricing curve
+          </div>
+          <div className="text-xs text-[#62666d]">
+            If I quote X days, what is the overrun risk?
+          </div>
         </div>
-        <span className="chip chip-off num" title={`Fitted from the ${pricing.scope}-scope interval`}>
-          {pricing.scope} scope · P10–P90 {fmtInt(pricing.p10)}–{fmtInt(pricing.p90)}d
+
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#23252a] bg-[#141516] px-2.5 py-0.5 font-mono text-[11px] tabular-nums text-[#8a8f98]"
+          title={`Fitted from the ${pricing.scope}-scope interval`}
+        >
+          <span className="capitalize text-[#d0d6e0]">{pricing.scope} scope</span>
+          <span>·</span>
+          <span>P10–P90: {fmtInt(pricing.p10)}–{fmtInt(pricing.p90)}d</span>
         </span>
       </div>
 
+      {/* Headline Readout */}
       <div
-        className="flex flex-wrap items-baseline gap-x-3 gap-y-1"
+        className="flex flex-wrap items-baseline gap-x-3 gap-y-2"
         aria-live="polite"
         role="status"
       >
-        <span className="num text-lg text-[var(--text)]">
+        <div className="font-mono text-xl font-semibold text-[#f7f8f8]">
           Quote {fmtInt(quote)} days
-        </span>
-        <span aria-hidden className="text-[var(--faint)]">
+        </div>
+        <span aria-hidden className="text-[#62666d]">
           →
         </span>
-        <span className={`num text-3xl font-semibold ${tone.text}`}>
+        <div className={`font-mono text-3xl font-bold tabular-nums ${tone.text}`}>
           {Math.round(risk * 100)}%
+        </div>
+        <span className="text-xs text-[#8a8f98]">
+          overrun risk{" "}
+          <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide ${tone.pill}`}>
+            {tone.label}
+          </span>
         </span>
-        <span className="text-sm text-[var(--dim)]">
-          overrun risk <span className="opacity-80">({tone.label})</span>
-        </span>
-        <Chip
-          tone={marginPct >= 0 ? "info" : "unknown"}
+
+        <span
+          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 font-mono text-[11px] tabular-nums ${
+            marginPct >= 0
+              ? "border-[rgba(94,106,210,0.3)] bg-[rgba(94,106,210,0.1)] text-[#828fff]"
+              : "border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.1)] text-[#f59e0b]"
+          }`}
           title="(quote − P50) ÷ P50 — the buffer priced into this quote"
         >
-          <span className="num">
-            margin {marginPct >= 0 ? "+" : ""}
-            {fmtNum(marginPct, 1)}% vs P50
-          </span>
-        </Chip>
+          margin {marginPct >= 0 ? "+" : ""}
+          {fmtNum(marginPct, 1)}% vs P50
+        </span>
       </div>
 
-      <div>
+      {/* Linear Slider */}
+      <div className="space-y-1.5 rounded-lg border border-[#23252a] bg-[#141516] p-3.5">
         <input
           type="range"
           min={sliderMin}
@@ -167,121 +208,126 @@ export function PricingCurve({
           step={1}
           value={quote}
           onChange={(event) => setQuote(Number(event.target.value))}
-          className="w-full cursor-pointer"
-          style={{ accentColor: tone.stroke }}
+          className="w-full cursor-pointer accent-[#5e6ad2]"
           aria-label="Quote days"
           aria-valuetext={`${fmtInt(quote)} days, ${Math.round(risk * 100)}% overrun risk`}
         />
-        <div className="flex justify-between text-[10px] text-[var(--faint)]">
-          <span className="num">
-            {fmtInt(sliderMin)}d · {Math.round(minRisk * 100)}% risk
+        <div className="flex justify-between font-mono text-[10.5px] tabular-nums text-[#62666d]">
+          <span>
+            Min: {fmtInt(sliderMin)}d ({Math.round(minRisk * 100)}% risk)
           </span>
-          <span className="num">
-            {fmtInt(sliderMax)}d · {Math.round(maxRisk * 100)}% risk
+          <span>
+            Max: {fmtInt(sliderMax)}d ({Math.round(maxRisk * 100)}% risk)
           </span>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-[11px]">
-        <span className="text-[var(--faint)]">Safe quotes:</span>
+      {/* Safe Quote Quick Buttons */}
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        <span className="text-[11px] uppercase tracking-wider text-[#62666d]">
+          Safe quotes:
+        </span>
         <button
           type="button"
-          className="chip chip-ok num cursor-pointer transition-opacity hover:opacity-80"
-          title="Smallest quote keeping the overrun risk at or below 25%"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(39,166,68,0.3)] bg-[rgba(39,166,68,0.08)] px-2.5 py-1 font-mono text-xs tabular-nums text-[#27a644] transition-colors hover:border-[#27a644] hover:bg-[rgba(39,166,68,0.15)]"
+          title="Smallest quote keeping overrun risk ≤ 25%"
           onClick={() => setQuote(clampQuote(pricing.safe_quote_25))}
         >
-          ≤25% risk → {fmtInt(pricing.safe_quote_25)}d
+          <span>≤25% risk</span>
+          <span>→</span>
+          <strong className="font-semibold">{fmtInt(pricing.safe_quote_25)}d</strong>
         </button>
+
         <button
           type="button"
-          className="chip chip-ok num cursor-pointer transition-opacity hover:opacity-80"
-          title="Smallest quote keeping the overrun risk at or below 10%"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(94,106,210,0.3)] bg-[rgba(94,106,210,0.08)] px-2.5 py-1 font-mono text-xs tabular-nums text-[#828fff] transition-colors hover:border-[#5e6ad2] hover:bg-[rgba(94,106,210,0.15)]"
+          title="Smallest quote keeping overrun risk ≤ 10%"
           onClick={() => setQuote(clampQuote(pricing.safe_quote_10))}
         >
-          ≤10% risk → {fmtInt(pricing.safe_quote_10)}d
+          <span>≤10% risk</span>
+          <span>→</span>
+          <strong className="font-semibold">{fmtInt(pricing.safe_quote_10)}d</strong>
         </button>
-        <span className="text-[var(--faint)]">click to jump the slider</span>
       </div>
 
-      <ResponsiveContainer width="100%" height={190}>
-        <AreaChart data={curve} margin={{ top: 8, right: 14, bottom: 0, left: -8 }}>
-          <defs>
-            <linearGradient id="pricingRiskFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--cyan)" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="var(--cyan)" stopOpacity={0.02} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid stroke="var(--border)" strokeDasharray="3 6" />
-          <XAxis
-            dataKey="days"
-            type="number"
-            domain={["dataMin", "dataMax"]}
-            tick={{ fill: "var(--faint)", fontSize: 10 }}
-            stroke="var(--border)"
-            tickFormatter={(value: number) => fmtInt(value)}
-            label={{
-              value: "quote (days)",
-              position: "insideBottomRight",
-              offset: -2,
-              fill: "var(--faint)",
-              fontSize: 10,
-            }}
-          />
-          <YAxis
-            domain={[0, 1]}
-            tick={{ fill: "var(--faint)", fontSize: 10 }}
-            stroke="var(--border)"
-            tickFormatter={(value: number) => `${Math.round(value * 100)}%`}
-            width={44}
-          />
-          <ChartTooltip content={<CurveTooltip />} />
-          <ReferenceLine
-            y={0.25}
-            stroke="var(--lime)"
-            strokeDasharray="2 6"
-            strokeOpacity={0.7}
-            label={{
-              value: "25% safe line",
-              position: "insideTopRight",
-              fill: "var(--lime)",
-              fontSize: 10,
-            }}
-          />
-          <ReferenceLine
-            x={quote}
-            stroke={tone.stroke}
-            strokeDasharray="4 4"
-            label={{
-              value: `quote ${fmtInt(quote)}d · ${Math.round(risk * 100)}%`,
-              position: "insideTopLeft",
-              fill: tone.stroke,
-              fontSize: 10,
-            }}
-          />
-          <Area
-            type="monotone"
-            dataKey="over_prob"
-            name="P(overrun)"
-            stroke="var(--cyan)"
-            strokeWidth={2}
-            fill="url(#pricingRiskFill)"
-            dot={false}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+      {/* Recharts Area Curve */}
+      <div className="h-48 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={curve} margin={{ top: 8, right: 14, bottom: 0, left: -10 }}>
+            <defs>
+              <linearGradient id="linearPricingGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#5e6ad2" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="#5e6ad2" stopOpacity={0.01} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid stroke="#23252a" strokeDasharray="3 6" vertical={false} />
+            <XAxis
+              dataKey="days"
+              type="number"
+              domain={["dataMin", "dataMax"]}
+              tick={{ fill: "#62666d", fontSize: 10, fontFamily: "ui-monospace" }}
+              stroke="#23252a"
+              tickLine={false}
+              tickFormatter={(value: number) => fmtInt(value)}
+            />
+            <YAxis
+              domain={[0, 1]}
+              tick={{ fill: "#62666d", fontSize: 10, fontFamily: "ui-monospace" }}
+              stroke="#23252a"
+              tickLine={false}
+              tickFormatter={(value: number) => `${Math.round(value * 100)}%`}
+              width={42}
+            />
+            <ChartTooltip content={<CurveTooltip />} />
+            <ReferenceLine
+              y={0.25}
+              stroke="#27a644"
+              strokeDasharray="2 6"
+              strokeOpacity={0.7}
+              label={{
+                value: "25% safe line",
+                position: "insideTopRight",
+                fill: "#27a644",
+                fontSize: 10,
+                fontFamily: "sans-serif",
+              }}
+            />
+            <ReferenceLine
+              x={quote}
+              stroke={tone.stroke}
+              strokeDasharray="4 4"
+              label={{
+                value: `quote ${fmtInt(quote)}d · ${Math.round(risk * 100)}%`,
+                position: "insideTopLeft",
+                fill: tone.stroke,
+                fontSize: 10,
+                fontFamily: "ui-monospace",
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="over_prob"
+              name="P(overrun)"
+              stroke="#5e6ad2"
+              strokeWidth={2}
+              fill="url(#linearPricingGradient)"
+              dot={false}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
 
-      <p className="text-[11px] leading-5 text-[var(--faint)]">
+      <p className="text-[11px] leading-relaxed text-[#62666d]">
         Risk model: a{" "}
         <Term
           term="Lognormal pricing"
-          tip="Overrun risk is a lognormal fit through the Full-scope P10/P50/P90 — the same shape the per-tier P(over budget) uses, so at the client's budget the numbers agree exactly. The shape is demo-assumed here; on real data it inherits the model's calibration (conformal intervals)."
+          tip="Overrun risk is a lognormal fit through Full-scope P10/P50/P90 — the same shape the per-tier P(over budget) uses, so at the client's budget the numbers agree exactly."
         >
-          lognormal fit
+          <span className="text-[#8a8f98] underline decoration-dotted decoration-[#62666d] underline-offset-2">
+            lognormal distribution fit
+          </span>
         </Term>{" "}
-        through the Full-scope P10/P50/P90 — the same math as each tier&apos;s
-        P(over budget), so at the client&apos;s budget the tier number and this
-        curve agree. Demo-assumed shape; on real data it inherits the
-        model&apos;s calibration.
+        through the Full-scope P10/P50/P90. At the client&apos;s budget the tier number and this curve agree.
       </p>
     </div>
   );

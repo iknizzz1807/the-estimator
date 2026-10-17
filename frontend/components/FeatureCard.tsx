@@ -8,66 +8,101 @@ import {
   featureDefinition,
   featureLabel,
 } from "@/lib/features";
-import { ConfidenceBar } from "./ui";
 import { Term } from "./Tooltip";
 
-function StatusIcon({ value }: { value: Finding["value"] }) {
-  if (value === 1) return <span title="Present in the email">✅</span>;
-  if (value === 0) return <span title="Absent / explicitly out of scope">❌</span>;
-  return <span title="Not mentioned — unknown">⚠️</span>;
+function StatusBadge({ value }: { value: Finding["value"] }) {
+  if (value === 1) {
+    return (
+      <span
+        className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(39,166,68,0.3)] bg-[rgba(39,166,68,0.1)] px-2 py-0.5 text-[10px] font-medium tracking-wide text-[#27a644]"
+        title="Detected in the email"
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-[#27a644]" />
+        Present
+      </span>
+    );
+  }
+  if (value === 0) {
+    return (
+      <span
+        className="inline-flex items-center gap-1.5 rounded-full border border-[#23252a] bg-[#141516] px-2 py-0.5 text-[10px] font-medium tracking-wide text-[#8a8f98]"
+        title="Explicitly absent or out of scope"
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-[#62666d]" />
+        Absent
+      </span>
+    );
+  }
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.1)] px-2 py-0.5 text-[10px] font-medium tracking-wide text-[#f59e0b]"
+      title="Not mentioned in the email — unknown"
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-[#f59e0b]" />
+      Unknown
+    </span>
+  );
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  "1": "present",
-  "0": "absent",
-  unknown: "unknown",
-};
-
-export function FeatureCard({ finding }: { finding: Finding }) {
-  const status =
-    finding.value === null ? "unknown" : String(finding.value);
-  const border =
-    finding.value === null
-      ? "border-[rgba(251,191,36,0.35)]"
-      : finding.value === 1
-        ? "border-[rgba(163,230,53,0.28)]"
-        : "border-[var(--border)]";
+function FeatureConfidence({ confidence }: { confidence: number | null }) {
+  if (confidence === null || confidence === undefined) return null;
+  const pct = Math.round(confidence * 100);
+  const barColor =
+    pct >= 75 ? "bg-[#27a644]" : pct >= 45 ? "bg-[#5e6ad2]" : "bg-[#f59e0b]";
 
   return (
-    <div className={`panel-2 border ${border} p-3`}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <StatusIcon value={finding.value} />
-          <span className="text-sm font-medium leading-tight">
-            {featureLabel(finding.name)}
-          </span>
+    <div
+      className="flex items-center justify-between gap-2"
+      title={`Extraction confidence ${pct}%`}
+    >
+      <span className="text-[10px] uppercase tracking-wider text-[#62666d]">
+        Confidence
+      </span>
+      <div className="flex items-center gap-2">
+        <div className="h-1 w-14 overflow-hidden rounded-full bg-[#18191a]">
+          <div className={`h-full ${barColor}`} style={{ width: `${pct}%` }} />
         </div>
-        <span className="num text-[10px] uppercase tracking-[0.08em] text-[var(--faint)]">
-          {STATUS_LABEL[finding.value === null ? "unknown" : status]}
+        <span className="font-mono text-[10px] tabular-nums text-[#8a8f98]">
+          {pct}%
         </span>
       </div>
+    </div>
+  );
+}
 
-      <div className="mt-1.5 text-[11px] leading-4 text-[var(--faint)]">
-        <Term term={featureLabel(finding.name)} tip={featureDefinition(finding.name)}>
-          {featureDefinition(finding.name)}
-        </Term>
+export function FeatureCard({ finding }: { finding: Finding }) {
+  return (
+    <div className="group flex flex-col justify-between rounded-lg border border-[#23252a] bg-[#0f1011] p-3.5 transition-colors hover:border-[#34343a] hover:bg-[#141516]">
+      <div>
+        <div className="flex items-start justify-between gap-2">
+          <h4 className="text-[13px] font-medium leading-snug text-[#f7f8f8] group-hover:text-white">
+            {featureLabel(finding.name)}
+          </h4>
+          <StatusBadge value={finding.value} />
+        </div>
+
+        <div className="mt-1 text-[11px] leading-relaxed text-[#8a8f98]">
+          <Term term={featureLabel(finding.name)} tip={featureDefinition(finding.name)}>
+            <span className="line-clamp-2">{featureDefinition(finding.name)}</span>
+          </Term>
+        </div>
       </div>
 
-      <div className="mt-2">
-        <ConfidenceBar value={finding.confidence} />
-      </div>
+      <div className="mt-3 space-y-2 border-t border-[#23252a]/70 pt-2.5">
+        <FeatureConfidence confidence={finding.confidence} />
 
-      {finding.evidence_quote ? (
-        <blockquote className="mt-2 border-l-2 border-[var(--border-strong)] pl-2 text-[11px] italic leading-4 text-[var(--dim)]">
-          “{finding.evidence_quote}”
-        </blockquote>
-      ) : (
-        <p className="mt-2 text-[11px] leading-4 text-[var(--faint)]">
-          {finding.value === null
-            ? "No evidence found — worth asking."
-            : "No quote captured — flagged for review."}
-        </p>
-      )}
+        {finding.evidence_quote ? (
+          <blockquote className="border-l border-[#34343a] pl-2 text-[11px] italic leading-relaxed text-[#8a8f98] selection:bg-[#5e6ad2]/20">
+            “{finding.evidence_quote}”
+          </blockquote>
+        ) : (
+          <p className="text-[11px] leading-relaxed text-[#62666d]">
+            {finding.value === null
+              ? "No evidence found — flagged as open question."
+              : "No quote captured — flagged for review."}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -88,25 +123,35 @@ export function FeatureGrid({ findings }: { findings: Finding[] }) {
   const unknownCount = merged.filter((f) => f.value === null).length;
 
   return (
-    <div className="space-y-4">
-      <div className="num text-xs text-[var(--faint)]">
-        {presentCount}/15 present · {unknownCount} unknown
+    <div className="space-y-5">
+      <div className="flex items-center justify-between text-xs text-[#8a8f98]">
+        <div className="flex items-center gap-2">
+          <span className="font-mono tabular-nums text-[#f7f8f8]">
+            {presentCount}/15
+          </span>
+          <span>features detected</span>
+          <span className="text-[#62666d]">·</span>
+          <span className="font-mono tabular-nums text-[#f59e0b]">
+            {unknownCount} unknown
+          </span>
+        </div>
       </div>
+
       {Object.entries(FEATURE_GROUPS).map(([group, names]) => {
         const groupFindings = merged.filter((f) => names.includes(f.name));
         const present = groupFindings.filter((f) => f.value === 1).length;
         return (
-          <div key={group}>
-            <div className="mb-2 flex items-center gap-3">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--dim)]">
+          <div key={group} className="space-y-2.5">
+            <div className="flex items-center gap-3">
+              <h3 className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#8a8f98]">
                 {GROUP_LABELS[group]}
               </h3>
-              <span className="num text-[10.5px] text-[var(--faint)]">
+              <span className="font-mono text-[10.5px] tabular-nums text-[#62666d]">
                 {present}/{names.length} present
               </span>
-              <span className="h-px flex-1 bg-[var(--border)]" />
+              <span className="h-px flex-1 bg-[#23252a]" />
             </div>
-            <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {groupFindings.map((finding) => (
                 <FeatureCard key={finding.name} finding={finding} />
               ))}

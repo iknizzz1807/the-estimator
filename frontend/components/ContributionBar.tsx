@@ -6,14 +6,14 @@ import { fmtInt } from "@/lib/format";
 import { Term } from "./Tooltip";
 
 const SEGMENT_COLORS = [
-  "rgba(34,211,238,0.85)",
-  "rgba(34,211,238,0.65)",
-  "rgba(34,211,238,0.45)",
-  "rgba(163,230,53,0.55)",
-  "rgba(251,191,36,0.55)",
+  "#5e6ad2", // Linear lavender
+  "#828fff", // lavender hover
+  "#7a7fad", // brand secure
+  "#27a644", // semantic success
+  "#d0d6e0", // ink-muted
 ];
-const BACKLOG_COLOR = "rgba(34,211,238,0.25)";
-const BASE_COLOR = "rgba(148,163,184,0.35)";
+const BACKLOG_COLOR = "#34343a";
+const BASE_COLOR = "#191a1b";
 
 const APPROX_TIP =
   "Approximation, not the model's internals: the learned model is multiplicative, so we decompose P50 in reverse — each bar is the drop in P50 if that capability were removed (remaining estimate × (1 − 1/multiplier)), in descending multiplier order. Order-dependent and illustrative only.";

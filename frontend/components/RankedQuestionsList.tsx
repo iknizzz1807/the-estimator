@@ -31,10 +31,9 @@ async function copyText(text: string): Promise<boolean> {
 }
 
 /**
- * Ranked clarifying questions by Value of Information (spec §4.3) + the
- * interactive answer flow (contract v0.2): Có/Không re-calls /api/estimate
- * with the accumulated answers, which shrinks the interval. Answer-refinement
- * calls are side-effect free — no new project row is stored.
+ * Ranked clarifying questions by Value of Information (spec §4.3) + interactive
+ * answer flow (contract v0.2). Styled like Linear issue/task rows with compact
+ * Yes/No pill buttons, VOI impact tag in tabular mono, and crisp hairline details.
  */
 export function RankedQuestionsList({
   questions,
@@ -80,75 +79,83 @@ export function RankedQuestionsList({
   };
 
   return (
-    <div>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+    <div className="space-y-3">
+      {/* Action Header */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex overflow-hidden rounded-md border border-[var(--border)]">
+          {/* Linear Segmented Toggle */}
+          <div className="inline-flex rounded-md border border-[#23252a] bg-[#0f1011] p-0.5">
             {(["en", "vi"] as const).map((lang) => (
               <button
                 key={lang}
                 type="button"
-                className={`px-2.5 py-1 text-[11px] uppercase tracking-wider transition ${
+                className={`rounded px-2.5 py-1 text-[11px] font-medium tracking-wide transition-colors ${
                   language === lang
-                    ? "bg-[rgba(34,211,238,0.15)] text-[var(--cyan)]"
-                    : "text-[var(--dim)] hover:text-[var(--text)]"
+                    ? "bg-[#18191a] text-[#f7f8f8] shadow-sm"
+                    : "text-[#8a8f98] hover:text-[#f7f8f8]"
                 }`}
                 aria-pressed={language === lang}
                 onClick={() => setLanguage(lang)}
               >
-                {lang === "en" ? "English" : "Tiếng Việt"}
+                {lang === "en" ? "EN" : "VI"}
               </button>
             ))}
+          </div>
+
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.1)] px-2.5 py-0.5 font-mono text-[11px] tabular-nums text-[#f59e0b]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#f59e0b]" />
+            {openCount} open
           </span>
-          <span className="chip chip-unknown">
-            {openCount} open question{openCount === 1 ? "" : "s"}
-          </span>
+
           {answeredCount > 0 && (
-            <span className="chip chip-ok">
-              ✓ {answeredCount} answered
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(39,166,68,0.3)] bg-[rgba(39,166,68,0.1)] px-2.5 py-0.5 font-mono text-[11px] tabular-nums text-[#27a644]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#27a644]" />
+              {answeredCount} answered
             </span>
           )}
+
           {busy && (
-            <span className="chip chip-info">
-              <Spinner className="h-2.5 w-2.5" /> refining range…
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(94,106,210,0.3)] bg-[rgba(94,106,210,0.1)] px-2.5 py-0.5 text-[11px] text-[#828fff]">
+              <Spinner className="h-2.5 w-2.5" />
+              <span>refining…</span>
             </span>
           )}
         </div>
+
         <div className="flex items-center gap-2">
           {answeredCount > 0 && onClearAnswers && (
             <button
               type="button"
-              className="text-[11px] text-[var(--dim)] underline decoration-dotted underline-offset-2 hover:text-[var(--text)]"
+              className="text-[11px] text-[#8a8f98] underline decoration-dotted underline-offset-2 transition-colors hover:text-[#f7f8f8]"
               onClick={onClearAnswers}
-              title="Discard all answers and go back to the original range"
+              title="Discard all answers and go back to original range"
             >
               Clear answers
             </button>
           )}
-          <button type="button" className="btn btn-lime" onClick={copyAll}>
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 rounded-md border border-[#23252a] bg-[#141516] px-2.5 py-1 text-xs font-medium text-[#f7f8f8] transition-colors hover:border-[#34343a] hover:bg-[#18191a]"
+            onClick={copyAll}
+          >
             {copied ? "✓ Copied" : "Copy all"}
           </button>
         </div>
       </div>
 
       {copyFailed && (
-        <div className="banner banner-amber mb-2" role="alert">
-          <span aria-hidden>⚠</span>
-          <span className="text-xs">
-            Clipboard is blocked in this browser context — select the text
-            manually.
+        <div
+          className="flex items-center gap-2 rounded-lg border border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.08)] px-3 py-2 text-xs text-[#f59e0b]"
+          role="alert"
+        >
+          <span aria-hidden="true">⚠</span>
+          <span>
+            Clipboard blocked — please select text manually.
           </span>
         </div>
       )}
 
-      <p className="mb-3 text-[11px] leading-4 text-[var(--faint)]">
-        Click <span className="font-medium text-[var(--dim)]">Có</span> (yes, in
-        scope) or <span className="font-medium text-[var(--dim)]">Không</span>{" "}
-        (no) — the estimate re-runs with your answers: unknowns resolve and the
-        relative uncertainty narrows (a Yes that adds scope can widen the
-        range). Refinements are not stored as projects.
-      </p>
-
+      {/* Linear Task/Issue Rows List */}
       <ol className="space-y-2">
         {questions.map((question, index) => {
           const chosen = answers[question.feature];
@@ -156,84 +163,99 @@ export function RankedQuestionsList({
           return (
             <li
               key={question.feature}
-              className={`panel-2 p-3 transition ${answered ? "opacity-75" : ""}`}
+              className={`group flex items-start justify-between gap-3 rounded-lg border bg-[#0f1011] p-3 transition-colors ${
+                answered
+                  ? "border-[#23252a]/80 bg-[#0f1011]/80 opacity-80"
+                  : "border-[#23252a] hover:border-[#34343a] hover:bg-[#141516]"
+              }`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 items-start gap-2.5">
-                  <span
-                    className={`num mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border text-[10px] ${
-                      answered
-                        ? "border-[rgba(163,230,53,0.6)] text-[var(--lime)]"
-                        : "border-[var(--border-strong)] text-[var(--cyan)]"
+              <div className="flex min-w-0 items-start gap-3">
+                {/* Issue/Task Index Indicator */}
+                <span
+                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border font-mono text-[10px] tabular-nums transition-colors ${
+                    answered
+                      ? "border-[rgba(39,166,68,0.4)] bg-[rgba(39,166,68,0.1)] text-[#27a644]"
+                      : "border-[#23252a] bg-[#141516] text-[#8a8f98] group-hover:border-[#34343a] group-hover:text-[#f7f8f8]"
+                  }`}
+                  title={answered ? "Answered" : `Rank ${index + 1} by impact`}
+                >
+                  {answered ? "✓" : index + 1}
+                </span>
+
+                <div className="min-w-0">
+                  <div
+                    className={`text-[13px] leading-snug transition-colors ${
+                      answered ? "text-[#8a8f98]" : "text-[#f7f8f8]"
                     }`}
-                    title={answered ? "Answered" : `Rank ${index + 1} by impact`}
                   >
-                    {answered ? "✓" : index + 1}
-                  </span>
-                  <div>
-                    <div
-                      className={`text-sm leading-5 ${
-                        answered
-                          ? "text-[var(--dim)]"
-                          : "text-[var(--text)]"
-                      }`}
-                    >
-                      {language === "vi"
-                        ? question.question_vi
-                        : question.question_en}
-                    </div>
-                    <div className="mt-1 text-[11px] text-[var(--faint)]">
-                      {featureLabel(question.feature)} ·{" "}
-                      <Term term="Value of Information" tip={GLOSSARY.voi}>
-                        impact
-                      </Term>
-                      {answered && (
-                        <span className="ml-2 text-[var(--lime)]">
-                          answered: {chosen === 1 ? "Có (in scope)" : "Không (out of scope)"}
-                        </span>
-                      )}
-                    </div>
+                    {language === "vi"
+                      ? question.question_vi
+                      : question.question_en}
                   </div>
+
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[#62666d]">
+                    <span className="font-medium text-[#8a8f98]">
+                      {featureLabel(question.feature)}
+                    </span>
+                    <span>·</span>
+                    <Term term="Value of Information" tip={GLOSSARY.voi}>
+                      <span className="text-[#62666d] underline decoration-dotted underline-offset-2">
+                        impact
+                      </span>
+                    </Term>
+                    {answered && (
+                      <span className="text-[#27a644]">
+                        · Answered: {chosen === 1 ? "Có (In scope)" : "Không (Out of scope)"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Controls & Tabular Mono VOI Tag */}
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                <div
+                  className="flex items-center gap-1"
+                  role="group"
+                  aria-label={`Answer question about ${featureLabel(question.feature)}`}
+                >
+                  <button
+                    type="button"
+                    disabled={busy}
+                    aria-pressed={chosen === 1}
+                    className={`rounded-full px-2.5 py-0.5 font-mono text-xs font-medium transition-colors ${
+                      chosen === 1
+                        ? "border border-[rgba(94,106,210,0.6)] bg-[rgba(94,106,210,0.18)] text-[#828fff]"
+                        : "border border-[#23252a] bg-[#141516] text-[#8a8f98] hover:border-[#34343a] hover:text-[#f7f8f8]"
+                    } disabled:cursor-not-allowed disabled:opacity-50`}
+                    title="Có — yes, this capability is in scope."
+                    onClick={() => onAnswer?.(question.feature, 1)}
+                  >
+                    Có
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={busy}
+                    aria-pressed={chosen === 0}
+                    className={`rounded-full px-2.5 py-0.5 font-mono text-xs font-medium transition-colors ${
+                      chosen === 0
+                        ? "border border-[rgba(245,158,11,0.5)] bg-[rgba(245,158,11,0.15)] text-[#f59e0b]"
+                        : "border border-[#23252a] bg-[#141516] text-[#8a8f98] hover:border-[#34343a] hover:text-[#f7f8f8]"
+                    } disabled:cursor-not-allowed disabled:opacity-50`}
+                    title="Không — no, this capability is not needed."
+                    onClick={() => onAnswer?.(question.feature, 0)}
+                  >
+                    Không
+                  </button>
                 </div>
 
-                <div className="flex shrink-0 flex-col items-end gap-1.5">
-                  <div
-                    className="flex items-center gap-1"
-                    role="group"
-                    aria-label={`Answer question about ${featureLabel(question.feature)}`}
-                  >
-                    <button
-                      type="button"
-                      disabled={busy}
-                      aria-pressed={chosen === 1}
-                      className={`btn px-2.5 py-0.5 text-xs ${
-                        chosen === 1 ? "btn-lime" : ""
-                      }`}
-                      title="Có — yes, this capability is in scope. Re-runs the estimate with the accumulated answers (nothing is stored)."
-                      onClick={() => onAnswer?.(question.feature, 1)}
-                    >
-                      Có
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      aria-pressed={chosen === 0}
-                      className={`btn px-2.5 py-0.5 text-xs ${
-                        chosen === 0 ? "btn-warn" : ""
-                      }`}
-                      title="Không — no, this capability is not needed. Re-runs the estimate with the accumulated answers (nothing is stored)."
-                      onClick={() => onAnswer?.(question.feature, 0)}
-                    >
-                      Không
-                    </button>
-                  </div>
-                  <span
-                    className="chip chip-unknown num shrink-0"
-                    title={`Estimated P50 swing if answered: about ${fmtInt(question.impact_days)} days`}
-                  >
-                    +{fmtInt(question.impact_days)} d
-                  </span>
-                </div>
+                <span
+                  className="inline-flex items-center rounded-full border border-[#23252a] bg-[#141516] px-2 py-0.5 font-mono text-[10.5px] tabular-nums text-[#8a8f98]"
+                  title={`Estimated P50 swing if answered: about ${fmtInt(question.impact_days)} days`}
+                >
+                  +{fmtInt(question.impact_days)} days
+                </span>
               </div>
             </li>
           );

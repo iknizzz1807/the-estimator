@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # Single-service image: FastAPI serves the API and the statically-exported
 # Next.js frontend on ONE port (one public URL, no CORS, no second service).
 #

@@ -18,8 +18,8 @@ Replay đo thật walk-forward: hệ thống MAE 17.36 trên 218 bước (team 3
 
 ## Links (điền sau khi deploy)
 
-- Live app: TBD
-- GitHub repo (public): TBD
+- Live app: TBD (dán Render URL sau khi deploy thành công)
+- GitHub repo (public): https://github.com/iknizzz1807/the-estimator
 - Video demo: optional
 
 ## Checklist nộp bài (checklist.md Phase 8)

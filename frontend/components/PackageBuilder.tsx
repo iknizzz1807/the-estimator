@@ -22,25 +22,38 @@ function probabilityTone(probability: number | null): {
   text: string;
   bar: string;
   label: string;
+  pill: string;
 } {
   if (probability === null) {
-    return { text: "text-[var(--dim)]", bar: "bg-[var(--border-strong)]", label: "—" };
+    return {
+      text: "text-[#8a8f98]",
+      bar: "bg-[#23252a]",
+      label: "—",
+      pill: "border-[#23252a] bg-[#141516] text-[#8a8f98]",
+    };
   }
   if (probability <= 0.25) {
     return {
-      text: "text-[var(--lime)]",
-      bar: "bg-[var(--lime)]",
+      text: "text-[#27a644]",
+      bar: "bg-[#27a644]",
       label: "comfortable",
+      pill: "border-[rgba(39,166,68,0.3)] bg-[rgba(39,166,68,0.1)] text-[#27a644]",
     };
   }
   if (probability <= 0.5) {
     return {
-      text: "text-[var(--amber)]",
-      bar: "bg-[var(--amber)]",
+      text: "text-[#f59e0b]",
+      bar: "bg-[#f59e0b]",
       label: "risky",
+      pill: "border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.1)] text-[#f59e0b]",
     };
   }
-  return { text: "text-[var(--red)]", bar: "bg-[var(--red)]", label: "likely over budget" };
+  return {
+    text: "text-[#eb5757]",
+    bar: "bg-[#eb5757]",
+    label: "likely over budget",
+    pill: "border-[rgba(235,87,87,0.3)] bg-[rgba(235,87,87,0.1)] text-[#eb5757]",
+  };
 }
 
 function PackageCard({
@@ -54,86 +67,110 @@ function PackageCard({
   const includedCount = Object.values(pkg.features_included).filter(
     (value) => value === 1
   ).length;
+
   return (
     <div
-      className={`panel-2 flex flex-col gap-2 p-3 ${
+      className={`relative flex flex-col justify-between rounded-lg border p-5 sm:p-6 transition-all ${
         recommended
-          ? "border-[rgba(163,230,53,0.55)] shadow-[0_0_18px_rgba(163,230,53,0.08)]"
-          : ""
+          ? "border-[#5e6ad2] bg-[#141516] shadow-[0_0_24px_rgba(94,106,210,0.12)]"
+          : "border-[#23252a] bg-[#0f1011] hover:border-[#34343a] hover:bg-[#141516]"
       }`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-[var(--text)]">
-            {pkg.label}
-          </span>
-          <span className="chip chip-off num">{pkg.tier}</span>
+      <div className="space-y-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-base font-semibold text-[#f7f8f8]">
+              {pkg.label}
+            </h3>
+            <span className="rounded-full border border-[#23252a] bg-[#18191a] px-2 py-0.5 font-mono text-[10.5px] uppercase tracking-wider text-[#8a8f98]">
+              {pkg.tier}
+            </span>
+          </div>
+
+          {recommended && (
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(94,106,210,0.4)] bg-[rgba(94,106,210,0.15)] px-2.5 py-0.5 text-[11px] font-semibold text-[#828fff]"
+              title="Most scope whose over-budget probability stays ≤ 25%"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-[#5e6ad2]" />
+              Recommended
+            </span>
+          )}
         </div>
-        {recommended && (
-          <span className="chip chip-ok" title="Most scope whose over-budget probability stays ≤ 25%">
-            ✓ recommended
+
+        <div className="flex items-baseline gap-2">
+          <span className="font-mono text-3xl font-bold tracking-tight text-[#f7f8f8]">
+            {fmtInt(pkg.estimate.p50)}
           </span>
+          <div className="text-xs text-[#8a8f98]">
+            <span>days (P50)</span>
+            <span className="mx-1 text-[#62666d]">·</span>
+            <span className="font-mono tabular-nums text-[#62666d]">
+              {fmtInt(pkg.estimate.p10)}–{fmtInt(pkg.estimate.p90)}d range
+            </span>
+          </div>
+        </div>
+
+        {/* Clean Linear Progress Indicator */}
+        <div className="rounded-lg border border-[#23252a]/70 bg-[#0f1011]/80 p-3">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[11px] uppercase tracking-wider text-[#8a8f98]">
+              <Term term="Over-budget probability" tip={GLOSSARY.overBudget}>
+                P(over budget)
+              </Term>
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className={`font-mono text-xs font-semibold tabular-nums ${risk.text}`}>
+                {pkg.over_budget_prob === null
+                  ? "—"
+                  : `${Math.round(pkg.over_budget_prob * 100)}%`}
+              </span>
+              <span className={`rounded-full border px-1.5 py-0.2 text-[9.5px] font-medium tracking-wide ${risk.pill}`}>
+                {risk.label}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#18191a]">
+            <div
+              className={`h-full transition-all duration-300 ${risk.bar}`}
+              style={{
+                width: `${Math.round((pkg.over_budget_prob ?? 0) * 100)}%`,
+              }}
+            />
+          </div>
+        </div>
+
+        {pkg.excluded.length > 0 ? (
+          <div className="space-y-1.5 text-xs text-[#8a8f98]">
+            <div className="text-[11px] text-[#62666d]">
+              Phased out ({pkg.excluded.length}):
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {pkg.excluded.map((feature) => (
+                <span
+                  key={feature}
+                  className="inline-flex items-center rounded-full border border-[#23252a] bg-[#18191a] px-2 py-0.5 text-[11px] text-[#8a8f98]"
+                  title={`${featureLabel(feature)} is deferred to a later phase in this tier`}
+                >
+                  {featureLabel(feature)}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="text-xs text-[#62666d]">
+            Full requested scope — nothing phased out.
+          </div>
         )}
       </div>
 
-      <div className="flex items-baseline gap-2">
-        <span className="num text-2xl font-semibold text-[var(--text)]">
-          {fmtInt(pkg.estimate.p50)}
-        </span>
-        <span className="text-xs text-[var(--dim)]">
-          days (P50) · range {fmtInt(pkg.estimate.p10)}–{fmtInt(pkg.estimate.p90)}
-        </span>
+      <div className="mt-4 border-t border-[#23252a]/70 pt-3 text-[11px] text-[#62666d]">
+        <span className="font-mono tabular-nums text-[#8a8f98]">
+          {includedCount} of {Object.keys(pkg.features_included).length}
+        </span>{" "}
+        features included · {pkg.notes}
       </div>
-
-      <div>
-        <div className="flex items-center justify-between text-[11px]">
-          <span className="text-[var(--dim)]">
-            <Term term="Over-budget probability" tip={GLOSSARY.overBudget}>
-              P(over budget)
-            </Term>
-          </span>
-          <span className={`num ${risk.text}`}>
-            {pkg.over_budget_prob === null
-              ? "—"
-              : `${Math.round(pkg.over_budget_prob * 100)}%`}
-            <span className="ml-1.5 font-normal opacity-80">{risk.label}</span>
-          </span>
-        </div>
-        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#1a2637]">
-          <div
-            className={`h-full ${risk.bar}`}
-            style={{
-              width: `${Math.round((pkg.over_budget_prob ?? 0) * 100)}%`,
-            }}
-          />
-        </div>
-      </div>
-
-      {pkg.excluded.length > 0 ? (
-        <div className="text-[11px] text-[var(--dim)]">
-          <div className="mb-1">Phased out ({pkg.excluded.length}):</div>
-          <div className="flex flex-wrap gap-1">
-            {pkg.excluded.map((feature) => (
-              <span
-                key={feature}
-                className="chip chip-unknown"
-                title={`${featureLabel(feature)} is deferred to a later phase in this tier`}
-              >
-                {featureLabel(feature)}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="text-[11px] text-[var(--faint)]">
-          Nothing phased out — the full requested scope.
-        </div>
-      )}
-
-      <p className="mt-auto text-[11px] leading-4 text-[var(--faint)]">
-        {includedCount} of {Object.keys(pkg.features_included).length} features
-        included · {pkg.notes}
-      </p>
     </div>
   );
 }
@@ -142,6 +179,9 @@ function PackageCard({
  * Budget-fit quote packages (contract v0.2, POST /api/packages): enter a
  * budget in days, get three scope tiers from the same model with an honest
  * over-budget probability and a recommendation.
+ * Styled to Linear design language: Surface-1 cards (#0f1011), Surface-2 highlighted
+ * recommended tier (#141516) with Linear lavender accent border (#5e6ad2),
+ * and primary action buttons.
  */
 export function PackageBuilder({
   email,
@@ -203,12 +243,12 @@ export function PackageBuilder({
       title="Quote packages — budget fit"
       subtitle="Three scope tiers from the same model: phase out optional capabilities until the scope fits the budget."
     >
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-end gap-3">
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-end gap-3 rounded-lg border border-[#23252a] bg-[#0f1011] p-4">
           <div>
             <label
               htmlFor="package-budget"
-              className="mb-1 block text-[11px] uppercase tracking-[0.1em] text-[var(--dim)]"
+              className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.1em] text-[#8a8f98]"
             >
               Client budget (days)
             </label>
@@ -217,7 +257,7 @@ export function PackageBuilder({
               type="number"
               min={1}
               step={1}
-              className="input num w-36"
+              className="w-36 rounded-lg border border-[#23252a] bg-[#141516] px-3 py-1.5 font-mono text-sm tabular-nums text-[#f7f8f8] placeholder-[#62666d] transition-colors focus:border-[#5e6ad2] focus:outline-none focus:ring-1 focus:ring-[#5e69d1] disabled:opacity-50"
               value={budget}
               disabled={action.loading || trimmedEmail.length === 0}
               onChange={(event) => {
@@ -230,27 +270,32 @@ export function PackageBuilder({
               placeholder="30"
             />
           </div>
+
           <button
             type="button"
-            className="btn btn-primary"
+            className="inline-flex items-center gap-2 rounded-md bg-[#5e6ad2] px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#828fff] disabled:cursor-not-allowed disabled:opacity-50"
             disabled={action.loading || trimmedEmail.length === 0}
             onClick={() => void build()}
           >
             {action.loading ? <Spinner className="h-3.5 w-3.5" /> : null}
             {action.loading ? "Building packages…" : "Build quote packages"}
           </button>
+
           {data && !action.loading && (
-            <span className="text-[11px] text-[var(--faint)]">
-              built for a {fmtInt(data.budget_days ?? 0)}-day budget · method:{" "}
-              <span className="num">{data.method ?? "—"}</span>
+            <span className="font-mono text-xs tabular-nums text-[#8a8f98]">
+              Budget: {fmtInt(data.budget_days ?? 0)} days · Method:{" "}
+              <span className="text-[#f7f8f8]">{data.method ?? "—"}</span>
             </span>
           )}
         </div>
 
         {inputError && (
-          <div className="banner banner-red" role="alert">
+          <div
+            className="flex items-center gap-2 rounded-lg border border-[rgba(235,87,87,0.3)] bg-[rgba(235,87,87,0.1)] px-3 py-2 text-xs text-[#eb5757]"
+            role="alert"
+          >
             <span aria-hidden>⚠</span>
-            <span className="text-xs">{inputError}</span>
+            <span>{inputError}</span>
           </div>
         )}
 
@@ -263,10 +308,9 @@ export function PackageBuilder({
 
         {action.loading && (
           <div className="space-y-3" role="status" aria-live="polite">
-            <div className="flex items-center gap-2 text-xs text-[var(--dim)]">
+            <div className="flex items-center gap-2 text-xs text-[#8a8f98]">
               <Spinner className="h-3.5 w-3.5" />
-              Monte-Carlo intervals for three scope tiers + over-budget
-              probabilities…
+              Monte-Carlo intervals for three scope tiers + over-budget probabilities…
             </div>
             <SkeletonLines lines={4} />
           </div>
@@ -289,15 +333,19 @@ export function PackageBuilder({
         )}
 
         {data && !action.loading && (
-          <div className="space-y-3">
+          <div className="space-y-5">
             {data.recommendation_note && (
-              <div className="banner banner-amber" role="alert">
-                <span aria-hidden>⚠</span>
-                <span className="text-xs">{data.recommendation_note}</span>
+              <div
+                className="flex items-center gap-2 rounded-lg border border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.08)] px-3.5 py-2.5 text-xs text-[#f59e0b]"
+                role="alert"
+              >
+                <span aria-hidden className="shrink-0 text-sm">⚠</span>
+                <span>{data.recommendation_note}</span>
               </div>
             )}
 
-            <div className="grid gap-3 lg:grid-cols-3">
+            {/* Three Tier Cards */}
+            <div className="grid gap-4 lg:grid-cols-3">
               {packages.map((pkg) => (
                 <PackageCard
                   key={pkg.tier}
@@ -316,11 +364,11 @@ export function PackageBuilder({
               />
             )}
 
-            <p className="text-[11px] leading-5 text-[var(--faint)]">
+            <p className="text-[11px] leading-relaxed text-[#62666d]">
               Over-budget probability comes from each tier&apos;s own P10/P50/P90
               (lognormal fit) — deterministic and seeded. Unknown features stay
               unknown in every tier, so the interval keeps its honest
-              uncertainty. <span className="num">POST /api/packages</span> is
+              uncertainty. <span className="font-mono text-[#8a8f98]">POST /api/packages</span> is
               read-only: no project row is created.
             </p>
           </div>

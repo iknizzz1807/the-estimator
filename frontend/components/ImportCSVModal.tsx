@@ -36,7 +36,7 @@ export function ImportCSVModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay)]/85 backdrop-blur-sm p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Import CSV"
@@ -44,7 +44,7 @@ export function ImportCSVModal({
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="panel w-full max-w-xl p-5">
+      <div className="panel w-full max-w-xl p-5 border border-[var(--hairline-strong)] shadow-[0_24px_56px_rgba(0,0,0,0.95)]">
         <div className="mb-3 flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold">Import project history (CSV)</h2>

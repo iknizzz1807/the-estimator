@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 
-/* Small hand-rolled primitives (no shadcn/ui — keeps deps lean). */
+/*
+ * Linear-inspired UI primitives.
+ * Surface ladder: canvas (#010102), surface-1 (#0f1011), surface-2 (#141516), surface-3 (#18191a)
+ * Hairline borders: hairline (#23252a), hairline-strong (#34343a)
+ * Text hierarchy: ink (#f7f8f8), ink-muted (#d0d6e0), ink-subtle (#8a8f98), ink-tertiary (#62666d)
+ * Brand accent: primary (#5e6ad2), hover (#828fff)
+ */
 
 export function Panel({
   title,
@@ -20,15 +26,15 @@ export function Panel({
   return (
     <section id={id} className={`panel p-4 sm:p-5 ${className}`}>
       {(title || right) && (
-        <header className="mb-3 flex flex-wrap items-start justify-between gap-2">
+        <header className="mb-3.5 flex flex-wrap items-start justify-between gap-2 border-b border-[var(--hairline)]/40 pb-2.5">
           <div>
             {title && (
-              <h2 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[var(--dim)]">
+              <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--ink-subtle)]">
                 {title}
               </h2>
             )}
             {subtitle && (
-              <p className="mt-0.5 text-xs text-[var(--faint)]">{subtitle}</p>
+              <p className="mt-0.5 text-xs text-[var(--ink-tertiary)]">{subtitle}</p>
             )}
           </div>
           {right && <div className="flex items-center gap-2">{right}</div>}
@@ -77,22 +83,22 @@ export function StatCard({
   tone?: "default" | "cyan" | "lime" | "amber" | "dim";
 }) {
   const valueColor: Record<string, string> = {
-    default: "text-[var(--text)]",
-    cyan: "text-[var(--cyan)]",
-    lime: "text-[var(--lime)]",
-    amber: "text-[var(--amber)]",
-    dim: "text-[var(--dim)]",
+    default: "text-[var(--ink)]",
+    cyan: "text-[var(--primary-hover)]",
+    lime: "text-[var(--success)]",
+    amber: "text-[var(--warning)]",
+    dim: "text-[var(--ink-muted)]",
   };
   return (
-    <div className="panel-2 p-3">
-      <div className="text-[11px] uppercase tracking-[0.1em] text-[var(--dim)]">
+    <div className="panel-2 p-3.5 sm:p-4">
+      <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--ink-subtle)]">
         {label}
       </div>
-      <div className={`num mt-1 text-2xl font-semibold ${valueColor[tone]}`}>
+      <div className={`num mt-1.5 text-2xl font-semibold tracking-tight tabular-nums ${valueColor[tone]}`}>
         {value}
-        {unit && <span className="ml-1 text-sm text-[var(--dim)]">{unit}</span>}
+        {unit && <span className="ml-1 text-sm font-normal text-[var(--ink-subtle)]">{unit}</span>}
       </div>
-      {sub && <div className="mt-1 text-xs text-[var(--faint)]">{sub}</div>}
+      {sub && <div className="mt-1 text-xs text-[var(--ink-tertiary)]">{sub}</div>}
     </div>
   );
 }
@@ -102,7 +108,7 @@ export function Spinner({ className = "h-4 w-4" }: { className?: string }) {
     <span
       role="status"
       aria-label="Loading"
-      className={`inline-block animate-spin rounded-full border-2 border-[var(--border-strong)] border-t-[var(--cyan)] ${className}`}
+      className={`inline-block animate-spin rounded-full border-2 border-[var(--hairline-strong)] border-t-[var(--primary)] ${className}`}
     />
   );
 }
@@ -119,12 +125,12 @@ export function ErrorState({
   hint?: string;
 }) {
   return (
-    <div className="banner banner-red flex-col items-start" role="alert">
-      <div className="font-medium">{title}</div>
-      <div className="num text-xs">{message}</div>
-      {hint && <div className="text-xs opacity-80">{hint}</div>}
+    <div className="banner banner-red flex-col items-start gap-1.5" role="alert">
+      <div className="text-xs font-semibold text-[#fecdd3]">{title}</div>
+      <div className="num text-xs text-[var(--ink-muted)]">{message}</div>
+      {hint && <div className="text-xs text-[var(--ink-subtle)]">{hint}</div>}
       {onRetry && (
-        <button type="button" className="btn mt-1" onClick={onRetry}>
+        <button type="button" className="btn btn-secondary mt-1 px-2.5 py-1 text-xs" onClick={onRetry}>
           Retry
         </button>
       )}
@@ -142,9 +148,9 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-[var(--border)] px-6 py-8 text-center">
-      <div className="text-sm font-medium text-[var(--dim)]">{title}</div>
-      {hint && <div className="max-w-md text-xs text-[var(--faint)]">{hint}</div>}
+    <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-[var(--hairline-strong)] bg-[var(--surface-1)]/40 px-6 py-8 text-center">
+      <div className="text-sm font-medium text-[var(--ink-muted)]">{title}</div>
+      {hint && <div className="max-w-md text-xs text-[var(--ink-tertiary)]">{hint}</div>}
       {children}
     </div>
   );
@@ -154,24 +160,24 @@ export function ConfidenceBar({ value }: { value: number | null }) {
   if (value === null || value === undefined) return null;
   const pct = Math.round(value * 100);
   const color =
-    pct >= 75 ? "bg-[var(--lime)]" : pct >= 45 ? "bg-[var(--cyan)]" : "bg-[var(--amber)]";
+    pct >= 75 ? "bg-[var(--success)]" : pct >= 45 ? "bg-[var(--primary)]" : "bg-[var(--warning)]";
   return (
     <div className="flex items-center gap-2" title={`Extraction confidence ${pct}%`}>
-      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[#1a2637]">
+      <div className="h-1.5 w-16 overflow-hidden rounded-full border border-[var(--hairline)] bg-[var(--surface-3)]">
         <div className={`h-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="num text-[11px] text-[var(--dim)]">{pct}%</span>
+      <span className="num text-[11px] tabular-nums text-[var(--ink-subtle)]">{pct}%</span>
     </div>
   );
 }
 
 export function SkeletonLines({ lines = 3 }: { lines?: number }) {
   return (
-    <div className="space-y-2" aria-hidden>
+    <div className="space-y-2.5" aria-hidden>
       {Array.from({ length: lines }).map((_, index) => (
         <div
           key={index}
-          className="skeleton h-4"
+          className="skeleton h-4 rounded-md"
           style={{ width: `${100 - index * 12}%` }}
         />
       ))}
