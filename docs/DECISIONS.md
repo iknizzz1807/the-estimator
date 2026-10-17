@@ -81,6 +81,15 @@ Three parallel QA agents (backend adversarial testing, frontend/integration cont
 
 D16 promised "Docker image ships `.git` so `repo="self"` works in production", but Render's Docker build context comes from a GitHub checkout **without** `.git`, so the hard `COPY .git ./.git` failed the first live deploy ("failed to compute cache key: /.git: not found"). The Dockerfile now copies `.git` conditionally via a BuildKit bind mount (`RUN --mount=type=bind,target=/ctx if [ -d /ctx/.git ]; ...`): local builds from a full checkout keep shipping history (self-analysis works), Render deploys build cleanly and `repo="self"` returns the existing clean "not a git repository" message while demo_a/demo_b (the showcased repos) work unchanged. Revisit only if cloud self-analysis is needed (e.g. clone history at build time).
 
+## D18 — Change-retrieval signal for Codebase Lab (proposed — pending recall@k evaluation) (2026-10-17)
+
+Direction after the "can the codebase and the request fit each other?" review. The structural friction signals stay (they answer "how expensive is change here"); this adds the missing "have we done something like this before, and what did it touch" layer:
+
+- **Lean pipeline**: chunk the repo (file/function + commit messages) → embed **once offline** into a committed `.npy` (runtime embeds only the query: fastembed ONNX or a provider embedding API — **no torch**, D3 stays intact, Render 512 MB) → hybrid retrieval **BM25 (rank-bm25, already a dependency) + cosine** → show top matching files, top-3 similar past commits (with files-touched counts) and the structural friction (fan-in/churn/complexity, history cut at the request date — leakage guard) of the retrieved file set.
+- **Positioning**: a *locate/retrieve* signal first. It may only feed the estimate after passing its own evaluation gate: **recall@k on real issue→patch pairs** using existing assets (`itemlet_projects.csv`, 29k real commits; SWE-bench subsets; `scripts/itemlet_validation.py` / `swebench_validation.py`). Fail → ship labelled "uncalibrated" or not at all; no prediction claim.
+- **Rejected**: a vector database for a few thousand chunks (numpy+cosine is enough); torch/sentence-transformers (D3 + Render RAM); synthetic codebases for validation (circular); importing external accuracy numbers (the contested "84%" vs thesis "44%/30%" of Vector Impact of Change) — claims stay self-measured (D14/D16).
+- **Sequencing**: submission-critical path first; this lands only after the live app is final. Companion improvement (P2): deterministic capability inventory (dependency/import scan per taxonomy feature) + an `unmapped_asks` warning for out-of-taxonomy requests (e.g. "add Google Maps" is not a feature; it must not be silently absorbed).
+
 
 
 
