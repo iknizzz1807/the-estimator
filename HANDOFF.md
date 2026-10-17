@@ -8,7 +8,7 @@
 - **Live app**: https://the-estimator-xqzc.onrender.com (Render web service, `0.5c-512mb` paid plan — no cold start; downgrade to Free or delete after ~22/10 to stop billing). Verified live 2026-10-17 (see §5).
 - **GitHub**: https://github.com/iknizzz1807/the-estimator (public, `main` @ `00afecb`).
 - **Local working copy (phone)**: `/sdcard/Documents/the-estimator` — `git pull` to sync the cafe-PC commits (Windows fixes, D17, UI copy fix).
-- **Next steps**: submit via the competition portal (paste live URL + repo URL; text in `docs/SUBMISSION.md`) → revoke tokens / rotate key (§8) → then the D18 change-retrieval spike (post-submission, timeboxed).
+- **Next steps**: submit via the competition portal (paste live URL + repo URL; text in `docs/SUBMISSION.md`) → revoke tokens / rotate key (§8) → optional: D18 UI panel (gate passed; see `docs/RETRIEVAL_VALIDATION.md`).
 - **Deadline**: Sunday 2026-10-18 23:59 (self-imposed) / Monday 19-10 official. Competition: *Agent in the Shell* — Anduin Cybernetics, Challenge #2 "The Estimator".
 
 ## 1. What this is (one paragraph)
@@ -19,7 +19,7 @@ Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (frozen
 
 ## 2. Git state
 
-- `main` @ `00afecb`; the cafe-PC session added `2d1d322` (Windows test/script fixes), `ab6519c` (D17 conditional `.git` copy), `00afecb` (honest answer-refinement copy).
+- `main` @ `7628f9e` + docs; the cafe-PC session added `2d1d322` (Windows test/script fixes), `ab6519c` (D17 conditional `.git` copy), `00afecb` (honest answer-refinement copy), `39c5afb` + `7628f9e` (D18 retrieval spike + eval arms), and this docs commit (D18 gate PASSED, RETRIEVAL_VALIDATION.md, handoff).
 - History was rewritten once by an agent (amend + cherry-pick race fix); content-verified, no dangling objects (`git fsck` clean).
 - Commit convention: ASCII messages, scoped prefixes (`feat(api):`, `fix(frontend):`, `docs:`, `chore(deploy):`).
 
@@ -53,9 +53,9 @@ docker build -f backend/Dockerfile -t the-estimator .   # full single-service im
 
 ## 4. What's built (map)
 
-- **Backend** `backend/app/`: `api/routes.py` (all endpoints + SSE), `api/state.py` (pipeline, DB wiring, codebase block, reset, import), `services/`: `extraction.py` (LLM→features + evidence verification), `providers.py` (deepseek|gemini|openai|stub|distilled + truncated-JSON repair), `estimation.py` (Ridge + conformal + `estimate_mc`), `similarity.py`, `voi.py`, `learning.py`, `replay.py`, `ab.py`, `llm_baseline.py`, `packages.py`, `codebase.py`, `distilled.py`; `data_gen/` (synthetic history DGP), `db/` (SQLite schema/helpers).
+- **Backend** `backend/app/`: `api/routes.py` (all endpoints + SSE), `api/state.py` (pipeline, DB wiring, codebase block, reset, import), `services/`: `extraction.py` (LLM→features + evidence verification), `providers.py` (deepseek|gemini|openai|stub|distilled + truncated-JSON repair), `estimation.py` (Ridge + conformal + `estimate_mc`), `similarity.py`, `voi.py`, `learning.py`, `replay.py`, `ab.py`, `llm_baseline.py`, `packages.py`, `codebase.py`, `distilled.py`, `retrieval.py` (D18 spike: change retrieval — not wired into the pipeline); `data_gen/` (synthetic history DGP), `db/` (SQLite schema/helpers).
 - **Frontend** `frontend/`: Next.js 15 static export; pages: `/` (onboarding), `/estimate` (SSE steps, feature cards, answers→refinement, packages, pricing curve, codebase panel, repo selector), `/history` (filters, Enter Actuals), `/proof` (replay chart, A/B with history baseline).
-- **Scripts** `backend/scripts/`: `run_api.sh`, `build_demo_repos.py`, `extraction_eval.py`, `ab_measurement.py`, `swebench_validation.py`, `codebase_history_experiment.py`, `itemlet_validation.py`, `distillation_experiment.py`, `codebase_cli.py`, `seed_db.py`.
+- **Scripts** `backend/scripts/`: `run_api.sh`, `build_demo_repos.py`, `extraction_eval.py`, `ab_measurement.py`, `swebench_validation.py`, `codebase_history_experiment.py`, `itemlet_validation.py`, `distillation_experiment.py`, `codebase_cli.py`, `seed_db.py`, `retrieval_eval.py` (D18 recall@k harness — `--embed-model` for arm A/B).
 - **Data** `data/`: `synthetic_history.csv` (240 projects / 228 done, sha1 `b1df6f1b…`), `ground_truth.json` (never read by services), `tawos_subset.csv`, `distillation_labels.csv` + `distilled_model.joblib` (committed, 1 MB). `data/estimator.db` + `data/demo_repos/` are gitignored and auto-generated.
 
 ## 5. DEPLOY STATUS (where the world stands)
@@ -87,7 +87,7 @@ docker build -f backend/Dockerfile -t the-estimator .   # full single-service im
 - DeepSeek occasionally returns JSON missing the final `}` → `parse_json_response` now repairs it; if extraction still fails after retries → all-null + review warning (by design, spec §9).
 - README color claims that lacked committed artifacts were softened during the QA audit (see D16).
 - Answer refinement: the *relative* spread always drops as unknowns resolve, but absolute width is not monotone (a scope-adding Yes raises P50 and can widen it); README §10 documents this and the in-app copy was made honest in `00afecb` (RangeCompare already showed the "+% — the answer added scope" chip).
-- Codebase Lab does not answer "does the request fit this codebase" (gap review 2026-10-17); the intended next signal is D18 change retrieval (post-submission, gated on a recall@k evaluation).
+- Codebase Lab does not answer "does the request fit this codebase" (gap review 2026-10-17); the intended next signal is D18 change retrieval — **spike done, recall@k gate PASSED** (see `docs/RETRIEVAL_VALIDATION.md`): next step is the UI panel (candidate files + analog commits, labelled `retrieval`), numeric coupling stays out until separately validated.
 
 ## 8. Secrets & credentials map (WHERE, never WHAT)
 
