@@ -29,7 +29,7 @@ export default function ResetDemoButton() {
   const reset = async () => {
     const confirmed = window.confirm(
       "Reset demo data to the pristine synthetic history?\n\n" +
-        "Projects created by estimates (P061+) and recorded actuals will be lost. " +
+        "Projects created by estimates (P241+) and recorded actuals will be lost. " +
         "The model is retrained and the replay cache refreshed."
     );
     if (!confirmed) return;

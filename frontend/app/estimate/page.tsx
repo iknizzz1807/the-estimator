@@ -80,6 +80,7 @@ export default function EstimatePage() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [coldNote, setColdNote] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copyNote, setCopyNote] = useState<string | null>(null);
   const [durationMs, setDurationMs] = useState<number | null>(null);
   const [generatedAt, setGeneratedAt] = useState("");
   // Codebase Lab (contract v0.2): repository context for the next run.
@@ -224,8 +225,15 @@ export default function EstimatePage() {
   const extraNotes = useMemo(() => {
     if (!estimate) return [];
     const map = new Map(estimate.findings.map((f) => [f.name, f.value]));
+    const alreadyWarned = (pattern: RegExp) =>
+      estimate.warnings.some((warning) => pattern.test(warning));
     const notes: string[] = [];
-    if (map.get("realtime_ui") === 1 && map.get("offline_mode") === 1) {
+    if (
+      map.get("realtime_ui") === 1 &&
+      map.get("offline_mode") === 1 &&
+      // The backend already flags this conflict (Vietnamese detail).
+      !alreadyWarned(/realtime_ui|offline_mode|mâu thuẫn/i)
+    ) {
       notes.push(
         "Conflicting requirements flagged for review: real-time UI and offline mode are both present."
       );
@@ -233,7 +241,8 @@ export default function EstimatePage() {
     if (
       estimate.findings.length > 0 &&
       estimate.findings.every((f) => f.value === null) &&
-      !estimate.warnings.some((w) => /no features/i.test(w))
+      // Backend emits its own (Vietnamese) "no features" warning.
+      !alreadyWarned(/no features|không tìm thấy features/i)
     ) {
       notes.push("No features were detected — please review the email before trusting the range.");
     }
@@ -245,9 +254,15 @@ export default function EstimatePage() {
     try {
       await navigator.clipboard.writeText(formatQuestions(estimate.questions, "en"));
       setCopied(true);
+      setCopyNote(null);
       window.setTimeout(() => setCopied(false), 2500);
     } catch {
-      setStreamError("Clipboard is blocked here — use Copy all in the questions panel.");
+      // Clipboard needs a secure context (https/localhost) — never dress this
+      // up as a failed estimate.
+      setCopyNote(
+        "Clipboard is blocked here (needs https or localhost) — use “Copy all” in the questions panel, or select the text manually."
+      );
+      window.setTimeout(() => setCopyNote(null), 6000);
     }
   };
 
@@ -282,6 +297,13 @@ export default function EstimatePage() {
             multipliers and is deliberately wider. Feature extraction and
             questions work exactly the same.
           </div>
+        </div>
+      )}
+
+      {copyNote && (
+        <div className="banner banner-amber no-print" role="alert">
+          <span aria-hidden>⚠</span>
+          <span className="text-xs">{copyNote}</span>
         </div>
       )}
 
@@ -362,7 +384,7 @@ export default function EstimatePage() {
             )}
             {estimate && !running && (
               <span className="num text-[11px] text-[var(--faint)]">
-                {estimate.project_id}
+                {estimate.project_id ?? "refined"}
                 {durationMs !== null ? ` · ${humanDuration(durationMs)}` : ""}
               </span>
             )}

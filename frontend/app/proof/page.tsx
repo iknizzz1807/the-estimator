@@ -47,7 +47,7 @@ function CoverageBand({ coverage }: { coverage: number }) {
 }
 
 /**
- * In-band counts "+ 33/42 (78.6%)" — shown when the summary carries n_steps
+ * In-band counts "+ 189/218 (86.7%)" — shown when the summary carries n_steps
  * (contract v0.2); falls back to nothing on older payloads.
  */
 function CoverageCounts({

@@ -26,8 +26,8 @@ function presentFeatures(row: ProjectRow): string[] {
 
 /**
  * History table with client-side filters (status / feature / date range).
- * All 60 projects fit in one fetch, so filtering stays instant — the backend
- * still exposes the same filters for larger datasets.
+ * The whole dataset (240 rows) fits in one fetch, so filtering stays instant —
+ * the backend still exposes the same filters for larger datasets.
  */
 export function HistoryTable({
   rows,

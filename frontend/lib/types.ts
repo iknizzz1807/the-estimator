@@ -59,7 +59,8 @@ export interface Coefficient {
 }
 
 export interface EstimateResponse {
-  project_id: string;
+  /** null on answer-refinement calls (contract v0.2: side-effect free, no new row). */
+  project_id: string | null;
   findings: Finding[];
   estimate: EstimateRange;
   similar_projects: SimilarProject[];

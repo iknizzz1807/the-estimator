@@ -30,7 +30,7 @@ export function ProposalPrintView({
   return (
     <div className="print-only print-proposal">
       <h1>
-        The Estimator — effort estimate ({estimate.project_id})
+        The Estimator — effort estimate ({estimate.project_id ?? "—"})
       </h1>
       <p>
         Generated {generatedAt} · extraction provider: {provider} · demo build

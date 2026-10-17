@@ -94,7 +94,9 @@ export default function Sidebar() {
       </div>
       <div className="px-3 pb-3 pt-1 text-[10px] text-[var(--faint)]">
         <span className="hidden md:inline">API </span>
-        <span className="num hidden truncate md:inline">{api.baseUrl}</span>
+        <span className="num hidden truncate md:inline">
+          {api.baseUrl || "same-origin"}
+        </span>
       </div>
     </aside>
   );
