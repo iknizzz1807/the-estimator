@@ -58,6 +58,21 @@ Addressing review feedback, all with tests (140 total, offline/stub-forced):
 
 Next.js switches to `output: "export"`; `lib/api.ts` defaults to same-origin `""` so the static UI is served by FastAPI (`StaticExportFiles` subclass: `.html` retry for extensionless routes, `/api/*` never falls into the static mount). Multi-stage Dockerfile (node build → python runtime) + one Render Docker web service (`render.yaml`); `.dockerignore` keeps `.env`/`node_modules` out of the build context; `frontend/out` is gitignored (built in-image / on-device via the D7 rootfs dance). Removes CORS and the two-service failure mode; Vercel demoted to a documented fallback.
 
+## D13 — Dataset expanded 60 → 240 projects (2026-10-17)
+
+Approved after the measured learning curve (CV MAE 10.2 @60 → 8.5 @120 → ~8.1 @240 plateau). Regenerated deterministically (same DGP: interactions, drift ×1.22, 5% outliers); 228 done / 12 open; all downstream numbers re-measured: walk-forward System MAE 23.50 → **17.36** (218 steps), coverage **189/218 (86.7%)**, extraction F1 0.933 (DeepSeek) / 0.845 (stub). Full re-measurement cost ≈ $0.23.
+
+## D14 — Validation wave 2 — two negatives, one positive, one honest "not yet" (2026-10-17)
+
+- **SWE-bench (C2 + multi-file refinement C8)**: predicting patch invasiveness from issue text ± codebase signals does **not** improve (original 2,294 instances and the 571-instance multi-file subset; paired CIs include 0) → no accuracy claim; the module stays "risk explanation".
+- **Similar past changes (C9) — POSITIVE**: on 29,058 targets / 4 real repos, "similar-message → median of K=5" beats the repo-median baseline (−2.8% MAE, 95% CI [−0.060, −0.022]; Spearman 0.323 vs 0.034; oracle 0.881). Per-repo mixed (pytest/flask win, sympy ties, requests loses slightly) — reported as-is.
+- **Itemlet (C7)**: 204 real projects with absolute logged hours — conformal coverage 76–86% (target 75–85 ✓; TAWOS's 48.5% failure does not reproduce) but the point estimate ties the median: only 6.5% of issues have logged time.
+- **Distillation (C6)**: teacher DeepSeek F1 0.923 vs student 0.442 at n=240, plateaued → "replace the LLM when enough data" is real but far off at demo scale; `LLM_PROVIDER=distilled` ships offline with a stub fallback and honest labels.
+
+## D15 — Codebase Lab integration + positioning (2026-10-17)
+
+`POST /api/estimate` accepts `repo: demo_a | demo_b | self`; the response carries a `codebase` block (friction, invasiveness, similar changes, base vs adjusted estimate, adjustment breakdown, honest note). Demo repos are generated deterministically on demand; keywords for similar-changes come from the extracted features. UI: repo selector + `CodebasePanel` on the Estimate screen. **Positioning per the decision gate: risk explanation, one-directional surcharge (never a discount), demo-assumed coefficients (×0.30/×0.60 widening, ×0.35 invasiveness shift) until a real pilot learns them.**
+
 
 
 

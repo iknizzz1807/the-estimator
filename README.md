@@ -5,11 +5,11 @@
 > **Hackathon submission** — *Agent in the Shell* (Anduin Cybernetics) · Challenge #2: The Estimator.
 > Demo data is **synthetic** (with drift, interactions and outliers) and estimates are always a **range**, not a promise. See [Honest limitations](#honest-limitations).
 
-**Docs:** [business spec](docs/SPEC.md) · [API contract](docs/API.md) · [decision log](docs/DECISIONS.md) · [data generation](docs/DATA_GENERATION.md) · [measured A/B](docs/AB_MEASUREMENT.md) · [extraction quality](docs/EXTRACTION_EVAL.md) · [TAWOS cross-check](docs/TAWOS_VALIDATION.md)
+**Docs:** [business spec](docs/SPEC.md) · [API contract](docs/API.md) · [decision log](docs/DECISIONS.md) · [data generation](docs/DATA_GENERATION.md) · [measured A/B](docs/AB_MEASUREMENT.md) · [extraction quality](docs/EXTRACTION_EVAL.md) · [TAWOS cross-check](docs/TAWOS_VALIDATION.md) · [Itemlet check](docs/ITEMLET_VALIDATION.md) · [codebase mechanism ✓](docs/CODEBASE_HISTORY_VALIDATION.md) · [codebase text-prediction ✗](docs/CODEBASE_VALIDATION.md) · [LLM→classifier](docs/DISTILLATION_EXPERIMENT.md)
 
 ## Tóm tắt tiếng Việt
 
-Dán email/RFP của khách → LLM (DeepSeek V4.1 Flash) trích xuất **15 features** kèm trích dẫn gốc, phần **toán** (Ridge Regression + Conformal Prediction) trả về **khoảng P10/P50/P90**. Thông tin còn thiếu không bị đoán bừa: feature "không rõ" được **lấy mẫu Monte Carlo** làm khoảng giãn ra trung thực, và bạn có thể **bấm trả lời từng câu hỏi → khoảng co lại ngay trên màn hình**. Có thêm **gói báo giá theo ngân sách** (Essential/Standard/Full + xác suất vượt budget), vòng lặp học từ số ngày thực tế (có cú drift giữa chừng để chứng minh thích nghi), màn **Proof** đo thật: System vs Team vs LLM-only vs **LLM + lịch sử công ty**. Chạy offline được bằng stub extractor; gắn key là chạy LLM thật ngay.
+Dán email/RFP của khách → LLM (DeepSeek V4.1 Flash) trích xuất **15 features** kèm trích dẫn gốc, phần **toán** (Ridge Regression + Conformal Prediction) trả về **khoảng P10/P50/P90**. Thông tin còn thiếu không bị đoán bừa: feature "không rõ" được **lấy mẫu Monte Carlo** làm khoảng giãn ra trung thực, và bạn có thể **bấm trả lời từng câu hỏi → khoảng co lại ngay trên màn hình**. Có thêm **gói báo giá theo ngân sách** (Essential/Standard/Full + xác suất vượt budget), vòng lặp học từ số ngày thực tế (có cú drift giữa chừng để chứng minh thích nghi), màn **Proof** đo thật: System vs Team vs LLM-only vs **LLM + lịch sử công ty**. Thêm lớp **Codebase Lab**: trỏ vào repo → đo ma sát cấu trúc + lịch sử thay đổi tương tự → giãn khoảng cảnh báo rủi ro (*risk explanation* — cơ chế đã validate dương tính trên 29k commit thật, không claim tăng độ chính xác). Chạy offline được bằng stub extractor; gắn key là chạy LLM thật ngay.
 
 ## The problem
 
@@ -25,6 +25,7 @@ Dán email/RFP của khách → LLM (DeepSeek V4.1 Flash) trích xuất **15 fea
 4. **Quote** — enter the customer's budget → three scope packages (Essential / Standard / Full) with **over-budget probability**, built by phasing out the most expensive optional capabilities.
 5. **Learn** — entering actual days retrains the model, updates per-feature coefficients (audit trail) and re-scores accuracy. A mid-history **productivity drift** (+22% from 2026-02) proves the loop adapts while human estimates don't.
 6. **Prove** — walk-forward Replay (System / Team / LLM-only / **LLM + company history**) and a live A/B comparison — all measured, no hand-waving.
+7. **Context (optional)** — point the estimate at a codebase: structural friction (churn, fan-in, complexity, coverage, authors) widens the range; similar past changes measure invasiveness and add a risk surcharge to P50. Risk explanation, never a discount; coefficients are demo-assumed (learned from actuals in production).
 
 ## Architecture (single service)
 
@@ -75,6 +76,23 @@ Extraction quality (240 emails with known ground truth, 3600 cells):
 
 Full report: [docs/EXTRACTION_EVAL.md](docs/EXTRACTION_EVAL.md). Cost: the whole 240-email batch costs ≈ **$0.20** peak / **$0.10** off-peak on `deepseek-flash`.
 
+## Codebase Lab — risk context (validated honestly)
+
+Same email, two codebases, two different answers (live demo — repo selector on the Estimate screen):
+
+| | `payment_plugin` (clean) | `payment_spaghetti` (messy) |
+|---|---|---|
+| Friction (churn/fan-in/complexity/authors/coverage) | 0.21 LOW | 0.69 HIGH |
+| Invasiveness of similar past changes | 33% files modified | **87% files modified** |
+| Range | {9.4, 22.3, 45.0} | {7.9, **26.0**, 56.5} |
+
+What is validated (and what is not):
+
+- **YES — the mechanism**: "similar past changes predict the next change's size" beats the repo-median baseline on **29,058 real commits** (sympy/pytest/requests/flask): −2.8% MAE, 95% CI excludes 0, Spearman 0.323 vs 0.034; oracle upper bound 0.881. [docs/CODEBASE_HISTORY_VALIDATION.md](docs/CODEBASE_HISTORY_VALIDATION.md)
+- **NO — text prediction**: predicting a patch's invasiveness from issue text (± codebase signals) did not improve on SWE-bench, even on the 571-instance multi-file subset — so this module is a **risk explanation, not an accuracy claim**. [docs/CODEBASE_VALIDATION.md](docs/CODEBASE_VALIDATION.md)
+- **One-directional by design**: friction/invasiveness can only widen the range and add a surcharge — never a discount (safe against under-quoting; discounts would need coefficients learned from real actuals).
+- The adjustment coefficients (×0.30/×0.60 widening, ×0.35 invasiveness shift) are **demo-assumed and labeled as such** in every API response.
+
 ## Why this is not "just an LLM wrapper"
 
 | Criterion | LLM-only (measured) | This system |
@@ -119,7 +137,7 @@ Three realistic RFPs ship with the app (Onboarding → **Load Sample Data**): **
 
 ## Tests
 
-**165 backend tests** — offline, deterministic, stub-forced:
+**188 backend tests** — offline, deterministic, stub-forced:
 
 ```bash
 cd backend && python -m pytest tests/ -q
@@ -137,6 +155,9 @@ cd backend && python -m pytest tests/ -q
 8. **Similar projects retrieval** uses BM25 + TF-IDF (no embeddings) to keep the on-device build light.
 9. **Free-tier hosting** — on Render the SQLite file is ephemeral: the demo reseeds on every restart; entered actuals are lost on cold start (use Reset to restore deliberately).
 10. **Interval width is not strictly monotone per single answer** — answering "yes" to an expensive feature raises P50 (absolute width can grow); the *relative* uncertainty always shrinks (live-measured 1.99 → 1.38).
+11. **Codebase adjustments are one-directional and demo-assumed** — the mechanism (similar past changes) is validated on real commits, but the magnitude coefficients are placeholders until a pilot records (repo signals + actuals) pairs; a clean repo never gets a discount today.
+12. **Itemlet cross-check** — on 204 real projects (absolute logged hours) the conformal intervals calibrated correctly (coverage 76–86%) but the point estimate tied the median baseline: only 6.5% of issues have logged time, so the binding constraint is data quality, not the estimator ([docs/ITEMLET_VALIDATION.md](docs/ITEMLET_VALIDATION.md)).
+13. **LLM→classifier distillation is not there yet** — a student trained on 240 LLM-labeled emails reaches F1 0.44 vs the teacher's 0.93 and has plateaued; replacing the LLM needs far more (and real) data ([docs/DISTILLATION_EXPERIMENT.md](docs/DISTILLATION_EXPERIMENT.md)).
 
 ## We do NOT claim
 
@@ -153,6 +174,7 @@ cd backend && python -m pytest tests/ -q
 | Backend | FastAPI (Python 3.13) + SSE, serves the UI on the same port |
 | AI | DeepSeek V4.1 Flash (default) / Gemini / OpenAI — pluggable + deterministic offline stub |
 | Math | scikit-learn Ridge (α=0.3) + split conformal prediction + Monte Carlo over unknowns |
+| Codebase | git log + radon + import scan (no LLM ever reads the code) — friction + invasiveness on demo repos |
 | DB | SQLite (auto-seeded, atomic reset) |
 | Deploy | One Render Docker web service (`render.yaml`), free tier |
 
@@ -168,7 +190,7 @@ Alternative: `docker build -f backend/Dockerfile -t the-estimator . && docker ru
 backend/   FastAPI app (app/api, app/services), tests, scripts
 frontend/  Next.js 15 UI (static export into frontend/out, gitignored)
 data/      synthetic history + ground truth (db is gitignored, auto-seeded; tawos subset)
-docs/      SPEC, API contract, decisions, measured reports (AB, extraction, TAWOS, data-gen)
+docs/      SPEC, API contract, decisions, measured reports (AB, extraction, TAWOS, Itemlet, codebase ×2, distillation, data-gen)
 ```
 
 ## License
