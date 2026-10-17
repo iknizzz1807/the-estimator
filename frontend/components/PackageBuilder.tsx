@@ -240,6 +240,7 @@ export function PackageBuilder({
   return (
     <Panel
       id="packages"
+      dataTour="package-builder-section"
       title="Quote packages — budget fit"
       subtitle="Three scope tiers from the same model: phase out optional capabilities until the scope fits the budget."
     >

@@ -97,15 +97,17 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="mt-2 flex flex-1 flex-col gap-1 px-2" aria-label="Main">
+      <nav className="mt-2 flex flex-1 flex-col gap-1 px-2" aria-label="Main" data-tour="sidebar-nav">
         {NAV.map((item) => {
           const active =
             item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const tourKey = `nav-${item.href === "/" ? "onboarding" : item.href.replace("/", "")}`;
           return (
             <Link
               key={item.href}
               href={item.href}
               title={item.hint}
+              data-tour={tourKey}
               aria-current={active ? "page" : undefined}
               className={`group flex items-center gap-2.5 rounded-md border px-2.5 py-1.5 text-[13px] transition ${
                 active

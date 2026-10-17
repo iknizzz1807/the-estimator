@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, estimateStream } from "@/lib/api";
 import { errMessage, useAsyncData } from "@/lib/hooks";
-import { readPrefillEmail, readStoredEstimate } from "@/lib/session";
+import { readPrefillEmail, readStoredEstimate, storeEstimate, storePrefillEmail } from "@/lib/session";
+import { markStepComplete, popPendingJourneyAction } from "@/lib/journey";
 import {
   STREAM_STEPS,
   type AnswersMap,
@@ -118,6 +119,99 @@ export default function EstimatePage() {
     setGeneratedAt(new Date().toLocaleString());
   }, []);
 
+  // Journey Automation Bridge (contract v0.2 / Journey Guide)
+  useEffect(() => {
+    const handleJourneyAction = async (action: { type: string }) => {
+      if (action.type === "voi_shrink") {
+        let curEstimate = estimate;
+        let curEmail = estimateEmail || email;
+        if (!curEstimate) {
+          try {
+            const loaded = await api.loadScenario("A");
+            const scList = await api.scenarios();
+            const scA = scList.find((s) => s.id === "A");
+            curEstimate = loaded;
+            curEmail = scA?.email_text ?? "";
+            setEstimate(loaded);
+            setBaseEstimate(loaded);
+            setEmail(curEmail);
+            setEstimateEmail(curEmail);
+            setCompletedSteps([...STREAM_STEPS]);
+            markStepComplete("scenario_stream");
+          } catch (err) {
+            console.error("Failed to load scenario for VoI shrink", err);
+            return;
+          }
+        }
+        const qList = curEstimate.questions;
+        if (qList && qList.length > 0) {
+          const topFeat = qList[0].feature;
+          void applyAnswers(topFeat, 1);
+        }
+      } else if (action.type === "codebase_friction") {
+        setRepo("demo_b");
+        let curEmail = estimateEmail || email;
+        if (!curEmail) {
+          try {
+            const scList = await api.scenarios();
+            curEmail = scList.find((s) => s.id === "A")?.email_text ?? "";
+            setEmail(curEmail);
+            setEstimateEmail(curEmail);
+          } catch (err) {
+            console.error("Failed to fetch scenarios for codebase", err);
+          }
+        }
+        if (curEmail) {
+          try {
+            const res = await api.estimate(curEmail, answersRef.current, "demo_b");
+            setEstimate(res);
+            setBaseEstimate(res);
+            setCompletedSteps([...STREAM_STEPS]);
+            markStepComplete("scenario_stream");
+            markStepComplete("codebase_friction");
+          } catch (err) {
+            console.error("Codebase journey action error", err);
+          }
+        }
+      } else if (action.type === "ensure_estimate") {
+        if (!estimate) {
+          try {
+            const loaded = await api.loadScenario("A");
+            const scList = await api.scenarios();
+            const scA = scList.find((s) => s.id === "A");
+            setEstimate(loaded);
+            setBaseEstimate(loaded);
+            const eText = scA?.email_text ?? "";
+            setEmail(eText);
+            setEstimateEmail(eText);
+            setCompletedSteps([...STREAM_STEPS]);
+            storeEstimate({ estimate: loaded, scenarioTitle: "Fintech payment + PCI" });
+            if (eText) storePrefillEmail(eText);
+          } catch (err) {
+            console.error("Failed to ensure scenario estimate", err);
+          }
+        }
+      }
+    };
+
+    const pending = popPendingJourneyAction();
+    const queryJourney = new URLSearchParams(window.location.search).get("journey");
+    if (pending) {
+      void handleJourneyAction(pending);
+    } else if (queryJourney === "voi") {
+      void handleJourneyAction({ type: "voi_shrink" });
+    } else if (queryJourney === "codebase") {
+      void handleJourneyAction({ type: "codebase_friction" });
+    }
+
+    const listener = (event: Event) => {
+      const custom = event as CustomEvent<{ type: string }>;
+      if (custom.detail) void handleJourneyAction(custom.detail);
+    };
+    window.addEventListener("estimator:journey-action", listener);
+    return () => window.removeEventListener("estimator:journey-action", listener);
+  }, [estimate, estimateEmail, email]);
+
   const resetAnswerState = () => {
     answerSeqRef.current += 1;
     answersRef.current = {};
@@ -162,6 +256,10 @@ export default function EstimatePage() {
           setCompletedSteps([...STREAM_STEPS]);
           setActiveStep(null);
           setDurationMs(performance.now() - startedAt);
+          markStepComplete("scenario_stream");
+          if (event.result.codebase) {
+            markStepComplete("codebase_friction");
+          }
         } else if (event.type === "error") {
           setStreamError(event.message ?? "Estimation failed — please retry.");
           setActiveStep(null);
@@ -199,6 +297,10 @@ export default function EstimatePage() {
       if (seq !== answerSeqRef.current) return;
       setEstimate(refined);
       confirmedAnswersRef.current = next;
+      markStepComplete("voi_shrink");
+      if (refined.codebase) {
+        markStepComplete("codebase_friction");
+      }
     } catch (err) {
       if (seq !== answerSeqRef.current) return;
       answersRef.current = confirmedAnswersRef.current;
@@ -319,17 +421,19 @@ export default function EstimatePage() {
               setScenarioTitle(null);
             }}
           />
-          <EmailInput
-            value={email}
-            onChange={(value) => {
-              setEmail(value);
-              if (validationError) setValidationError(null);
-            }}
-            onSubmit={runEstimate}
-            running={running}
-            validationError={validationError}
-          />
-          <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-3">
+          <div data-tour="estimate-email-box">
+            <EmailInput
+              value={email}
+              onChange={(value) => {
+                setEmail(value);
+                if (validationError) setValidationError(null);
+              }}
+              onSubmit={runEstimate}
+              running={running}
+              validationError={validationError}
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-3" data-tour="codebase-selector">
             <span className="text-[11px] uppercase tracking-[0.1em] text-[var(--dim)]">
               Codebase context
             </span>
@@ -371,6 +475,7 @@ export default function EstimatePage() {
             <button
               type="button"
               className="btn btn-primary"
+              data-tour="estimate-submit-btn"
               disabled={running}
               onClick={runEstimate}
             >
@@ -485,6 +590,7 @@ export default function EstimatePage() {
 
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
             <Panel
+              dataTour="estimate-chart-section"
               title={
                 <span className="flex flex-wrap items-center gap-2">
                   Effort estimate <ModeBadge mode={estimate.estimate.mode} />{" "}
@@ -540,6 +646,7 @@ export default function EstimatePage() {
             </Panel>
 
             <Panel
+              dataTour="questions-section"
               title={
                 <span className="flex items-center gap-2">
                   Ranked questions

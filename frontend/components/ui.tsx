@@ -15,6 +15,7 @@ export function Panel({
   children,
   className = "",
   id,
+  dataTour,
 }: {
   title?: ReactNode;
   subtitle?: ReactNode;
@@ -22,9 +23,10 @@ export function Panel({
   children: ReactNode;
   className?: string;
   id?: string;
+  dataTour?: string;
 }) {
   return (
-    <section id={id} className={`panel p-4 sm:p-5 ${className}`}>
+    <section id={id} data-tour={dataTour} className={`panel p-4 sm:p-5 ${className}`}>
       {(title || right) && (
         <header className="mb-3.5 flex flex-wrap items-start justify-between gap-2 border-b border-[var(--hairline)]/40 pb-2.5">
           <div>

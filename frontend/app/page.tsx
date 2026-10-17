@@ -2,8 +2,8 @@ import OnboardingWizard from "@/components/OnboardingWizard";
 
 export default function LandingPage() {
   return (
-    <div className="space-y-6">
-      <header className="pt-2">
+    <div className="space-y-7">
+      <header className="pt-2" data-tour="onboarding-header">
         <div className="text-xs font-medium uppercase tracking-[0.15em] text-[var(--primary)]">
           Agent in the Shell · Challenge #2
         </div>
@@ -21,6 +21,7 @@ export default function LandingPage() {
         </p>
       </header>
 
+      {/* Standard Setup Paths & Sample Scenarios */}
       <OnboardingWizard />
 
       <p className="text-xs text-[var(--ink-tertiary)]">

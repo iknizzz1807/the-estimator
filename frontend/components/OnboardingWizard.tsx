@@ -41,7 +41,7 @@ export default function OnboardingWizard() {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {/* (a) Load Sample Data — 1-click demo path */}
-      <section className="panel p-5" aria-labelledby="card-samples">
+      <section className="panel p-5" aria-labelledby="card-samples" data-tour="onboarding-samples">
         <div className="flex items-center justify-between">
           <h2 id="card-samples" className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--ink)]">
             Load sample data
@@ -66,10 +66,11 @@ export default function OnboardingWizard() {
             />
           )}
 
-          {scenarios.data?.map((scenario) => (
+          {scenarios.data?.map((scenario, sIdx) => (
             <button
               key={scenario.id}
               type="button"
+              data-tour={sIdx === 0 ? "sample-scenario-a" : undefined}
               className="panel-2 group flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:border-[var(--hairline-strong)] hover:bg-[var(--surface-3)]"
               disabled={loadingId !== null}
               onClick={() => loadScenario(scenario.id, scenario.email_text)}
@@ -108,7 +109,7 @@ export default function OnboardingWizard() {
       </section>
 
       {/* (b) Import CSV */}
-      <section className="panel flex flex-col p-5" aria-labelledby="card-import">
+      <section className="panel flex flex-col p-5" aria-labelledby="card-import" data-tour="onboarding-import">
         <h2 id="card-import" className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--ink)]">
           Import your own history
         </h2>
@@ -129,7 +130,7 @@ export default function OnboardingWizard() {
       </section>
 
       {/* (c) Cold start */}
-      <section className="panel flex flex-col p-5" aria-labelledby="card-cold">
+      <section className="panel flex flex-col p-5" aria-labelledby="card-cold" data-tour="onboarding-cold">
         <h2 id="card-cold" className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--ink)]">
           Cold start (no history)
         </h2>
@@ -149,7 +150,7 @@ export default function OnboardingWizard() {
       </section>
 
       {/* (d) How it works */}
-      <section className="panel p-5" aria-labelledby="card-how">
+      <section className="panel p-5" aria-labelledby="card-how" data-tour="onboarding-how">
         <h2 id="card-how" className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--ink)]">
           How it works
         </h2>

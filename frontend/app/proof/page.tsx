@@ -7,6 +7,7 @@ import type { ABResponse, ReplayResponse } from "@/lib/types";
 import { fmtInt, fmtNum, fmtPct, humanDuration } from "@/lib/format";
 import { ReplayChart } from "@/components/ReplayChart";
 import { ABComparisonTable } from "@/components/ABComparisonTable";
+import { markStepComplete, popPendingJourneyAction } from "@/lib/journey";
 import {
   EmptyState,
   ErrorState,
@@ -99,8 +100,27 @@ export default function ProofPage() {
     if (result) {
       setReplay(result);
       setReplayMs(performance.now() - startedAt);
+      markStepComplete("proof_replay");
     }
   };
+
+  useEffect(() => {
+    const handleAction = async (action: { type: string }) => {
+      if (action.type === "proof_replay") {
+        await runReplay();
+      }
+    };
+    const pending = popPendingJourneyAction();
+    if (pending) {
+      void handleAction(pending);
+    }
+    const listener = (event: Event) => {
+      const custom = event as CustomEvent<{ type: string }>;
+      if (custom.detail) void handleAction(custom.detail);
+    };
+    window.addEventListener("estimator:journey-action", listener);
+    return () => window.removeEventListener("estimator:journey-action", listener);
+  }, []);
 
   const runAb = async () => {
     const text = abEmail.trim();
@@ -132,6 +152,7 @@ export default function ProofPage() {
       </header>
 
       <Panel
+        dataTour="proof-replay-panel"
         title="Replay history"
         subtitle="Train on projects 1..i-1 → predict project i. Lower MAE and coverage near 80% = calibrated."
         right={
@@ -295,6 +316,7 @@ export default function ProofPage() {
       </Panel>
 
       <Panel
+        dataTour="proof-ab-panel"
         title="A/B — same email, LLM-only ×10"
         subtitle={`Exposes run-to-run variance of a raw LLM — plus the fair "LLM + company history" strawman (contract v0.2). Current provider: ${provider}${
           provider === "stub" ? " (offline — variance simulated and labelled)" : ""

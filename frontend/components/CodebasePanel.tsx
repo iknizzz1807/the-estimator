@@ -165,6 +165,7 @@ export function CodebasePanel({
 
   return (
     <Panel
+      dataTour="codebase-panel-section"
       title={
         <span className="flex flex-wrap items-center gap-2">
           Codebase context

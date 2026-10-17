@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import OfflineNotice from "@/components/OfflineNotice";
+import { SpotlightTour } from "@/components/SpotlightTour";
 
 export const metadata: Metadata = {
   title: "The Estimator — Calibrated RFP Effort Range",
@@ -26,6 +27,7 @@ export default function RootLayout({
               Hackathon demo build · synthetic data · estimates are ranges, not promises.
             </footer>
           </div>
+          <SpotlightTour />
         </div>
       </body>
     </html>
