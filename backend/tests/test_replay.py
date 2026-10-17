@@ -84,3 +84,15 @@ def test_simulated_llm_only_point_is_seeded_and_log_normal() -> None:
     other = simulated_llm_only_point({"project_id": "P778", "features": {"data_migration": 1}})
     assert other != first
     assert first > 0
+
+
+def test_done_rows_exclude_non_finite_actuals() -> None:
+    """Rows with NaN/inf actual_days are not trainable (train_model rejects them)."""
+    from app.api.state import done_rows
+
+    rows = [
+        {"project_id": "P1", "status": "done", "actual_days": float("inf")},
+        {"project_id": "P2", "status": "done", "actual_days": float("nan")},
+        {"project_id": "P3", "status": "done", "actual_days": 42.0},
+    ]
+    assert [row["project_id"] for row in done_rows(rows)] == ["P3"]

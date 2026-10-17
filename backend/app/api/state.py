@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import io
 import logging
+import math
 import os
 import re
 import subprocess
@@ -304,7 +305,7 @@ def load_rows(db_path: Path) -> list[dict[str, Any]]:
 
 
 def done_rows(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
-    """Rows usable for training: status done with a positive actual duration."""
+    """Rows usable for training: status done with a positive finite actual."""
     usable: list[dict[str, Any]] = []
     for row in rows:
         if row.get("status") != "done":
@@ -313,7 +314,7 @@ def done_rows(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
             actual = float(row.get("actual_days"))
         except (TypeError, ValueError):
             continue
-        if actual > 0:
+        if actual > 0 and math.isfinite(actual):
             usable.append(dict(row))
     return usable
 
@@ -366,6 +367,11 @@ def refresh_replay(state: AppState, min_train: int = DEFAULT_MIN_TRAIN, persist:
     """
     rows = load_rows(state.db_path)
     result = replay(done_rows(rows), min_train=min_train)
+    if min_train == DEFAULT_MIN_TRAIN:
+        # Any caller refreshing the default cache does so because the data
+        # changed (bootstrap / actual / import / reset): drop every non-default
+        # entry so /api/replay?min_train=X can never serve stale steps.
+        state.replay_cache.clear()
     state.replay_cache[min_train] = result
     if min_train == DEFAULT_MIN_TRAIN:
         state.history_cache = {
@@ -872,9 +878,14 @@ def persist_estimate(
     extraction: ExtractionResult,
     prediction: Mapping[str, Any],
 ) -> str:
-    """Insert the estimated project + 15 feature rows + one ``estimates`` row."""
+    """Insert the estimated project + 15 feature rows + one ``estimates`` row.
+
+    Runs inside an IMMEDIATE transaction: without the RESERVED lock two parallel
+    requests compute the same ``P0nn`` id and one dies on the UNIQUE constraint.
+    """
     conn = connect(state.db_path)
     try:
+        conn.execute("BEGIN IMMEDIATE")
         project_id = next_project_id(conn)
         cursor = conn.execute(
             "INSERT INTO projects "
@@ -910,6 +921,9 @@ def persist_estimate(
             ),
         )
         conn.commit()
+    except BaseException:
+        conn.rollback()
+        raise
     finally:
         conn.close()
     return project_id
@@ -1161,14 +1175,26 @@ def apply_actual(state: AppState, project_id: str, actual_days: float) -> dict[s
 
 
 def _optional_float(value: Any) -> float | None:
-    """NaN/None -> None, otherwise float."""
+    """NaN/None/unparseable/non-finite -> None, otherwise float."""
     if value is None or pd.isna(value):
         return None
-    return float(value)
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
+
+def _optional_str(value: Any) -> str | None:
+    """NaN/None/empty -> None, otherwise the stripped string form."""
+    if value is None or pd.isna(value):
+        return None
+    text = str(value).strip()
+    return text or None
 
 
 def _feature_value(value: Any) -> int | None:
-    """Coerce a CSV feature cell to 0/1; None for NaN (treated as absent)."""
+    """Coerce a CSV feature cell to 0/1; None for anything else (row skipped)."""
     if value is None or pd.isna(value):
         return 0
     if isinstance(value, str):
@@ -1179,9 +1205,13 @@ def _feature_value(value: Any) -> int | None:
             return 0
         return None
     try:
-        return int(value)
+        number = float(value)
     except (TypeError, ValueError):
         return None
+    if not math.isfinite(number) or not number.is_integer():
+        return None
+    number = int(number)
+    return number if number in (0, 1) else None
 
 
 def import_csv(state: AppState, data: bytes) -> dict[str, Any]:
@@ -1254,8 +1284,8 @@ def import_csv(state: AppState, data: bytes) -> dict[str, Any]:
                 "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 (
                     project_id,
-                    str(row.get("date") or "") or None,
-                    str(row.get("email_text") or ""),
+                    _optional_str(row.get("date")),
+                    _optional_str(row.get("email_text")) or "",
                     actual_days,
                     _optional_float(row.get("team_estimate")),
                     status,

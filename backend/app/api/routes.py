@@ -344,7 +344,7 @@ def list_projects(
 def submit_actual(project_id: str, payload: ActualRequest, request: Request) -> dict[str, Any]:
     """Record the real duration: retrain + coefficient update + accuracy."""
     state = get_state(request)
-    if payload.actual_days <= 0:
+    if payload.actual_days <= 0 or not math.isfinite(payload.actual_days):
         raise HTTPException(
             status_code=422,
             detail="actual_days phải lớn hơn 0 (số ngày thực tế không hợp lệ)",

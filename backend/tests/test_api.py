@@ -294,6 +294,18 @@ def test_replay_endpoint_is_cached_and_deterministic(client: TestClient) -> None
     assert 0 < custom["summary"]["n_steps"] < body["summary"]["n_steps"]
 
 
+def test_replay_custom_min_train_cache_invalidated_after_actual(client: TestClient) -> None:
+    """A data change must not leave a stale non-default min_train cache behind."""
+    before = client.get("/api/replay", params={"min_train": 5}).json()
+    assert before["steps"]
+
+    actual = client.post("/api/projects/P001/actual", json={"actual_days": 99})
+    assert actual.status_code == 200
+
+    after = client.get("/api/replay", params={"min_train": 5}).json()
+    assert after["steps"] != before["steps"]
+
+
 # --------------------------------------------------------------------------- #
 # Actuals (learning loop)
 # --------------------------------------------------------------------------- #
@@ -343,6 +355,25 @@ def test_enter_actual_rejects_non_positive(client: TestClient, bad_value: float)
     response = client.post("/api/projects/P230/actual", json={"actual_days": bad_value})
     assert response.status_code == 422
     assert "lớn hơn 0" in response.json()["detail"]
+
+
+@pytest.mark.parametrize("bad_literal", ["NaN", "Infinity"])
+def test_enter_actual_rejects_non_finite(client: TestClient, bad_literal: str) -> None:
+    """NaN/Infinity are not valid durations: reject instead of corrupting state."""
+    response = client.post(
+        "/api/projects/P232/actual",
+        content=f'{{"actual_days": {bad_literal}}}',
+        headers={"Content-Type": "application/json"},
+    )
+    assert response.status_code == 422
+    assert "lớn hơn 0" in response.json()["detail"]
+
+    row = next(
+        item
+        for item in client.get("/api/projects").json()
+        if item["project_id"] == "P232"
+    )
+    assert row["status"] != "done"  # nothing was persisted
 
 
 def test_enter_actual_unknown_project_404(client: TestClient) -> None:
@@ -399,6 +430,63 @@ def test_import_csv_malformed_rejected(client: TestClient) -> None:
     empty = _upload(client, b"", name="empty.csv")
     assert empty.status_code == 422
     assert "CSV" in empty.json()["detail"]
+
+
+def test_import_csv_invalid_numeric_feature_value_skipped(client: TestClient) -> None:
+    """A numeric feat_* cell outside {0,1} must be skipped, never stored verbatim."""
+    features = ["2" if name == "third_party_api" else "0" for name in FEATURES]
+    row = ",".join(
+        ["P905", "2026-02-01", "20", "18", "done", "0", "bad feature value", *features]
+    )
+    response = _upload(client, "\n".join([CSV_HEADER, row]))
+    assert response.status_code == 200
+    body = response.json()
+    assert body["imported"] == 0
+    assert body["skipped"] == 1
+    assert "feat_third_party_api" in body["errors"][0]
+    assert all(
+        item["project_id"] != "P905" for item in client.get("/api/projects").json()
+    )
+
+
+def test_import_csv_unparseable_numbers_do_not_abort_the_import(client: TestClient) -> None:
+    """Bad numeric cells are reported per row (or stored as NULL), never a 422."""
+    # done row with an unparseable actual_days -> clean per-row skip.
+    bad_actual = _csv_row("P906", "2026-02-02", "abc", "18", "done", "bad actual")
+    response = _upload(client, "\n".join([CSV_HEADER, bad_actual]))
+    assert response.status_code == 200
+    body = response.json()
+    assert body["imported"] == 0 and body["skipped"] == 1
+    assert "actual_days" in body["errors"][0]
+
+    # non-finite actual_days (1e400 parses as inf) is skipped too.
+    inf_actual = _csv_row("P907", "2026-02-03", "1e400", "18", "done", "inf actual")
+    inf_body = _upload(client, "\n".join([CSV_HEADER, inf_actual])).json()
+    assert inf_body["imported"] == 0 and inf_body["skipped"] == 1
+
+    # unparseable team_estimate -> row imported with NULL team_estimate.
+    bad_team = _csv_row("P908", "2026-02-04", "20", "abc", "done", "bad team")
+    team_body = _upload(client, "\n".join([CSV_HEADER, bad_team])).json()
+    assert team_body["imported"] == 1
+    row = next(
+        item for item in client.get("/api/projects").json() if item["project_id"] == "P908"
+    )
+    assert row["team_estimate"] is None
+
+
+def test_import_csv_empty_cells_are_null_not_nan_strings(client: TestClient) -> None:
+    """Empty date/email cells must not become the literal string 'nan'."""
+    features = ",".join("0" for _ in FEATURES)
+    row = ",".join(["P909", "", "20", "18", "done", "0", "", features])
+    response = _upload(client, "\n".join([CSV_HEADER, row]))
+    assert response.status_code == 200
+    assert response.json()["imported"] == 1
+
+    imported = next(
+        item for item in client.get("/api/projects").json() if item["project_id"] == "P909"
+    )
+    assert imported["date"] is None
+    assert imported["summary"] == ""
 
 
 # --------------------------------------------------------------------------- #
@@ -979,3 +1067,35 @@ def test_estimate_repo_builds_demo_repos_on_demand(
     assert body["codebase"]["repo"] == "demo_b"
     assert (fresh / "payment_spaghetti").is_dir()
     assert body["codebase"]["similar_changes"]  # the built repo has matching history
+
+
+# --------------------------------------------------------------------------- #
+# Concurrency
+# --------------------------------------------------------------------------- #
+
+
+def test_parallel_persist_estimate_allocates_unique_ids(tmp_path: Path) -> None:
+    """Concurrent direct estimates must never collide on the P0nn id (500 race)."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    from app.api import state as state_mod
+    from app.db.database import init_db
+    from app.services.extraction import extract_features
+    from app.services.providers import StubProvider
+
+    db_path = tmp_path / "parallel.db"
+    init_db(db_path)
+    state = state_mod.AppState(db_path=db_path)
+    email_text = "Parallel persistence probe with payments and a mobile app."
+    extraction = extract_features(email_text, provider=StubProvider())
+    prediction = {"p10": 10.0, "p50": 20.0, "p90": 30.0}
+
+    def persist(_: int) -> str:
+        return state_mod.persist_estimate(state, email_text, extraction, prediction)
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        ids = list(pool.map(persist, range(8)))
+
+    assert len(ids) == len(set(ids)) == 8
+    assert sorted(ids) == [f"P{index:03d}" for index in range(1, 9)]
+    assert state.project_count() == 8
