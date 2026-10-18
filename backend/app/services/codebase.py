@@ -39,6 +39,7 @@ repository is never mutated.
 
 from __future__ import annotations
 
+import ast
 import calendar
 import json
 import math
@@ -334,6 +335,26 @@ def _python_module(rel_path: str) -> str:
     return module
 
 
+#: Directory names whose Python files are test scaffolding, not production code.
+TEST_DIR_NAMES = frozenset({"test", "tests", "testing"})
+#: Test module naming conventions (pytest/unittest).
+_TEST_FILE_RE = re.compile(r"^(?:test_.*|.*_test|conftest)\.py$", re.IGNORECASE)
+
+
+def is_test_file(rel_path: str) -> bool:
+    """Whether a repo-relative Python path is test scaffolding (documented rule).
+
+    True when any directory segment is ``test``/``tests``/``testing``, or the file
+    is named ``test_*.py`` / ``*_test.py`` / ``conftest.py``. Test code is long and
+    branchy by construction, so counting it in ``complexity`` inflated the score
+    (measured on real repos: 48/83 files in flask, 59/91 in click are tests).
+    """
+    parts = rel_path.replace("\\", "/").split("/")
+    if any(part.lower() in TEST_DIR_NAMES for part in parts[:-1]):
+        return True
+    return bool(_TEST_FILE_RE.match(parts[-1]))
+
+
 _IMPORT_RE = re.compile(r"^\s*import\s+([^\n#]+)", re.MULTILINE)
 _FROM_RE = re.compile(r"^\s*from\s+([.\w]+)\s+import\s+([^\n#]+)", re.MULTILINE)
 
@@ -357,11 +378,11 @@ def _import_names(raw: str) -> list[str]:
     return names
 
 
-def _module_refs(file_module: str, text: str) -> set[str]:
-    """Dotted module references made by one file (simple, documented regex scan).
+def _module_refs_regex(file_module: str, text: str) -> set[str]:
+    """Fallback: dotted module references from a text scan (regex, documented).
 
-    ``import a.b`` -> {a.b}; ``from a.b import c, d`` -> {a.b, a.b.c, a.b.d};
-    relative imports are anchored at the file's own package.
+    Used only when a file does not parse (Python 2 sources, syntax errors) so one
+    broken file cannot blank the signal.
     """
     refs: set[str] = set()
     for match in _IMPORT_RE.finditer(text):
@@ -384,6 +405,45 @@ def _module_refs(file_module: str, text: str) -> set[str]:
         for name in _import_names(match.group(2)):
             if base:
                 refs.add(f"{base}.{name}")
+    return refs
+
+
+def _module_refs(file_module: str, text: str) -> set[str]:
+    """Dotted module references made by one file, parsed with ``ast``.
+
+    The AST path is exact: a comment, a docstring or a string containing the word
+    "import" is never counted (the previous regex scan could be fooled by any of
+    them, inflating ``fan_in``). Same output shape as the fallback:
+
+    ``import a.b`` -> {a.b}; ``from a.b import c, d`` -> {a.b, a.b.c, a.b.d};
+    relative imports are anchored at the file's own package. A file that does not
+    parse falls back to :func:`_module_refs_regex`.
+    """
+    try:
+        tree = ast.parse(text)
+    except (SyntaxError, ValueError):
+        return _module_refs_regex(file_module, text)
+
+    package_parts = file_module.split(".")[:-1]
+    refs: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name:
+                    refs.add(alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            level = int(node.level or 0)
+            module = node.module or ""
+            if level:
+                anchor = package_parts[: max(0, len(package_parts) - (level - 1))]
+                base = ".".join(anchor + ([module] if module else []))
+            else:
+                base = module
+            if base:
+                refs.add(base)
+            for alias in node.names:
+                if base and alias.name and alias.name != "*":
+                    refs.add(f"{base}.{alias.name}")
     return refs
 
 
@@ -457,13 +517,23 @@ def _run_radon(repo: Path, files: Sequence[str]) -> dict[str, Any] | None:
 
 
 def _collect_complexity(repo: Path, py_files: Sequence[str]) -> dict[str, Any]:
-    """Per-file cyclomatic complexity aggregates from radon (batched for argv limits)."""
+    """Per-file cyclomatic complexity from radon (batched for argv limits).
+
+    Test scaffolding is **excluded** (``is_test_file``): test code is long and
+    branchy by construction, so counting it inflated friction on real repos
+    (48/83 files in flask, 59/91 in click are tests). ``test_files_excluded``
+    reports how many were skipped.
+    """
+    production = [rel for rel in py_files if not is_test_file(rel)]
+    test_files_excluded = len(py_files) - len(production)
     per_file: dict[str, dict[str, float]] = {}
     scored_ok = True
     batch_size = 200
-    for start in range(0, len(py_files), batch_size):
+    for start in range(0, len(production), batch_size):
         batch = [
-            rel for rel in py_files[start : start + batch_size] if (repo / rel).is_file()
+            rel
+            for rel in production[start : start + batch_size]
+            if (repo / rel).is_file()
         ]
         if not batch:
             continue
@@ -491,6 +561,7 @@ def _collect_complexity(repo: Path, py_files: Sequence[str]) -> dict[str, Any]:
             "max_complexity": 0,
             "mean_complexity": None,
             "high_complexity_files": 0,
+            "test_files_excluded": test_files_excluded,
         }
     file_maxes = [entry["max"] for entry in per_file.values()]
     return {
@@ -500,15 +571,50 @@ def _collect_complexity(repo: Path, py_files: Sequence[str]) -> dict[str, Any]:
         "max_complexity": int(max(file_maxes)) if file_maxes else 0,
         "mean_complexity": round(statistics.fmean(file_maxes), 2) if file_maxes else None,
         "high_complexity_files": sum(1 for value in file_maxes if value >= 10),
+        "test_files_excluded": test_files_excluded,
         "per_file": per_file,
     }
 
 
+#: Directories never searched for a coverage report.
+_COVERAGE_SKIP_DIRS = frozenset(
+    {
+        ".git", "node_modules", ".venv", "venv", "__pycache__", ".tox",
+        "build", "dist", ".mypy_cache", ".pytest_cache",
+    }
+)
+
+
+def _find_coverage_xml(repo: Path) -> Path | None:
+    """Locate a coverage report: the repo root first, then subdirectories.
+
+    Many projects write it below the root (``reports/coverage.xml``,
+    ``htmlcov/coverage.xml``); looking only at the root reported "unknown" for
+    those. Deterministic: the shallowest, then lexicographically first match, and
+    the walk is capped so a huge tree can never dominate the request.
+    """
+    root_candidate = repo / "coverage.xml"
+    if root_candidate.is_file():
+        return root_candidate
+    candidates: list[Path] = []
+    for path in repo.rglob("coverage.xml"):
+        parts = path.relative_to(repo).parts
+        if any(part in _COVERAGE_SKIP_DIRS for part in parts[:-1]):
+            continue
+        candidates.append(path)
+        if len(candidates) >= 50:
+            break
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: (len(item.relative_to(repo).parts), str(item)))
+    return candidates[0]
+
+
 def _collect_coverage(repo: Path) -> dict[str, Any]:
-    """Parse ``coverage.xml`` at the repo root; ``"unknown"`` when it is missing."""
-    path = repo / "coverage.xml"
+    """Parse ``coverage.xml`` (root or subdirectory); ``"unknown"`` when missing."""
+    path = _find_coverage_xml(repo)
     unknown: dict[str, Any] = {"status": "unknown", "line_rate": None, "per_file": {}}
-    if not path.is_file():
+    if path is None:
         return unknown
     try:
         root = ET.parse(path).getroot()
@@ -530,7 +636,14 @@ def _collect_coverage(repo: Path) -> dict[str, Any]:
                 per_file[filename] = round(min(1.0, max(0.0, float(raw))), 4)
             except ValueError:
                 continue
-    return {"status": "found", "line_rate": line_rate, "per_file": per_file}
+    return {
+        "status": "found",
+        "line_rate": line_rate,
+        "per_file": per_file,
+        # POSIX separators: every repo-relative path in the API uses "/" (the
+        # Windows separator would leak into the contract otherwise).
+        "path": path.relative_to(repo).as_posix(),
+    }
 
 
 def _percentile(values: Sequence[int], q: float) -> int:
@@ -571,8 +684,9 @@ def collect_signals(repo_path: str | Path, at_date: str | None = None) -> dict[s
     * ``fan_in``: regex import scan over git-tracked ``*.py`` files -- how many
       files import each module;
     * ``complexity``: ``radon cc -j`` cyclomatic complexity, per-file max/mean;
-    * ``coverage``: ``coverage.xml`` ``line-rate`` at the repo root, or
-      ``"unknown"`` when no report exists (never faked);
+    * ``coverage``: a ``coverage.xml`` ``line-rate`` (repo root, else the
+      shallowest subdirectory), or ``"unknown"`` when no report exists (never
+      faked);
     * ``authors``: distinct authors + commit-weighted concentration;
     * ``hot_files``: top ``TOP_HOT_FILES`` files by churn, with all of the above
       joined per file.
@@ -644,7 +758,11 @@ def collect_signals(repo_path: str | Path, at_date: str | None = None) -> dict[s
             "files_with_fan_in": sum(1 for value in fan_in.values() if value > 0),
         },
         "complexity": complexity,
-        "coverage": {"status": coverage["status"], "line_rate": coverage["line_rate"]},
+        "coverage": {
+            "status": coverage["status"],
+            "line_rate": coverage["line_rate"],
+            "path": coverage.get("path"),
+        },
         "authors": {
             "distinct_authors": len(all_authors),
             "max_file_authors": max(author_counts) if author_counts else 0,

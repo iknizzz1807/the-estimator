@@ -20,12 +20,14 @@ from pathlib import Path
 import pytest
 
 from app.services.codebase import (
+    _module_refs,
     apply_friction,
     collect_signals,
     compute_friction,
     detect_primary_language,
     estimate_invasiveness,
     find_similar_changes,
+    is_test_file,
 )
 from scripts.build_demo_repos import ALICE, BOB, _commit, _init_repo, _write, build_demo_repos
 
@@ -227,6 +229,91 @@ def test_detect_primary_language_gates_non_python(tmp_path: Path) -> None:
     assert info["languages"]["C"] == 5
 
 
+def test_module_refs_is_exact_not_a_text_scan() -> None:
+    """The AST scan ignores 'import' in comments/strings and reads multi-line imports.
+
+    The previous regex scan counted a comment or a string containing the word
+    "import" (measured: 22 phantom refs in flask) and missed multi-line
+    parenthesised imports entirely (measured: 7,733 missed refs in
+    stripe-python).
+    """
+    text = (
+        "# import os  <- a comment, not a reference\n"
+        'BANNER = "import sys"\n'
+        "import json\n"
+        "from app import (\n    models,\n    views,\n)\n"
+    )
+    refs = _module_refs("pkg.mod", text)
+    assert refs == {"json", "app", "app.models", "app.views"}
+
+
+def test_module_refs_relative_imports_anchor_at_the_package() -> None:
+    refs = _module_refs("pkg.sub.mod", "from .sibling import thing\nfrom .. import other\n")
+    assert "pkg.sub.sibling" in refs
+    assert "pkg.sub.sibling.thing" in refs
+    assert "pkg.other" in refs
+
+
+def test_module_refs_falls_back_when_the_file_does_not_parse() -> None:
+    """One unparseable file must not blank the signal (regex fallback)."""
+    broken = "import os\nthis is not python(\n"
+    refs = _module_refs("mod", broken)
+    assert "os" in refs  # the fallback still finds the real import
+
+
+def test_is_test_file_conventions() -> None:
+    assert is_test_file("tests/test_api.py")
+    assert is_test_file("app/tests/helpers.py")
+    assert is_test_file("testing/fixtures.py")
+    assert is_test_file("test_models.py")
+    assert is_test_file("models_test.py")
+    assert is_test_file("pkg/conftest.py")
+    assert not is_test_file("app/models.py")
+    assert not is_test_file("contest.py")  # not a test naming convention
+
+
+def test_complexity_excludes_test_files(tmp_path: Path) -> None:
+    """Test scaffolding is long and branchy by construction; it must not count."""
+    repo = tmp_path / "prodmix"
+    _init_repo(repo)
+    _write(repo, "app/main.py", "def run(x):\n    if x:\n        return 1\n    return 0\n")
+    _write(
+        repo,
+        "tests/test_main.py",
+        "def test_a():\n    for i in range(3):\n        if i:\n            assert i\n",
+    )
+    _commit(repo, "2026-01-05", ALICE, "prod + tests")
+
+    signals = collect_signals(repo, "2026-06-01")
+    assert signals["complexity"]["test_files_excluded"] == 1
+    assert signals["complexity"]["files_scored"] == 1
+    # per_file is popped by collect_signals; hot_files carries the per-file view
+    hot = {entry["path"]: entry for entry in signals["hot_files"]}
+    if "tests/test_main.py" in hot:
+        assert hot["tests/test_main.py"]["complexity_max"] is None
+
+
+def test_coverage_is_found_in_a_subdirectory(tmp_path: Path) -> None:
+    """Reports below the repo root must not be reported as 'unknown'."""
+    repo = tmp_path / "cov"
+    _init_repo(repo)
+    _write(repo, "app/main.py", "VALUE = 1\n")
+    _write(
+        repo,
+        "reports/coverage.xml",
+        '<?xml version="1.0" ?><coverage line-rate="0.8"><packages>'
+        '<package><classes><class filename="app/main.py" line-rate="0.75"/>'
+        "</classes></package></packages></coverage>",
+    )
+    _commit(repo, "2026-01-05", ALICE, "with a coverage report")
+
+    signals = collect_signals(repo, "2026-06-01")
+    assert signals["coverage"]["status"] == "found"
+    assert signals["coverage"]["line_rate"] == pytest.approx(0.8)
+    assert signals["coverage"]["path"] == "reports/coverage.xml"
+    assert compute_friction(signals)["components"]["coverage_gap"] == pytest.approx(0.2)
+
+
 def test_complexity_and_coverage_signals(demo: dict[str, Path]) -> None:
     clean = collect_signals(demo["payment_plugin"], DEMO_AT)
     messy = collect_signals(demo["payment_spaghetti"], DEMO_AT)
@@ -242,7 +329,9 @@ def test_complexity_and_coverage_signals(demo: dict[str, Path]) -> None:
     assert clean["coverage"]["status"] == "found"
     assert clean["coverage"]["line_rate"] == pytest.approx(0.94)
     assert _hot(clean)["payments/registry.py"]["coverage_line_rate"] == pytest.approx(0.95)
-    assert messy["coverage"] == {"status": "unknown", "line_rate": None}
+    assert messy["coverage"]["status"] == "unknown"
+    assert messy["coverage"]["line_rate"] is None
+    assert messy["coverage"]["path"] is None
 
 
 # --------------------------------------------------------------------------- #
