@@ -33,6 +33,8 @@ Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contra
   - `894ff5d` — D29: feature overrides + "show all lower-impact unknowns"
   - `c69d8d7` / `2edffcb` — *user's parallel session* (README.md)
   - `69415d9` — check_math.py helper (README `$$` block sanity check)
+  - `339d19c` — stale-number sweep (242 tests, 16 docs, 29,059 targets, layout, 96% wording)
+  - `cf04a3f` — D30: README rewrite (498 → 222 lines, proof-first) + LICENSE (MIT); D30 documents the 13 corrected claims
 - The user runs **parallel sessions** (separate UI commits land mid-session). Pull before editing; **never `git add -A`** — commit only your own paths.
 - Commit convention: ASCII messages, scoped prefixes (`feat(api):`, `fix(frontend):`, `docs:`, `chore(deploy):`).
 

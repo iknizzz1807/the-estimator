@@ -194,6 +194,17 @@ Two UI additions requested after the live review. Both are **frontend-only**: `_
 - **Verified**: frontend build clean, `/estimate` 29.9 kB, the new copy is present in the shipped bundle, `/estimate` serves 200; backend suite unchanged at **242 passed**.
 - **Deliberately not done**: caching the extraction. Every answer click still re-runs the LLM extraction (~2–3 s and one API call) because the refinement request re-sends `email_text`. It is a performance nicety, not a correctness issue — documented here so the next agent does not mistake it for a bug.
 
+## D30 — README rewrite for judge readability + fact-check sweep (2026-10-18)
+
+The README had grown to ~500 lines and was judged too long-winded for a time-starved judge. Before rewriting, every quantitative claim in it was audited against committed artifacts (135 claims: **117 OK / 13 mismatch / 5 no-source**), which surfaced real errors in the old text.
+
+- **Rewrite**: 498 → **222 lines**, proof-first structure (hook → measured-proof table → 6-step flow → Codebase Lab → key decisions → quickstart → honest limits), depth moved into 4 `<details>` collapsibles (feature taxonomy, architecture, repo layout, full negative-result detail). No new claims; every number kept is artifact-backed.
+- **Corrected** (the old README was wrong): friction weights are `0.30/0.15/0.30/0.10/0.15` (not `0.25/0.20/0.25/0.15/0.15`), `CHURN_SATURATION_COMMITS = 20` (not 200), the P10 surcharge is `×(1 − 0.30·F)` with floor 0.55 (the old `+` sign would *narrow* the interval), Monte Carlo is **n=2,000** (not 200), evidence threshold is **85%** (not 80%), production similar-changes = keyword match on touched paths (Jaccard belongs only to the offline validation), "**28** written decisions (D1–D29; D19 reserved)" (not 29), DeepSeek extraction = **236/240** scored (4 skipped), PR median lead time 0.30–0.64 ngày.
+- **Removed** (no artifact): the P228 "207 person-days" anecdote (the data says 97; 258.12 is the pooled MAE), "100% RFP thiếu info", "40 câu hỏi", the "20–40 ngày" VoI range.
+- Added **`LICENSE` (MIT)** — the badge previously linked to a 404.
+- Rule unchanged: numbers in README must match `docs/*.md` artifacts (D14/D16); this entry is the paper trail for the corrections.
+
+
 
 
 
