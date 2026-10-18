@@ -854,6 +854,7 @@ def test_reset_restores_pristine_demo_db(client: TestClient) -> None:
 #: Exact contract keys of the `codebase` block (docs/API.md v0.2).
 CODEBASE_CONTRACT_KEYS = {
     "repo",
+    "language",
     "friction",
     "invasiveness",
     "similar_changes",
@@ -1138,10 +1139,15 @@ def test_delta_pct_null_without_actual(client: TestClient) -> None:
     assert all(row["delta_pct"] is None for row in pending)
 
 
-def test_broken_demo_repo_returns_clean_error(
+def test_broken_demo_repo_degrades_gracefully(
     client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """A demo-repo directory without .git must produce a clean error, not a bare 500."""
+    """A demo-repo directory without .git must not kill the estimate.
+
+    The estimate does not depend on the repository, so the response stays 200:
+    no ``codebase`` block and a ``codebase_error`` explaining what happened
+    (DECISIONS D20 — a codebase problem is never fatal).
+    """
     broken_root = tmp_path / "broken_demo_repos"
     (broken_root / "payment_plugin").mkdir(parents=True)  # exists but is not a git repo
     monkeypatch.setenv("ESTIMATOR_DEMO_REPOS_DIR", str(broken_root))
@@ -1149,8 +1155,214 @@ def test_broken_demo_repo_returns_clean_error(
     response = client.post(
         "/api/estimate", json={"email_text": get_scenario("A")["email_text"], "repo": "demo_a"}
     )
-    assert response.status_code == 500
-    assert "git repository" in response.json()["detail"]
+    assert response.status_code == 200
+    body = response.json()
+    assert "codebase" not in body
+    assert "git repository" in body["codebase_error"]
+    assert body["estimate"]["p50"] > 0  # the estimate itself still works
+
+
+def test_repo_selector_accepts_public_github_forms() -> None:
+    from app.api import state as state_mod
+
+    for raw in (
+        "https://github.com/pallets/flask",
+        "https://github.com/pallets/flask.git",
+        "https://github.com/pallets/flask/",
+        "github.com/pallets/flask",
+        "pallets/flask",
+        "Pallets/Flask",
+    ):
+        assert state_mod.normalize_repo_selector(raw) == "gh:pallets/flask"
+    # built-in choices pass through unchanged
+    for raw in ("demo_a", "demo_b", "self"):
+        assert state_mod.normalize_repo_selector(raw) == raw
+
+
+def test_repo_selector_rejects_non_github_targets() -> None:
+    """SSRF guard: only github.com/<owner>/<repo> is ever accepted."""
+    from app.api import state as state_mod
+
+    for raw in (
+        "http://github.com/pallets/flask",          # plain http
+        "https://evil.com/pallets/flask",           # other host
+        "https://github.com.evil.com/a/b",          # suffix trick
+        "https://user:pw@github.com/a/b",           # userinfo
+        "https://github.com:8443/a/b",              # port
+        "https://github.com/a/b?x=1",               # query
+        "https://github.com/a/b#frag",              # fragment
+        "file:///etc/passwd",
+        "http://169.254.169.254/latest/meta-data/",  # cloud metadata
+        "http://localhost:8000/a/b",
+        "ssh://git@github.com/a/b",
+        "https://github.com/a",                     # missing repo
+        "a/b/c",
+    ):
+        with pytest.raises(ValueError):
+            state_mod.normalize_repo_selector(raw)
+
+
+def test_estimate_rejects_invalid_repo_selector(client: TestClient) -> None:
+    response = client.post(
+        "/api/estimate",
+        json={"email_text": get_scenario("A")["email_text"], "repo": "https://evil.com/a/b"},
+    )
+    assert response.status_code == 422
+    assert "repo không hợp lệ" in response.json()["detail"]
+
+
+def test_repo_selector_accepts_example_ids() -> None:
+    from app.api import state as state_mod
+
+    for example_id in state_mod.CODEBASE_EXAMPLE_REPOS:
+        assert state_mod.normalize_repo_selector(example_id) == example_id
+    with pytest.raises(ValueError):
+        state_mod.normalize_repo_selector("ex_not_a_real_example")
+
+
+def test_available_examples_lists_only_fetched_repos(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The UI must offer only examples that are actually on disk (build-time fetch)."""
+    from app.api import state as state_mod
+
+    root = tmp_path / "example_repos"
+    monkeypatch.setenv(state_mod.CODEBASE_EXAMPLE_REPOS_DIR_ENV, str(root))
+    assert state_mod.available_examples() == []
+
+    (root / "pallets__flask" / ".git").mkdir(parents=True)
+    (root / state_mod.CODEBASE_EXAMPLE_MANIFEST).write_text(
+        '{"ex_flask": {"pinned_date": "2026-10-07"}}', encoding="utf-8"
+    )
+    available = state_mod.available_examples()
+    assert [item["id"] for item in available] == ["ex_flask"]
+    assert available[0]["label"] == "Flask"
+    assert available[0]["lang"] == "Python"
+    assert available[0]["pinned_date"] == "2026-10-07"
+    assert state_mod.example_pinned_date("ex_flask") == "2026-10-07"
+
+
+def test_missing_example_repo_degrades_gracefully(
+    client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An unfetched example must not kill the estimate (D20/D23)."""
+    from app.api import state as state_mod
+
+    monkeypatch.setenv(state_mod.CODEBASE_EXAMPLE_REPOS_DIR_ENV, str(tmp_path / "empty"))
+    response = client.post(
+        "/api/estimate",
+        json={"email_text": get_scenario("A")["email_text"], "repo": "ex_flask"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert "codebase" not in body
+    assert "chưa được tải" in body["codebase_error"]
+    assert body["estimate"]["p50"] > 0
+
+
+def test_non_python_repo_is_refused_cleanly(
+    client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Codebase Lab is Python-only: a C repo is refused, not mis-scored (D24).
+
+    Before this gate, cJSON (2 stray .py test scripts out of 229 files) reported
+    ``complexity`` 0.75 as if it described the whole repository.
+    """
+    from scripts.build_demo_repos import ALICE, _commit, _init_repo, _write
+
+    root = tmp_path / "c_demo_repos"
+    repo = root / "payment_plugin"
+    _init_repo(repo)
+    for i in range(5):
+        _write(repo, f"src/f{i}.c", "int f(void){return 0;}\n")
+    _write(repo, "tests/helper.py", "print('x')\n")  # stray Python must not win
+    _commit(repo, "2026-01-05", ALICE, "c library")
+    monkeypatch.setenv("ESTIMATOR_DEMO_REPOS_DIR", str(root))
+
+    response = client.post(
+        "/api/estimate", json={"email_text": get_scenario("A")["email_text"], "repo": "demo_a"}
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert "codebase" not in body
+    assert "chỉ phân tích repo Python" in body["codebase_error"]
+    assert "C" in body["codebase_error"]
+    assert body["estimate"]["p50"] > 0
+
+
+def test_codebase_block_reports_language(
+    client: TestClient, demo_repos_env: Path
+) -> None:
+    """The block says which language was analysed (Python-only scope, D24)."""
+    response = client.post(
+        "/api/estimate",
+        json={"email_text": get_scenario("A")["email_text"], "repo": "demo_a"},
+    )
+    language = response.json()["codebase"]["language"]
+    assert language["dominant"] == "Python"
+    assert language["python_files"] > 0
+    assert language["python_share"] == pytest.approx(1.0)
+
+
+def test_health_reports_codebase_capabilities(client: TestClient) -> None:
+    """The UI hides options the deployment cannot serve (D17: no .git in cloud)."""
+    body = client.get("/api/health").json()
+    assert body["codebase"]["choices"] == ["demo_a", "demo_b", "self"]
+    assert body["codebase"]["self_available"] is True  # a full checkout in tests
+    assert body["codebase"]["url_clone"] is True
+    # Example list depends on whether the image was built with the fetch step,
+    # so only its shape is contractual — never a count.
+    assert isinstance(body["codebase"]["examples"], list)
+
+
+def test_public_repo_clone_is_full_and_hardened(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The clone must be FULL (numstat needs blobs) and hardened, and cached.
+
+    A blobless clone makes ``git log --raw --numstat`` re-fetch every commit over
+    the network (measured 221 s vs ~1 s); the hardening flags stop a public,
+    unauthenticated endpoint from hanging on credentials or following redirects.
+    """
+    from app.api import state as state_mod
+
+    cache = tmp_path / "repo_cache"
+    monkeypatch.setenv(state_mod.CODEBASE_REPO_CACHE_DIR_ENV, str(cache))
+
+    calls: list[list[str]] = []
+    envs: list[dict[str, str]] = []
+
+    class _Proc:
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    def fake_run(cmd, **kwargs):  # noqa: ANN001, ANN202
+        calls.append(list(cmd))
+        envs.append(dict(kwargs.get("env") or {}))
+        target = Path(cmd[-1])
+        (target / ".git").mkdir(parents=True, exist_ok=True)
+        return _Proc()
+
+    monkeypatch.setattr(state_mod.subprocess, "run", fake_run)
+    path = state_mod.clone_github_repo("pallets", "flask")
+
+    assert len(calls) == 1
+    cmd = calls[0]
+    assert cmd[0] == "git"
+    assert "--filter=blob:none" not in cmd  # full clone: numstat needs blobs
+    assert "--single-branch" in cmd
+    assert "--no-recurse-submodules" in cmd
+    assert "http.followRedirects=false" in cmd
+    assert "https://github.com/pallets/flask.git" in cmd
+    assert envs[0]["GIT_TERMINAL_PROMPT"] == "0"  # never hang on credentials
+    assert envs[0]["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert (path / state_mod.CODEBASE_CLONE_FORMAT_MARKER).exists()
+
+    # a second call reuses the cached clone (no new git process)
+    again = state_mod.clone_github_repo("pallets", "flask")
+    assert again == path
+    assert len(calls) == 1
 
 
 def test_demo_repo_analysis_uses_pinned_reference_date(

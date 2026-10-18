@@ -86,6 +86,7 @@ export default function EstimatePage() {
   const [generatedAt, setGeneratedAt] = useState("");
   // Codebase Lab (contract v0.2): repository context for the next run.
   const [repo, setRepo] = useState<RepoChoice | null>(null);
+  const [repoUrl, setRepoUrl] = useState("");
   const abortRef = useRef<AbortController | null>(null);
 
   // Interactive answers (contract v0.2): derived estimate + original result.
@@ -100,6 +101,14 @@ export default function EstimatePage() {
 
   const health = useAsyncData(() => api.health());
   const scenarios = useAsyncData(() => api.scenarios());
+
+  // Hide options this host cannot serve: cloud builds ship no .git, so
+  // "This project" would only ever fail there (DECISIONS D17/D20).
+  const repoOptions = REPO_OPTIONS.filter(
+    (option) => option.value !== "self" || (health.data?.codebase?.self_available ?? true),
+  );
+  // Pre-cloned example repos: one click, instant result, no URL to paste.
+  const examples = health.data?.codebase?.examples ?? [];
 
   // Landing-page handoff (scenario loaded → populated view) + cold-start link.
   useEffect(() => {
@@ -442,7 +451,7 @@ export default function EstimatePage() {
               role="radiogroup"
               aria-label="Codebase context repository"
             >
-              {REPO_OPTIONS.map((option) => {
+              {repoOptions.map((option) => {
                 const active = repo === option.value;
                 return (
                   <button
@@ -462,9 +471,73 @@ export default function EstimatePage() {
                 );
               })}
             </div>
+            {examples.length > 0 && (
+              <div
+                className="flex flex-wrap items-center gap-1.5"
+                aria-label="Example repositories (pre-cloned)"
+              >
+                <span className="text-[10px] uppercase tracking-[0.08em] text-[var(--dim)]">
+                  Examples
+                </span>
+                {examples.map((example) => (
+                  <button
+                    key={example.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={repo === example.id}
+                    title={`${example.repo} — ${example.kind} (${example.lang})${
+                      example.pinned_date ? ` · snapshot ${example.pinned_date}` : ""
+                    }`}
+                    disabled={running}
+                    onClick={() => setRepo(example.id)}
+                    className={`chip cursor-pointer disabled:cursor-not-allowed disabled:opacity-45 ${
+                      repo === example.id ? "chip-info" : ""
+                    }`}
+                  >
+                    {example.label}
+                    <span className="ml-1 text-[10px] text-[var(--faint)]">{example.lang}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {health.data?.codebase?.url_clone !== false && (
+              <form
+                className="flex items-center gap-1.5"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const value = repoUrl.trim();
+                  if (!value) return;
+                  setRepo(value);
+                  setRepoUrl("");
+                }}
+              >
+                <input
+                  type="text"
+                  value={repoUrl}
+                  onChange={(event) => setRepoUrl(event.target.value)}
+                  placeholder="or paste a public repo: github.com/owner/repo"
+                  aria-label="Paste a public GitHub repository URL"
+                  disabled={running}
+                  className="input h-7 w-[300px] text-[11px]"
+                />
+                <button
+                  type="submit"
+                  className="chip cursor-pointer disabled:cursor-not-allowed disabled:opacity-45"
+                  disabled={running || !repoUrl.trim()}
+                >
+                  Use repo
+                </button>
+              </form>
+            )}
             {repo && (
               <span className="text-[11px] text-[var(--faint)]">
-                {REPO_OPTIONS.find((option) => option.value === repo)?.hint}
+                {repoOptions.find((option) => option.value === repo)?.hint ??
+                  (() => {
+                    const example = examples.find((item) => item.id === repo);
+                    return example
+                      ? `${example.repo} — ${example.kind} (${example.lang})`
+                      : `pasted repo: ${repo}`;
+                  })()}
               </span>
             )}
             {estimate && !running && (estimate.codebase?.repo ?? null) !== repo && (
@@ -585,6 +658,16 @@ export default function EstimatePage() {
                   <span className="text-xs">{warning}</span>
                 </div>
               ))}
+            </div>
+          )}
+
+          {estimate.codebase_error && (
+            <div className="banner banner-amber" role="status">
+              <span aria-hidden>ℹ</span>
+              <span className="text-xs">
+                Codebase Lab could not analyse that repository — the estimate above is
+                unaffected (the numbers do not depend on it). {estimate.codebase_error}
+              </span>
             </div>
           )}
 

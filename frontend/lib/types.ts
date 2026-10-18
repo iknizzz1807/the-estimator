@@ -18,6 +18,23 @@ export interface Health {
   model_loaded: boolean;
   llm_provider: string; // "stub" | "gemini" | "openai" | ...
   projects_count: number;
+  /** Codebase Lab capabilities: the UI must not offer what the host cannot serve. */
+  codebase?: {
+    choices: string[];
+    /** False in cloud builds (no .git in the image — DECISIONS D17). */
+    self_available: boolean;
+    /** True when pasted public GitHub URLs may be cloned (guarded). */
+    url_clone: boolean;
+    /** Pre-cloned example repos present on this host (click = instant result). */
+    examples?: Array<{
+      id: string;
+      repo: string;
+      label: string;
+      lang: string;
+      kind: string;
+      pinned_date?: string;
+    }>;
+  };
 }
 
 export interface Finding {
@@ -69,12 +86,23 @@ export interface EstimateResponse {
   warnings: string[];
   /** Codebase Lab block (contract v0.2); present only when `repo` was sent. */
   codebase?: CodebaseBlock;
+  /**
+   * Set instead of `codebase` when the repository could not be analysed (missing
+   * .git, clone failed, too large). The estimate itself is unaffected — a
+   * codebase problem is never fatal (DECISIONS D20).
+   */
+  codebase_error?: string;
 }
 
 /* ---------------------- Codebase Lab (contract v0.2) ---------------------- */
 
-/** Repository selector for POST /api/estimate (`repo` body field). */
-export type RepoChoice = "demo_a" | "demo_b" | "self";
+/**
+ * Repository selector for POST /api/estimate (`repo` body field): a built-in id
+ * ("demo_a" | "demo_b" | "self") or a pasted public repo — a GitHub URL
+ * (`https://github.com/<owner>/<repo>`) or the `<owner>/<repo>` shorthand.
+ * The server canonicalises and validates it (only github.com is accepted).
+ */
+export type RepoChoice = string;
 
 export type FrictionLevel = "low" | "medium" | "high" | (string & {});
 
@@ -109,6 +137,13 @@ export interface CodebaseAdjustment {
 
 export interface CodebaseBlock {
   repo: string;
+  /** Which language was analysed. Codebase Lab is Python-only (D24). */
+  language?: {
+    dominant: string;
+    python_files: number;
+    source_files: number;
+    python_share: number;
+  };
   friction: CodebaseFriction;
   /** null when no similar past changes matched — no evidence, no median shift. */
   invasiveness: CodebaseInvasiveness | null;

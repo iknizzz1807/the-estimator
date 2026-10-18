@@ -203,6 +203,7 @@ Body may include `"repo": "demo_a" | "demo_b" | "self"` — the two built-in dem
 ```json
 { "codebase": {
     "repo": "demo_b",
+    "language": { "dominant": "Python", "python_files": 8, "source_files": 8, "python_share": 1.0 },
     "friction": { "score": 0.3958, "level": "medium", "components": { "churn": 0.0, "fan_in": 0.875, "complexity": 0.75, "coverage_gap": null, "author_concentration": 0.0 } },
     "invasiveness": { "modified_ratio": 0.8571, "mean_files_touched": 5.44, "based_on_commits": 9 },
     "similar_changes": [ { "commit": "e1d1767", "date": "2026-03-10", "files_touched": 6, "new_files": 0, "modified_files": 6 } ],
@@ -217,6 +218,66 @@ Body may include `"repo": "demo_a" | "demo_b" | "self"` — the two built-in dem
 
 - Keywords for `find_similar_changes` are derived from the extracted features (documented mapping in the API layer).
 - Unknown `repo` value → 422; `repo` absent → response unchanged (backward compatible). Persistence rule unchanged.
+- **Python-only scope (DECISIONS D24)**: `fan_in` (import scan) and `complexity` (radon) are Python signals, so a repository whose primary source language is not Python is **refused** rather than mis-scored — the estimate still returns 200 with a `codebase_error` explaining it (e.g. *"repo này chủ yếu là C: 2/117 file nguồn là .py"*). Multi-language support is a stated later feature. The `language` field in the block always shows the analysed scope.
+
+### POST /api/estimate — pasted public repo URL (contract addition)
+
+`repo` also accepts a **public GitHub repository** instead of the built-in ids:
+
+```
+"repo": "https://github.com/pallets/flask"     # or the shorthand "pallets/flask"
+```
+
+The server canonicalises it to `gh:<owner>/<repo>`, clones it once into a cache
+(`data/repo_cache/`, gitignored) and analyses it like any other repo. Response
+shape is unchanged (`codebase.repo` is the canonical id).
+
+**Acceptance is deliberately narrow (security).** Only `github.com/<owner>/<repo>`
+is accepted — optionally with the `https://` scheme, a trailing `.git` or `/`.
+Any other host, scheme, port, userinfo, query or fragment → **422** (this is what
+keeps a public, unauthenticated endpoint from becoming an SSRF proxy). The clone
+itself is hardened: `GIT_TERMINAL_PROMPT=0` (never hang on credentials),
+`http.followRedirects=false`, `--no-recurse-submodules`, `--single-branch`, a
+wall-clock timeout (180 s), a post-clone size cap (300 MB) and an LRU cap on the
+cache (6 repos). **A full clone is required, not `--filter=blob:none`**:
+`find_similar_changes` runs `git log --raw --numstat`, and numstat needs blob
+contents, so a blobless clone re-fetches every commit over the network
+(measured: 221 s for a 2.3k-commit repo vs ~1 s for a full clone).
+
+### `codebase_error` — a repository problem is never fatal
+
+When the repository cannot be analysed (missing `.git`, clone failed, too large),
+the response is still **200**: the estimate is returned unchanged, `codebase` is
+absent and the payload carries
+
+```json
+{ "codebase_error": "Repo 'self' không phải là git repository (thiếu .git) — ..." }
+```
+
+The estimate does not depend on the repository, so a codebase failure must never
+cost the user their numbers (DECISIONS D20).
+
+### GET /api/health — Codebase Lab capabilities
+
+Adds a non-contract extra so the UI never offers an option the host cannot serve
+(cloud images ship no `.git` — DECISIONS D17; examples are only listed when the
+build-time fetch succeeded — D23):
+
+```json
+{ "codebase": {
+    "choices": ["demo_a", "demo_b", "self"],
+    "self_available": true,
+    "url_clone": true,
+    "examples": [
+      { "id": "ex_flask", "repo": "pallets/flask", "label": "Flask",
+        "lang": "Python", "kind": "web framework", "pinned_date": "2026-10-07" }
+    ] } }
+```
+
+`codebase.examples` entries are pre-cloned public repos; sending one as `repo`
+(`"repo": "ex_flask"`) returns an instant result — no clone at request time and
+no URL to paste. They are analysed by the same live path as a pasted repo, and
+the analysis is pinned to `pinned_date` so friction never drifts.
 
 ### POST /api/ab — third baseline (LLM with history)
 

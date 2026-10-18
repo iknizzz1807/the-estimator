@@ -5,7 +5,7 @@
 > **Hackathon submission** — *Agent in the Shell* (Anduin Cybernetics) · Challenge #2: The Estimator.
 > Demo data is **synthetic** (with drift, interactions and outliers) and estimates are always a **range**, not a promise. See [Honest limitations](#honest-limitations).
 
-**Docs:** [business spec](docs/SPEC.md) · [API contract](docs/API.md) · [decision log](docs/DECISIONS.md) · [data generation](docs/DATA_GENERATION.md) · [measured A/B](docs/AB_MEASUREMENT.md) · [extraction quality](docs/EXTRACTION_EVAL.md) · [TAWOS cross-check](docs/TAWOS_VALIDATION.md) · [Itemlet check](docs/ITEMLET_VALIDATION.md) · [codebase mechanism ✓](docs/CODEBASE_HISTORY_VALIDATION.md) · [codebase text-prediction ✗](docs/CODEBASE_VALIDATION.md) · [LLM→classifier](docs/DISTILLATION_EXPERIMENT.md)
+**Docs:** [business spec](docs/SPEC.md) · [API contract](docs/API.md) · [decision log](docs/DECISIONS.md) · [data generation](docs/DATA_GENERATION.md) · [measured A/B](docs/AB_MEASUREMENT.md) · [extraction quality](docs/EXTRACTION_EVAL.md) · [TAWOS cross-check](docs/TAWOS_VALIDATION.md) · [Itemlet check](docs/ITEMLET_VALIDATION.md) · [codebase mechanism ✓](docs/CODEBASE_HISTORY_VALIDATION.md) · [codebase text-prediction ✗](docs/CODEBASE_VALIDATION.md) · [surcharge calibration](docs/SURCHARGE_CALIBRATION.md) · [LLM→classifier](docs/DISTILLATION_EXPERIMENT.md)
 
 ## Tóm tắt tiếng Việt
 
@@ -90,8 +90,10 @@ What is validated (and what is not):
 
 - **YES — the mechanism**: "similar past changes predict the next change's size" beats the repo-median baseline on **29,058 real commits** (sympy/pytest/requests/flask): −2.8% MAE, 95% CI excludes 0, Spearman 0.323 vs 0.034; oracle upper bound 0.881. [docs/CODEBASE_HISTORY_VALIDATION.md](docs/CODEBASE_HISTORY_VALIDATION.md)
 - **NO — text prediction**: predicting a patch's invasiveness from issue text (± codebase signals) did not improve on SWE-bench, even on the 571-instance multi-file subset — so this module is a **risk explanation, not an accuracy claim**. [docs/CODEBASE_VALIDATION.md](docs/CODEBASE_VALIDATION.md)
+- **One click, real repos**: five real **Python** repositories (Flask, Click, Requests, Stripe SDK, SMART-on-FHIR) are pre-cloned at image build and offered as chips — click and get a result **instantly**, no URL to paste (the two demo repos are synthetic; these are real). They run the same live analysis as a pasted repo.
+- **Paste a repo**: the selector also accepts a **public GitHub URL** (`https://github.com/<owner>/<repo>` or `owner/repo`), cloned once into a cache and analysed identically — the customer's codebase, not just our own. Acceptance is a strict `github.com` allow-list (SSRF-safe: no other host/scheme/port), the clone is bounded (180 s, 300 MB, LRU-cached), and a repository problem **never** fails the estimate — the numbers come back with a `codebase_error` note. `This project` is hidden where the host has no `.git` (cloud builds).
 - **One-directional by design**: friction/invasiveness can only widen the range and add a surcharge — never a discount (safe against under-quoting; discounts would need coefficients learned from real actuals).
-- The adjustment coefficients (×0.30/×0.60 widening, ×0.35 invasiveness shift) are **demo-assumed and labeled as such** in every API response.
+- The adjustment coefficients (×0.30/×0.60 widening, ×0.35 invasiveness shift) are **demo-assumed and labeled as such** in every API response. Their **direction is now measured** on 29,059 real commits ([docs/SURCHARGE_CALIBRATION.md](docs/SURCHARGE_CALIBRATION.md)): friction → change size passes on 4/4 repos (`e^β` ×1.12–×2.05), friction → spread on 3/4 (the interval-widening claim; `requests` is the exception), rank signal on 4/4 — but the last link (change size → **person-days**) needs `(repo signals, actual days)` pairs, which no public dataset has, so the *magnitude* stays an assumption until a pilot measures it.
 
 ## Why this is not "just an LLM wrapper"
 
@@ -155,9 +157,10 @@ cd backend && python -m pytest tests/ -q
 8. **Similar projects retrieval** uses BM25 + TF-IDF (no embeddings) to keep the on-device build light.
 9. **Free-tier hosting** — on Render the SQLite file is ephemeral: the demo reseeds on every restart; entered actuals are lost on cold start (use Reset to restore deliberately).
 10. **Interval width is not strictly monotone per single answer** — answering "yes" to an expensive feature raises P50 (absolute width can grow); the *relative* uncertainty always shrinks (live-measured 1.99 → 1.38).
-11. **Codebase adjustments are one-directional and demo-assumed** — the mechanism (similar past changes) is validated on real commits, but the magnitude coefficients are placeholders until a pilot records (repo signals + actuals) pairs; a clean repo never gets a discount today.
+11. **Codebase adjustments are one-directional; the surcharge magnitude is partly measured, partly assumed** — friction → change size and friction → spread are now measured on 29,059 real commits ([docs/SURCHARGE_CALIBRATION.md](docs/SURCHARGE_CALIBRATION.md); the spread gate holds on 3 of 4 repos, reported as-is), but the final link (change size → person-days) is **not** measurable from public data and stays an explicit assumption until a pilot records (repo signals + actual days) pairs; a clean repo never gets a discount today.
 12. **Itemlet cross-check** — on 114 real projects with logged hours (of 204) the conformal intervals calibrated correctly (coverage 76–86%) but the point estimate tied the median baseline: only 6.5% of issues have logged time, so the binding constraint is data quality, not the estimator ([docs/ITEMLET_VALIDATION.md](docs/ITEMLET_VALIDATION.md)).
 13. **LLM→classifier distillation is not there yet** — a student trained on 240 LLM-labeled emails reaches F1 0.44 vs the teacher's 0.92 and has plateaued; replacing the LLM needs far more (and real) data ([docs/DISTILLATION_EXPERIMENT.md](docs/DISTILLATION_EXPERIMENT.md)).
+14. **Codebase Lab is Python-only (enforced)** — `fan_in` (import scan) and `complexity` (radon) are Python signals, so a repository whose primary source language is not Python is **refused** with a clear message instead of being mis-scored (a C library with 2 stray test scripts once reported `complexity` 0.75). Every block reports `language` (Python share) so the analysed scope is visible, and multi-language support is a stated later feature — not a silent approximation. ([docs/DECISIONS.md](docs/DECISIONS.md) D22/D24.)
 
 ## We do NOT claim
 

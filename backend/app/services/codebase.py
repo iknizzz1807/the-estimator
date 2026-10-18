@@ -243,6 +243,75 @@ def _collect_churn(repo: Path, since: date, until: date) -> dict[str, Any]:
     return {"files": files, "total_commits": total_commits}
 
 
+#: Source extensions recognised by the Python-only scope check.
+SOURCE_EXTENSIONS: dict[str, str] = {
+    ".py": "Python",
+    ".go": "Go",
+    ".rs": "Rust",
+    ".c": "C",
+    ".h": "C",
+    ".cc": "C++",
+    ".cpp": "C++",
+    ".hpp": "C++",
+    ".cxx": "C++",
+    ".js": "JavaScript",
+    ".jsx": "JavaScript",
+    ".mjs": "JavaScript",
+    ".cjs": "JavaScript",
+    ".ts": "TypeScript",
+    ".tsx": "TypeScript",
+    ".java": "Java",
+    ".rb": "Ruby",
+    ".php": "PHP",
+    ".cs": "C#",
+    ".kt": "Kotlin",
+    ".swift": "Swift",
+    ".scala": "Scala",
+    ".m": "Objective-C",
+    ".pl": "Perl",
+    ".lua": "Lua",
+    ".ex": "Elixir",
+    ".exs": "Elixir",
+}
+
+
+def detect_primary_language(repo_path: str | Path) -> dict[str, Any]:
+    """Count tracked source files per language and decide if Python dominates.
+
+    Codebase Lab is **Python-only by design** (D3/D22/D24): ``fan_in`` comes from
+    a Python import scan and ``complexity`` from radon. Rather than reporting a
+    component measured on a handful of stray ``.py`` files as if it described the
+    whole repository (measured: cJSON, 2 test scripts out of 229 files, reported
+    ``complexity`` 0.75), the caller refuses to analyse a repo whose primary
+    language is not Python. Python must be the most common source language; ties
+    count as supported. ``source_files == 0`` means no recognised source at all.
+    """
+    repo = Path(repo_path).expanduser()
+    _require_git_repo(repo)
+    out = _git(repo, ["ls-files", "-z", "--cached", "--others", "--exclude-standard"])
+    counts: dict[str, int] = {}
+    for path in out.split("\x00"):
+        if not path:
+            continue
+        language = SOURCE_EXTENSIONS.get(Path(path).suffix.lower())
+        if language:
+            counts[language] = counts.get(language, 0) + 1
+    total = sum(counts.values())
+    python_files = counts.get("Python", 0)
+    dominant = "none"
+    if counts:
+        # Ties favour Python so a repo that is at least half Python stays supported.
+        dominant = max(counts.items(), key=lambda item: (item[1], item[0] == "Python"))[0]
+    return {
+        "dominant": dominant,
+        "python_files": python_files,
+        "source_files": total,
+        "python_share": round(python_files / total, 4) if total else 0.0,
+        "python_supported": python_files > 0 and dominant == "Python",
+        "languages": dict(sorted(counts.items(), key=lambda item: (-item[1], item[0]))),
+    }
+
+
 def _tracked_python_files(repo: Path) -> list[str]:
     """Repo-relative Python paths git would track (tracked + untracked, not ignored).
 
@@ -784,10 +853,12 @@ def compute_friction(signals: Mapping[str, Any]) -> dict[str, Any]:
     * ``coverage_gap``         = 1 - coverage.xml line_rate                 w=0.10
     * ``author_concentration`` = commit-weighted 1 - authors/commits        w=0.15
 
-    ``score`` = weighted mean over the components that are available. When no
-    ``coverage.xml`` exists, ``coverage_gap`` is ``None`` ("unknown", never
-    faked): it is omitted from the sum and the remaining weights are
-    renormalised; a note says so.
+    ``score`` = weighted mean over the components that are available. A
+    component is ``None`` ("unknown", never faked) when it could not be
+    measured: ``coverage_gap`` without a ``coverage.xml``, and ``fan_in`` /
+    ``complexity`` on a repo with no Python files (they are Python-only signals
+    -- an import scan and radon). Unknown components are omitted from the sum
+    and the remaining weights are renormalised; ``notes`` says so.
 
     Level: score < 1/3 -> ``"low"``, < 2/3 -> ``"medium"``, else ``"high"``.
 
@@ -801,11 +872,29 @@ def compute_friction(signals: Mapping[str, Any]) -> dict[str, Any]:
     coverage = signals.get("coverage") or {}
     authors = signals.get("authors") or {}
 
+    # fan_in and complexity are PYTHON-ONLY signals (an import scan over tracked
+    # *.py files; radon). When they were not actually measured they are UNKNOWN,
+    # never a measured zero: a zero is included in the weighted mean with 0.45
+    # of the weight and biases friction DOWN on non-Python repos (measured:
+    # expressjs/express scored 0.34 instead of 0.68). Unknown components are
+    # omitted and the remaining weights renormalised, exactly like coverage_gap.
+    fan_in_measured = int(fan_in.get("python_files") or 0) > 0
+    complexity_measured = (
+        str(complexity.get("status") or "") != "unknown"
+        and int(complexity.get("files_scored") or 0) > 0
+    )
+
     components: dict[str, float | None] = {
         "churn": _saturate(churn.get("max_file_commits") or 0, CHURN_SATURATION_COMMITS),
-        "fan_in": _saturate(fan_in.get("max_fan_in") or 0, FAN_IN_SATURATION),
-        "complexity": _saturate(
-            complexity.get("max_complexity") or 0, COMPLEXITY_SATURATION
+        "fan_in": (
+            _saturate(fan_in.get("max_fan_in") or 0, FAN_IN_SATURATION)
+            if fan_in_measured
+            else None
+        ),
+        "complexity": (
+            _saturate(complexity.get("max_complexity") or 0, COMPLEXITY_SATURATION)
+            if complexity_measured
+            else None
         ),
         "coverage_gap": None,
         "author_concentration": round(
@@ -814,6 +903,17 @@ def compute_friction(signals: Mapping[str, Any]) -> dict[str, Any]:
     }
 
     notes: list[str] = []
+    if not fan_in_measured:
+        notes.append(
+            "no Python files tracked: fan_in is UNKNOWN (never faked) and was "
+            "omitted from the weighted sum; remaining weights renormalised."
+        )
+    if not complexity_measured:
+        notes.append(
+            "complexity not measured (no Python files scored / radon "
+            "unavailable): omitted from the weighted sum; remaining weights "
+            "renormalised."
+        )
     line_rate = coverage.get("line_rate")
     if coverage.get("status") == "found" and isinstance(line_rate, (int, float)):
         components["coverage_gap"] = round(min(1.0, max(0.0, 1.0 - float(line_rate))), 4)

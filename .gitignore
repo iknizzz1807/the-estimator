@@ -17,6 +17,8 @@ data/*.db
 data/*.db-journal
 data/*.sqlite*
 data/demo_repos/
+data/repo_cache/
+data/example_repos/
 
 # Node / Next.js
 node_modules/

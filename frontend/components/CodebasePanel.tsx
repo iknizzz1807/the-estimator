@@ -148,7 +148,7 @@ export function CodebasePanel({
 
   if (!codebase) return null;
 
-  const { friction, invasiveness, similar_changes: changes, base_estimate: base, adjusted_estimate: adjusted } = codebase;
+  const { friction, invasiveness, similar_changes: changes, base_estimate: base, adjusted_estimate: adjusted, language } = codebase;
   const level = LEVEL_META[friction.level] ?? LEVEL_FALLBACK;
   const domainMax =
     Math.max(base.p90, adjusted.p90, adjusted.p50, base.p50, 1) * 1.08;
@@ -177,8 +177,18 @@ export function CodebasePanel({
       }
       subtitle={
         <>
-          Repository: <span className="font-medium text-[#f7f8f8]">{repoName}</span> — structural
-          friction widens the interval; similar past changes shift the median. Surcharge only, never a discount.
+          Repository: <span className="font-medium text-[#f7f8f8]">{repoName}</span>
+          {language ? (
+            <>
+              {" "}
+              <span className="text-[#62666d]">
+                · {language.dominant} ({language.python_files}/{language.source_files} source
+                files)
+              </span>
+            </>
+          ) : null}{" "}
+          — structural friction widens the interval; similar past changes shift the median.
+          Surcharge only, never a discount.
         </>
       }
     >

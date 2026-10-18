@@ -23,6 +23,7 @@ from app.services.codebase import (
     apply_friction,
     collect_signals,
     compute_friction,
+    detect_primary_language,
     estimate_invasiveness,
     find_similar_changes,
 )
@@ -166,6 +167,64 @@ def test_fan_in_counts_known_import(tmp_path: Path) -> None:
     assert hot["helper.py"]["fan_in"] == 2  # one.py + two.py
     assert hot["one.py"]["fan_in"] == 0
     assert signals["fan_in"]["max_fan_in"] == 2
+
+
+def test_non_python_repo_marks_python_only_components_unknown(tmp_path: Path) -> None:
+    """fan_in/complexity are Python-only; on a JS repo they are UNKNOWN, not 0.
+
+    Reporting them as a measured zero includes them in the weighted mean with
+    0.45 of the weight and biases friction DOWN (=> under-surcharge) on
+    non-Python repos; unknown components are omitted and weights renormalised.
+    """
+    repo = tmp_path / "jsrepo"
+    _init_repo(repo)
+    _write(repo, "src/app.js", "export const app = 1;\n")
+    _write(repo, "src/util.js", "export const util = 2;\n")
+    _commit(repo, "2026-01-05", ALICE, "add js sources")
+    _write(repo, "src/app.js", "export const app = 3;\n")
+    _commit(repo, "2026-01-06", ALICE, "tweak app")
+
+    signals = collect_signals(repo, "2026-06-01")
+    assert signals["fan_in"]["python_files"] == 0
+    assert signals["complexity"]["files_scored"] == 0
+
+    friction = compute_friction(signals)
+    assert friction["components"]["fan_in"] is None
+    assert friction["components"]["complexity"] is None
+    assert friction["components"]["coverage_gap"] is None
+    assert friction["components"]["churn"] is not None
+    # the score is renormalised over the components actually measured
+    assert set(friction["weights"]) == {"churn", "author_concentration"}
+    assert any("fan_in is UNKNOWN" in note for note in friction["notes"])
+    assert any("complexity not measured" in note for note in friction["notes"])
+
+
+def test_detect_primary_language_gates_non_python(tmp_path: Path) -> None:
+    """Python must be the dominant source language (D24 scope gate)."""
+    python_repo = tmp_path / "pyrepo"
+    _init_repo(python_repo)
+    _write(python_repo, "app/main.py", "def main():\n    return 1\n")
+    _write(python_repo, "app/util.py", "VALUE = 1\n")
+    _commit(python_repo, "2026-01-05", ALICE, "python only")
+
+    info = detect_primary_language(python_repo)
+    assert info["dominant"] == "Python"
+    assert info["python_supported"] is True
+    assert info["python_files"] == 2 and info["source_files"] == 2
+    assert info["python_share"] == pytest.approx(1.0)
+
+    c_repo = tmp_path / "crepo"
+    _init_repo(c_repo)
+    for i in range(5):
+        _write(c_repo, f"src/f{i}.c", "int f(void){return 0;}\n")
+    _write(c_repo, "tests/helper.py", "print('x')\n")  # a stray .py must not win
+    _commit(c_repo, "2026-01-05", ALICE, "c library")
+
+    info = detect_primary_language(c_repo)
+    assert info["dominant"] == "C"
+    assert info["python_supported"] is False
+    assert info["python_files"] == 1 and info["source_files"] == 6
+    assert info["languages"]["C"] == 5
 
 
 def test_complexity_and_coverage_signals(demo: dict[str, Path]) -> None:

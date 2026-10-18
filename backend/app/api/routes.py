@@ -154,18 +154,24 @@ def _parse_answers(answers: dict[str, int] | None) -> dict[str, int]:
 
 
 def _parse_repo(repo: str | None) -> str | None:
-    """Validate the v0.2 ``repo`` selector (absent passes through unchanged)."""
+    """Validate the v0.2 ``repo`` selector (absent passes through unchanged).
+
+    Accepts the built-in choices plus a pasted public GitHub repo
+    (``https://github.com/<owner>/<repo>`` or the ``<owner>/<repo>`` shorthand),
+    canonicalised to ``gh:<owner>/<repo>``. Anything else is a 422.
+    """
     if repo is None:
         return None
-    if repo not in state_mod.CODEBASE_REPO_CHOICES:
+    try:
+        return state_mod.normalize_repo_selector(repo)
+    except ValueError:
         raise HTTPException(
             status_code=422,
             detail=(
-                f"repo không hợp lệ: {repo!r} "
-                "(chỉ chấp nhận demo_a, demo_b, self)"
+                f"repo không hợp lệ: {repo!r} — chấp nhận demo_a, demo_b, self, "
+                "hoặc URL repo công khai dạng https://github.com/<owner>/<repo>"
             ),
-        )
-    return repo
+        ) from None
 
 
 # --------------------------------------------------------------------------- #
@@ -185,6 +191,16 @@ def health(request: Request) -> dict[str, Any]:
         # Extras for the UI (never replace contract keys).
         "mode": "calibrated" if state.model_loaded else "cold_start",
         "n_train": state.model.n_train if state.model is not None else 0,
+        # Codebase Lab capabilities so the UI never offers a broken option
+        # (DECISIONS D17/D20: cloud builds have no .git, so "self" is absent).
+        "codebase": {
+            "choices": list(state_mod.CODEBASE_REPO_CHOICES),
+            "self_available": state_mod.self_repo_available(),
+            "url_clone": True,
+            # Pre-cloned example repos present on this host (empty when the image
+            # was built without them) — clickable, instant, no URL to paste.
+            "examples": state_mod.available_examples(),
+        },
     }
 
 
@@ -241,11 +257,17 @@ async def _stream_estimate(
         yield _sse("step", {"step": "estimating", "message": STEP_MESSAGES["estimating"]})
         prediction = state_mod.predict(state, features)
         codebase: dict[str, Any] | None = None
+        codebase_error: str | None = None
         if repo:
-            codebase = await run_in_threadpool(
-                state_mod.build_codebase_block, repo, features, prediction
-            )
-            prediction = dict(codebase["adjusted_estimate"])
+            try:
+                codebase = await run_in_threadpool(
+                    state_mod.build_codebase_block, repo, features, prediction
+                )
+                prediction = dict(codebase["adjusted_estimate"])
+            except RuntimeError as exc:
+                # Never fail the whole stream for an optional context block.
+                codebase_error = str(exc)
+                logger.warning("Codebase Lab unavailable for %r: %s", repo, exc)
         await asyncio.sleep(STREAM_STEP_PAUSE_SECONDS)
 
         yield _sse("step", {"step": "questions", "message": STEP_MESSAGES["questions"]})
@@ -264,6 +286,8 @@ async def _stream_estimate(
         )
         if codebase is not None:
             payload["codebase"] = codebase
+        if codebase_error is not None:
+            payload["codebase_error"] = codebase_error
         yield _sse("result", payload)
     except Exception as exc:  # keep the stream well-formed even on failure
         logger.exception("SSE estimate failed")

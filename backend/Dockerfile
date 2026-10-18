@@ -35,6 +35,12 @@ RUN apt-get update \
 
 COPY backend/ ./backend/
 COPY data/synthetic_history.csv ./data/synthetic_history.csv
+
+# Pre-clone the Codebase Lab example repos so a visitor can click an example and
+# get a result instantly (no clone at request time). Best-effort: a network
+# hiccup must never fail the deploy — the app simply offers fewer examples.
+RUN cd /app/backend && python scripts/fetch_example_repos.py \
+    || echo "example repos not fetched - examples will be hidden"
 COPY --from=frontend-build /build/frontend/out ./frontend/out
 # Repo history makes Codebase Lab's repo="self" work inside the image
 # (read-only git analysis). The context only contains .git when building

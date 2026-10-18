@@ -18,6 +18,7 @@ All functions are synchronous; FastAPI handlers call them in the event loop
 from __future__ import annotations
 
 import io
+import json
 import logging
 import math
 import os
@@ -38,6 +39,7 @@ from app.services.codebase import (
     apply_friction,
     collect_signals,
     compute_friction,
+    detect_primary_language,
     estimate_invasiveness,
     find_similar_changes,
 )
@@ -148,6 +150,301 @@ CODEBASE_NOTE = (
 )
 #: Serializes on-demand demo-repo builds across concurrent requests.
 _DEMO_REPOS_LOCK = threading.Lock()
+
+# --- Public GitHub repo URLs (opt-in, guarded) ------------------------------- #
+#: Internal selector prefix for a pasted public repo, e.g. ``gh:pallets/flask``.
+CODEBASE_GITHUB_PREFIX = "gh:"
+#: STRICT allow-list: only ``github.com/<owner>/<repo>`` (optionally with the
+#: ``https://`` scheme, a trailing ``.git`` or a trailing slash). No other host,
+#: no port, no userinfo, no query/fragment — this is what keeps a public,
+#: unauthenticated endpoint from becoming an SSRF proxy.
+CODEBASE_GITHUB_URL_RE = re.compile(
+    r"^(?:https://github\.com/|github\.com/)?"
+    r"(?P<owner>[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})?)/"
+    r"(?P<name>[A-Za-z0-9_.-]{1,100})/?$"
+)
+#: Env override for the clone cache directory (tests point it at a tmp dir).
+CODEBASE_REPO_CACHE_DIR_ENV = "ESTIMATOR_REPO_CACHE_DIR"
+#: Hard cap on a single clone; a huge/slow repo must not hold a worker.
+CODEBASE_CLONE_TIMEOUT_SECONDS = 180.0
+#: Reject a clone larger than this (checked after the fact, then deleted).
+CODEBASE_CLONE_MAX_MB = 300.0
+#: Clone strategy marker written into each cached clone. Bump it to invalidate
+#: old caches. NOTE: a full clone is required, NOT ``--filter=blob:none``:
+#: ``find_similar_changes`` runs ``git log --raw --numstat``, and numstat needs
+#: blob contents, so a blobless clone re-fetches every commit over the network
+#: (measured: 221 s for a 2.3k-commit repo vs ~1 s for a full clone).
+CODEBASE_CLONE_FORMAT = "full-v1"
+CODEBASE_CLONE_FORMAT_MARKER = ".estimator_clone_format"
+
+# --- Built-in example repositories (pre-cloned at image build) -------------- #
+#: Well-known public repos cloned once into ``data/example_repos/`` at build time
+#: so a visitor can click an example and get a result instantly — no URL to
+#: paste, no clone at request time. They are analysed by the SAME live path as a
+#: pasted repo (nothing is precomputed), so the numbers are the product's real
+#: numbers.
+#:
+#: ``kind`` says what the library is FOR; that is a *codebase sample*, not a
+#: validated client project — the OSS != B2B SaaS limitation is unchanged.
+#: Every example is **Python**, matching the module's Python-only scope
+#: (D22/D24); non-Python examples were removed rather than mis-scored.
+CODEBASE_EXAMPLE_REPOS: dict[str, dict[str, str]] = {
+    "ex_flask": {
+        "repo": "pallets/flask",
+        "label": "Flask",
+        "lang": "Python",
+        "kind": "web framework",
+    },
+    "ex_click": {
+        "repo": "pallets/click",
+        "label": "Click",
+        "lang": "Python",
+        "kind": "CLI framework (small, clean)",
+    },
+    "ex_requests": {
+        "repo": "psf/requests",
+        "label": "Requests",
+        "lang": "Python",
+        "kind": "HTTP client",
+    },
+    "ex_stripe": {
+        "repo": "stripe/stripe-python",
+        "label": "Stripe SDK",
+        "lang": "Python",
+        "kind": "payments SDK · fintech",
+    },
+    "ex_fhir": {
+        "repo": "smart-on-fhir/client-py",
+        "label": "SMART FHIR",
+        "lang": "Python",
+        "kind": "healthcare FHIR client",
+    },
+}
+#: Manifest written by ``scripts/fetch_example_repos.py`` (commit + pinned date).
+CODEBASE_EXAMPLE_MANIFEST = "examples.json"
+#: Env override for the example-repos directory (tests point it at a tmp dir).
+CODEBASE_EXAMPLE_REPOS_DIR_ENV = "ESTIMATOR_EXAMPLE_REPOS_DIR"
+
+
+def example_repos_dir() -> Path:
+    """Directory holding the pre-cloned example repos."""
+    override = os.environ.get(CODEBASE_EXAMPLE_REPOS_DIR_ENV)
+    if override:
+        return Path(override)
+    return REPO_ROOT / "data" / "example_repos"
+
+
+def example_repo_path(example_id: str) -> Path:
+    """On-disk path of one example (``<owner>__<name>``), cloned by the fetch script."""
+    owner, _, name = CODEBASE_EXAMPLE_REPOS[example_id]["repo"].partition("/")
+    return example_repos_dir() / f"{owner}__{name}"
+
+
+def _example_manifest() -> dict[str, dict]:
+    """``examples.json`` contents (empty when absent/corrupt — never fatal)."""
+    try:
+        raw = (example_repos_dir() / CODEBASE_EXAMPLE_MANIFEST).read_text(encoding="utf-8")
+        data = json.loads(raw)
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def example_pinned_date(example_id: str) -> str | None:
+    """Analysis date pinned by the fetch script, so friction never drifts."""
+    value = (_example_manifest().get(example_id) or {}).get("pinned_date")
+    return str(value) if value else None
+
+
+def available_examples() -> list[dict[str, str]]:
+    """Only the examples actually present on disk are offered to the UI."""
+    manifest = _example_manifest()
+    out: list[dict[str, str]] = []
+    for example_id, entry in CODEBASE_EXAMPLE_REPOS.items():
+        if not (example_repo_path(example_id) / ".git").exists():
+            continue
+        out.append(
+            {
+                "id": example_id,
+                "repo": entry["repo"],
+                "label": entry["label"],
+                "lang": entry["lang"],
+                "kind": entry["kind"],
+                "pinned_date": str((manifest.get(example_id) or {}).get("pinned_date") or ""),
+            }
+        )
+    return out
+#: Keep at most this many cloned repos on disk (oldest evicted first).
+CODEBASE_REPO_CACHE_MAX = 6
+#: Serializes clones so concurrent first requests cannot interleave git work.
+_REPO_CLONE_LOCK = threading.Lock()
+
+
+def normalize_repo_selector(repo: str) -> str:
+    """Canonicalise a ``repo`` value: ``demo_a`` | ``demo_b`` | ``self`` | ``gh:owner/name``.
+
+    Accepts a pasted public GitHub URL (``https://github.com/owner/name``, with
+    or without ``.git``) or the shorthand ``owner/name``; anything else that is
+    not a known choice raises ``ValueError`` (the route turns it into a 422).
+    """
+    value = (repo or "").strip()
+    if value in CODEBASE_REPO_CHOICES or value in CODEBASE_EXAMPLE_REPOS:
+        return value
+    match = CODEBASE_GITHUB_URL_RE.match(value)
+    if match:
+        owner = match.group("owner").lower()
+        name = match.group("name").lower()
+        if name.endswith(".git"):
+            name = name[:-4]
+        if owner and name:
+            return f"{CODEBASE_GITHUB_PREFIX}{owner}/{name}"
+    raise ValueError(value)
+
+
+def self_repo_available() -> bool:
+    """Whether ``repo="self"`` can work here (needs a ``.git`` in the checkout).
+
+    False in cloud builds: Render's build context comes from a GitHub checkout
+    without ``.git`` (DECISIONS D17), so the UI must not offer the option.
+    """
+    return (REPO_ROOT / ".git").exists()
+
+
+def repo_cache_dir() -> Path:
+    """Directory holding cloned public repos (``ESTIMATOR_REPO_CACHE_DIR`` wins)."""
+    override = os.environ.get(CODEBASE_REPO_CACHE_DIR_ENV)
+    if override:
+        return Path(override)
+    return REPO_ROOT / "data" / "repo_cache"
+
+
+def _rmtree(path: Path) -> None:
+    import shutil
+
+    shutil.rmtree(path, ignore_errors=True)
+
+
+def _dir_size_mb(path: Path) -> float:
+    total = 0
+    for item in path.rglob("*"):
+        try:
+            if item.is_file():
+                total += item.stat().st_size
+        except OSError:  # pragma: no cover - transient filesystem races
+            continue
+    return total / (1024 * 1024)
+
+
+def _evict_repo_cache(keep: Path, max_entries: int = CODEBASE_REPO_CACHE_MAX) -> None:
+    root = keep.parent
+    if not root.is_dir():
+        return
+    entries = [p for p in root.iterdir() if p.is_dir() and p != keep]
+    if len(entries) < max_entries:
+        return
+    entries.sort(key=lambda p: p.stat().st_mtime)
+    for old in entries[: max(1, len(entries) - max_entries + 1)]:
+        _rmtree(old)
+
+
+def clone_github_repo(owner: str, name: str) -> Path:
+    """Clone ``github.com/<owner>/<name>`` into the cache, once, with hard limits.
+
+    Guards (a public endpoint with no auth must not be a fetch/DoS proxy):
+    ``GIT_TERMINAL_PROMPT=0`` (never hang on credentials), ``http.followRedirects
+    =false``, ``--no-recurse-submodules``, a wall-clock timeout, a post-clone
+    size cap, an LRU cap on the cache, and a process-wide lock.
+    """
+    target = repo_cache_dir() / f"{owner}__{name}"
+    marker = target / CODEBASE_CLONE_FORMAT_MARKER
+    if (target / ".git").exists():
+        try:
+            fresh = marker.read_text(encoding="utf-8").strip() == CODEBASE_CLONE_FORMAT
+        except OSError:
+            fresh = False
+        if fresh:
+            return target
+        _rmtree(target)  # stale clone strategy -> rebuild
+    with _REPO_CLONE_LOCK:
+        if (target / ".git").exists():  # another request cloned it while we waited
+            return target
+        target.parent.mkdir(parents=True, exist_ok=True)
+        _rmtree(target)
+        env = dict(os.environ)
+        env.update(
+            {
+                "GIT_TERMINAL_PROMPT": "0",
+                "GIT_ASKPASS": "",
+                "GIT_SSH_COMMAND": "",
+                "GIT_CONFIG_NOSYSTEM": "1",
+            }
+        )
+        cmd = [
+            "git",
+            "-c",
+            "http.followRedirects=false",
+            "-c",
+            "protocol.version=2",
+            "clone",
+            "--quiet",
+            "--single-branch",
+            "--no-recurse-submodules",
+            f"https://github.com/{owner}/{name}.git",
+            str(target),
+        ]
+        try:
+            proc = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                errors="replace",
+                timeout=CODEBASE_CLONE_TIMEOUT_SECONDS,
+                env=env,
+            )
+        except subprocess.TimeoutExpired as exc:
+            _rmtree(target)
+            raise RuntimeError(
+                f"Repo {owner}/{name} quá lớn hoặc mạng quá chậm "
+                f"(quá {int(CODEBASE_CLONE_TIMEOUT_SECONDS)}s) — thử repo nhỏ hơn"
+            ) from exc
+        except FileNotFoundError as exc:  # git not installed
+            _rmtree(target)
+            raise RuntimeError(
+                "Không tìm thấy git trên server — Codebase Lab cần git để đọc lịch sử"
+            ) from exc
+        if proc.returncode != 0 or not (target / ".git").exists():
+            _rmtree(target)
+            detail = (proc.stderr or proc.stdout or "").strip()[:200]
+            raise RuntimeError(
+                f"Không clone được repo {owner}/{name} "
+                f"(repo private hoặc không tồn tại){': ' + detail if detail else ''}"
+            )
+        size_mb = _dir_size_mb(target)
+        if size_mb > CODEBASE_CLONE_MAX_MB:
+            _rmtree(target)
+            raise RuntimeError(
+                f"Repo {owner}/{name} quá lớn ({size_mb:.0f} MB > "
+                f"{CODEBASE_CLONE_MAX_MB:.0f} MB) — chọn repo nhỏ hơn"
+            )
+        marker.write_text(CODEBASE_CLONE_FORMAT, encoding="utf-8")
+        _evict_repo_cache(target)
+    return target
+
+
+def _head_commit_date(repo_path: Path) -> str | None:
+    """ISO date of the cached clone's HEAD, so repeat analyses are deterministic."""
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(repo_path), "log", "-1", "--format=%cI"],
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=30.0,
+        )
+    except (OSError, subprocess.SubprocessError):  # pragma: no cover
+        return None
+    value = (proc.stdout or "").strip()
+    return value[:10] if len(value) >= 10 else None
 
 
 # ``scripts/seed_db.py`` lives outside the ``app`` package — make it importable
@@ -678,6 +975,17 @@ def codebase_repo_path(repo: str) -> Path:
     """
     if repo == "self":
         return REPO_ROOT
+    if repo in CODEBASE_EXAMPLE_REPOS:
+        path = example_repo_path(repo)
+        if not (path / ".git").exists():
+            raise RuntimeError(
+                f"Repo mẫu {repo!r} chưa được tải trên server này — chạy "
+                "`python scripts/fetch_example_repos.py` (hoặc build lại image)"
+            )
+        return path
+    if repo.startswith(CODEBASE_GITHUB_PREFIX):
+        owner, _, name = repo[len(CODEBASE_GITHUB_PREFIX):].partition("/")
+        return clone_github_repo(owner, name)
     name = CODEBASE_DEMO_REPOS[repo]
     target = demo_repos_dir()
     path = target / name
@@ -738,14 +1046,37 @@ def build_codebase_block(
     if not (repo_path / ".git").exists():
         raise RuntimeError(
             f"Repo {repo!r} không phải là git repository (thiếu .git) — "
-            "xoá data/demo_repos để dựng lại hoặc chọn repo khác"
+            "không phân tích được lịch sử"
+        )
+    # Codebase Lab is PYTHON-ONLY by design (D3/D22/D24): fan_in comes from a
+    # Python import scan and complexity from radon. Refuse anything else rather
+    # than reporting a component measured on stray .py files as if it described
+    # the whole repository (measured: cJSON, 2 test scripts out of 229 files,
+    # reported complexity 0.75). Multi-language support is a later feature.
+    language = detect_primary_language(repo_path)
+    if not language["python_supported"]:
+        raise RuntimeError(
+            "Codebase Lab hiện chỉ phân tích repo Python (hỗ trợ đa ngôn ngữ sẽ "
+            f"bổ sung sau) — repo này chủ yếu là {language['dominant']}: "
+            f"{language['python_files']}/{language['source_files']} file nguồn là .py"
         )
     keywords = codebase_keywords(features)
-    at_date = (
-        CODEBASE_DEMO_REFERENCE_DATE
-        if repo in CODEBASE_DEMO_REPOS
-        else datetime.now(timezone.utc).date().isoformat()
-    )
+    if repo in CODEBASE_DEMO_REPOS:
+        at_date = CODEBASE_DEMO_REFERENCE_DATE
+    elif repo in CODEBASE_EXAMPLE_REPOS:
+        # Pinned by the fetch script so friction never drifts as the calendar
+        # moves (same discipline as the demo repos).
+        at_date = (
+            example_pinned_date(repo)
+            or _head_commit_date(repo_path)
+            or datetime.now(timezone.utc).date().isoformat()
+        )
+    elif repo.startswith(CODEBASE_GITHUB_PREFIX):
+        # Pin a cloned repo to its HEAD commit date so repeat analyses of the
+        # same cached revision return identical friction (determinism, D18/D20).
+        at_date = _head_commit_date(repo_path) or datetime.now(timezone.utc).date().isoformat()
+    else:
+        at_date = datetime.now(timezone.utc).date().isoformat()
 
     signals = collect_signals(repo_path, at_date=at_date)
     friction = compute_friction(signals)
@@ -755,6 +1086,12 @@ def build_codebase_block(
 
     return {
         "repo": repo,
+        "language": {
+            "dominant": language["dominant"],
+            "python_files": language["python_files"],
+            "source_files": language["source_files"],
+            "python_share": language["python_share"],
+        },
         "friction": {
             "score": friction["score"],
             "level": friction["level"],
@@ -834,9 +1171,16 @@ def run_estimate_pipeline(
     prediction = predict(state, features)
 
     codebase: dict[str, Any] | None = None
+    codebase_error: str | None = None
     if repo:
-        codebase = build_codebase_block(repo, features, prediction)
-        prediction = dict(codebase["adjusted_estimate"])
+        try:
+            codebase = build_codebase_block(repo, features, prediction)
+            prediction = dict(codebase["adjusted_estimate"])
+        except RuntimeError as exc:
+            # A codebase problem must never kill the estimate: the numbers do not
+            # depend on the repository. Degrade to a note and keep the estimate.
+            codebase_error = str(exc)
+            logger.warning("Codebase Lab unavailable for %r: %s", repo, exc)
 
     similar = similar_projects(state, email_text, features, k=3)
     questions = rank_questions(state.model, extraction.findings, top_k=5)
@@ -851,6 +1195,8 @@ def run_estimate_pipeline(
     )
     if codebase is not None:
         payload["codebase"] = codebase
+    if codebase_error is not None:
+        payload["codebase_error"] = codebase_error
     return payload
 
 
