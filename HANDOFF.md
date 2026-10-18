@@ -16,7 +16,7 @@ Paste a customer email/RFP → LLM (DeepSeek V4.1 Flash) extracts 15 binary proj
 
 **Codebase Lab as of 2026-10-18** (D20–D27): the repository selector offers **demo_a / demo_b** (synthetic), **5 pre-cloned real Python repos** (Flask, Click, Requests, Stripe SDK, SMART-on-FHIR — one click, instant), **"This project"** (local checkout, or a build-time clone of this repo on cloud), and a **pasted public GitHub URL** (strict `github.com` allow-list). It is **Python-only, enforced** — a repo whose primary source language is not Python is refused with a clear message rather than mis-scored.
 
-Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contract incl. v0.2 + the Codebase Lab additions) · `docs/DECISIONS.md` (D1–D27) · `docs/SUBMISSION.md` (submission text EN+VI).
+Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contract incl. v0.2 + the Codebase Lab additions) · `docs/DECISIONS.md` (D1–D28) · `docs/SUBMISSION.md` (submission text EN+VI).
 
 ## 2. Git state
 
@@ -40,7 +40,7 @@ cd backend && python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 bash scripts/run_api.sh            # API-only unless frontend/out exists
 cd ../frontend && npm install && npm run build   # builds frontend/out (served by FastAPI)
-python -m pytest tests/ -q         # 241 tests, offline
+python -m pytest tests/ -q         # 242 tests, offline
 docker build -f backend/Dockerfile -t the-estimator .   # full single-service image
 ```
 
