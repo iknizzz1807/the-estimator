@@ -39,6 +39,7 @@ if str(_BACKEND_ROOT) not in sys.path:
 
 from app.api.state import (  # noqa: E402
     CODEBASE_EXAMPLE_REPOS,
+    CODEBASE_SELF_FALLBACK_REPO,
     example_repos_dir,
     example_repo_path,
 )
@@ -60,39 +61,44 @@ def _git(repo: Path, args: list[str]) -> str:
     return proc.stdout.strip()
 
 
-def fetch_one(example_id: str, force: bool = False) -> dict:
-    """Clone one example if needed and return its manifest entry."""
-    entry = CODEBASE_EXAMPLE_REPOS[example_id]
-    target = example_repo_path(example_id)
+def _clone_if_needed(repo_slug: str, target: Path, force: bool = False) -> None:
+    """Full single-branch clone of a public repo, unless it is already there."""
     if force and target.exists():
         import shutil
 
         shutil.rmtree(target, ignore_errors=True)
-    if not (target / ".git").exists():
-        target.parent.mkdir(parents=True, exist_ok=True)
-        url = f"https://github.com/{entry['repo']}.git"
-        print(f"[fetch] {example_id}: cloning {entry['repo']} ...", flush=True)
-        proc = subprocess.run(
-            [
-                "git",
-                "-c",
-                "http.https://github.com/.extraheader=",
-                "clone",
-                "--quiet",
-                "--single-branch",
-                "--no-recurse-submodules",
-                url,
-                str(target),
-            ],
-            capture_output=True,
-            text=True,
-            errors="replace",
-            timeout=GIT_TIMEOUT_SECONDS,
+    if (target / ".git").exists():
+        return
+    target.parent.mkdir(parents=True, exist_ok=True)
+    print(f"[fetch] cloning {repo_slug} -> {target.name} ...", flush=True)
+    proc = subprocess.run(
+        [
+            "git",
+            "-c",
+            "http.https://github.com/.extraheader=",
+            "clone",
+            "--quiet",
+            "--single-branch",
+            "--no-recurse-submodules",
+            f"https://github.com/{repo_slug}.git",
+            str(target),
+        ],
+        capture_output=True,
+        text=True,
+        errors="replace",
+        timeout=GIT_TIMEOUT_SECONDS,
+    )
+    if proc.returncode != 0 or not (target / ".git").exists():
+        raise RuntimeError(
+            f"clone failed for {repo_slug}: {(proc.stderr or proc.stdout).strip()[:200]}"
         )
-        if proc.returncode != 0 or not (target / ".git").exists():
-            raise RuntimeError(
-                f"clone failed for {entry['repo']}: {(proc.stderr or proc.stdout).strip()[:200]}"
-            )
+
+
+def fetch_one(example_id: str, force: bool = False) -> dict:
+    """Clone one example if needed and return its manifest entry."""
+    entry = CODEBASE_EXAMPLE_REPOS[example_id]
+    target = example_repo_path(example_id)
+    _clone_if_needed(entry["repo"], target, force=force)
     commit = _git(target, ["rev-parse", "HEAD"])
     head_date = _git(target, ["log", "-1", "--format=%cI"])[:10]
     return {
@@ -102,6 +108,19 @@ def fetch_one(example_id: str, force: bool = False) -> dict:
         "fetched_at": datetime.now(timezone.utc).date().isoformat(),
         "pinned_date": head_date,
     }
+
+
+def fetch_self_fallback(force: bool = False) -> Path:
+    """Clone this repository so ``repo="self"`` works where the checkout has no .git.
+
+    Cloud images ship without ``.git`` (D17), which used to make the "This
+    project" option fail and forced the UI to hide it. The clone is the published
+    snapshot, analysed with the same live path as any other repo.
+    """
+    owner, _, name = CODEBASE_SELF_FALLBACK_REPO.partition("/")
+    target = example_repos_dir() / f"{owner}__{name}"
+    _clone_if_needed(CODEBASE_SELF_FALLBACK_REPO, target, force=force)
+    return target
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -146,6 +165,14 @@ def main(argv: list[str] | None = None) -> int:
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
         print(f"\nwrote {manifest_path} ({len(manifest)} entries)")
+
+    # repo="self" fallback: makes the "This project" option work on hosts whose
+    # checkout has no .git (cloud images, D17/D27). Never fails the build.
+    try:
+        target = fetch_self_fallback(force=args.force)
+        print(f"[ok] self fallback: {CODEBASE_SELF_FALLBACK_REPO} -> {target.name}", flush=True)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[warn] self fallback not fetched: {exc}", flush=True)
 
     return 1 if failures else 0
 

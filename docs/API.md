@@ -279,6 +279,11 @@ build-time fetch succeeded — D23):
 no URL to paste. They are analysed by the same live path as a pasted repo, and
 the analysis is pinned to `pinned_date` so friction never drifts.
 
+`self_available` is true when `repo="self"` can be served: either the local
+checkout has a `.git` (local/self-hosted) **or** the build-time fallback clone of
+this repository is present (cloud images ship no `.git` — D17). Without either,
+the UI hides the option and a direct call degrades gracefully (DECISIONS D27).
+
 ### POST /api/ab — third baseline (LLM with history)
 
 Response keeps all existing fields and adds:

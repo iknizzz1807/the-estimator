@@ -165,6 +165,16 @@ Why the design cannot work here: (1) the target is **nearly degenerate** — med
 
 **Decision: no product coefficient is derived from this, and lead time is not a usable effort proxy.** The assumed `size -> person-days` link stands (D20/D24), and the only remaining path to measuring it is instrumenting the product to record `(repo signals, actual days)` pairs (D24 roadmap). Reported as a documented negative, in the same spirit as `docs/TAWOS_VALIDATION.md` and `docs/CODEBASE_VALIDATION.md`. Full numbers, method and limitations: `docs/PR_LEADTIME_VALIDATION.md`. Note: the study needs `GITHUB_TOKEN` at run time only (never persisted); the local clones come from `scripts/fetch_example_repos.py`.
 
+## D27 — "This project" works everywhere via a fallback clone (2026-10-18)
+
+D17/D20/D21 left `repo="self"` in a bad place on cloud: Render's image has no `.git`, so the option was **hidden** and any direct call degraded to a `codebase_error`. It is the most natural thing for a judge to click, so it should work.
+
+- **Fallback clone**: `scripts/fetch_example_repos.py` now also clones this repository (public, `iknizzz1807/the-estimator`) into `data/example_repos/`, at build time, with the same full single-branch clone. `self_repo_path()` returns the **local checkout** when it has a `.git`, else the **fallback clone**, else `None`. So the option works on a cloud deployment, and locally it still analyses the real working copy.
+- **Honest scope**: on a cloud deployment the analysed revision is the **published snapshot**, not the running working copy — documented, and pinned to the fallback's HEAD commit date so repeated requests are deterministic (same discipline as D23).
+- **Never fails the build**: `fetch_self_fallback` is best-effort (warn only); if it is missing, `self_repo_available()` is `False`, the UI hides the option and the API degrades gracefully — the old behaviour remains as the safety net.
+- **Measured on the real checkout** (local): friction **0.7343 (high)** — churn 0.65, fan_in 1.0, complexity 1.0, coverage_gap 0.06, author_concentration 0.5551 — 5 similar past changes, invasiveness 0.9559, base P50 207.3 -> adjusted P50 276.7. The repo is **mixed** (58 `.py` vs 41 `.ts`/`.tsx`: 58/100 source files, share 0.58) and passes the Python-only gate (D24) as the closest call among our repos — a useful demonstration that the gate is a dominance rule, not "all Python".
+- **Tests**: 2 new (`self_repo_path` fallback resolution incl. the unavailable case, and local-checkout preference). Suite: **241 passed**.
+
 
 
 

@@ -224,6 +224,11 @@ CODEBASE_EXAMPLE_REPOS: dict[str, dict[str, str]] = {
 CODEBASE_EXAMPLE_MANIFEST = "examples.json"
 #: Env override for the example-repos directory (tests point it at a tmp dir).
 CODEBASE_EXAMPLE_REPOS_DIR_ENV = "ESTIMATOR_EXAMPLE_REPOS_DIR"
+#: Fallback clone for ``repo="self"`` on hosts whose checkout has no ``.git``
+#: (cloud images — D17). Fetched at build time like the examples, so the
+#: "This project" option WORKS everywhere instead of being hidden or failing.
+#: The published snapshot is analysed, not the running working copy.
+CODEBASE_SELF_FALLBACK_REPO = "iknizzz1807/the-estimator"
 
 
 def example_repos_dir() -> Path:
@@ -301,13 +306,25 @@ def normalize_repo_selector(repo: str) -> str:
     raise ValueError(value)
 
 
-def self_repo_available() -> bool:
-    """Whether ``repo="self"`` can work here (needs a ``.git`` in the checkout).
+def self_repo_path() -> Path | None:
+    """Path for ``repo="self"``: the local checkout, else the fallback clone.
 
-    False in cloud builds: Render's build context comes from a GitHub checkout
-    without ``.git`` (DECISIONS D17), so the UI must not offer the option.
+    ``None`` when neither exists (a cloud image built without the fetch step).
     """
-    return (REPO_ROOT / ".git").exists()
+    if (REPO_ROOT / ".git").exists():
+        return REPO_ROOT
+    owner, _, name = CODEBASE_SELF_FALLBACK_REPO.partition("/")
+    fallback = example_repos_dir() / f"{owner}__{name}"
+    return fallback if (fallback / ".git").exists() else None
+
+
+def self_repo_available() -> bool:
+    """Whether ``repo="self"`` can work here (local ``.git`` or fallback clone).
+
+    False only when a cloud image was built without the fetch step; the UI hides
+    the option then, and the API degrades gracefully (D20/D21).
+    """
+    return self_repo_path() is not None
 
 
 def repo_cache_dir() -> Path:
@@ -974,7 +991,13 @@ def codebase_repo_path(repo: str) -> Path:
     commands. Raises ``RuntimeError`` (Vietnamese detail) when it fails.
     """
     if repo == "self":
-        return REPO_ROOT
+        path = self_repo_path()
+        if path is None:
+            raise RuntimeError(
+                "Repo 'self' cần thư mục .git mà bản deploy này không có — chạy "
+                "`python scripts/fetch_example_repos.py` (hoặc build lại image)"
+            )
+        return path
     if repo in CODEBASE_EXAMPLE_REPOS:
         path = example_repo_path(repo)
         if not (path / ".git").exists():
@@ -1075,6 +1098,17 @@ def build_codebase_block(
         # Pin a cloned repo to its HEAD commit date so repeat analyses of the
         # same cached revision return identical friction (determinism, D18/D20).
         at_date = _head_commit_date(repo_path) or datetime.now(timezone.utc).date().isoformat()
+    elif repo == "self":
+        # A local working copy moves every day; the fallback clone is pinned to
+        # its HEAD so a cloud deployment stays deterministic (D27).
+        at_date = (
+            datetime.now(timezone.utc).date().isoformat()
+            if repo_path == REPO_ROOT
+            else (
+                _head_commit_date(repo_path)
+                or datetime.now(timezone.utc).date().isoformat()
+            )
+        )
     else:
         at_date = datetime.now(timezone.utc).date().isoformat()
 

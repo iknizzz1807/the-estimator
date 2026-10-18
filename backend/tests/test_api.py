@@ -1304,6 +1304,36 @@ def test_codebase_block_reports_language(
     assert language["python_share"] == pytest.approx(1.0)
 
 
+def test_self_repo_falls_back_to_a_precloned_copy(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Cloud images have no .git (D17): "This project" must still work (D27)."""
+    from app.api import state as state_mod
+
+    checkout = tmp_path / "no_git_here"  # a checkout WITHOUT .git
+    checkout.mkdir()
+    monkeypatch.setattr(state_mod, "REPO_ROOT", checkout)
+
+    fallback_root = tmp_path / "example_repos"
+    monkeypatch.setenv(state_mod.CODEBASE_EXAMPLE_REPOS_DIR_ENV, str(fallback_root))
+    assert state_mod.self_repo_available() is False  # nothing fetched yet
+    with pytest.raises(RuntimeError, match="fetch_example_repos"):
+        state_mod.codebase_repo_path("self")
+
+    owner, _, name = state_mod.CODEBASE_SELF_FALLBACK_REPO.partition("/")
+    (fallback_root / f"{owner}__{name}" / ".git").mkdir(parents=True)
+    assert state_mod.self_repo_available() is True
+    assert state_mod.codebase_repo_path("self") == fallback_root / f"{owner}__{name}"
+
+
+def test_self_repo_prefers_the_local_checkout(monkeypatch: pytest.MonkeyPatch) -> None:
+    """With a real .git present the local working copy wins over the fallback."""
+    from app.api import state as state_mod
+
+    assert state_mod.self_repo_available() is True  # this repo has .git
+    assert state_mod.self_repo_path() == state_mod.REPO_ROOT
+
+
 def test_health_reports_codebase_capabilities(client: TestClient) -> None:
     """The UI hides options the deployment cannot serve (D17: no .git in cloud)."""
     body = client.get("/api/health").json()
