@@ -139,7 +139,7 @@ Three realistic RFPs ship with the app (Onboarding → **Load Sample Data**): **
 
 ## Tests
 
-**188 backend tests** — offline, deterministic, stub-forced:
+**239 backend tests** — offline, deterministic, stub-forced:
 
 ```bash
 cd backend && python -m pytest tests/ -q
