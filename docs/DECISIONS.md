@@ -175,6 +175,14 @@ D17/D20/D21 left `repo="self"` in a bad place on cloud: Render's image has no `.
 - **Measured on the real checkout** (local): friction **0.7343 (high)** — churn 0.65, fan_in 1.0, complexity 1.0, coverage_gap 0.06, author_concentration 0.5551 — 5 similar past changes, invasiveness 0.9559, base P50 207.3 -> adjusted P50 276.7. The repo is **mixed** (58 `.py` vs 41 `.ts`/`.tsx`: 58/100 source files, share 0.58) and passes the Python-only gate (D24) as the closest call among our repos — a useful demonstration that the gate is a dominance rule, not "all Python".
 - **Tests**: 2 new (`self_repo_path` fallback resolution incl. the unavailable case, and local-checkout preference). Suite: **241 passed**.
 
+## D28 — A coverage report from another repo was read as ours (2026-10-18)
+
+Live verification of D27 exposed a real bug in D25(c). `_find_coverage_xml` searches subdirectories, and on this repository it found `data/demo_repos/payment_plugin/coverage.xml` — a **generated demo fixture that lives inside our own checkout** — and read it as the estimator's own coverage. Measured symptom: `repo="self"` scored friction **0.7343** locally (with `coverage_gap` 0.06 taken from that fixture) against **0.8092** in the cloud, where the fixture is gitignored and therefore absent from the fallback clone. Same option, two different answers.
+
+Fix: **a report only counts if it describes this repository** — at least one `<class filename=...>` must exist as a file in the checkout (`(repo / filename).is_file()`), otherwise the signal is `unknown`. This is principled rather than a magic depth/threshold: it validates ownership of the report instead of guessing, and it errs toward "unknown, never faked" (D22). The demo repos are unaffected (their report sits at the repo root and its filenames resolve inside it — asserted by the existing coverage test).
+
+Verified after the fix: local `self` is **0.8092 (high)** with components `churn 0.65, fan_in 1.0, complexity 1.0, coverage_gap null, author_concentration 0.5551` — **identical to the live cloud response**. Test added (`test_coverage_from_another_repo_is_ignored`); suite **242 passed**.
+
 
 
 

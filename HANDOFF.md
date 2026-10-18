@@ -1,10 +1,10 @@
 # HANDOFF — The Estimator (2026-10-18)
 
-> **For any new agent/model picking this project up.** Read this file first, then `docs/DECISIONS.md` (every design decision, **D1–D27**) and `README.md` (product + measured results). This file is the operational state of the world; it is updated by whoever finishes a work session.
+> **For any new agent/model picking this project up.** Read this file first, then `docs/DECISIONS.md` (every design decision, **D1–D28**) and `README.md` (product + measured results). This file is the operational state of the world; it is updated by whoever finishes a work session.
 
 ## 0. TL;DR
 
-- **Product is complete AND DEPLOYED**: **241 backend tests** green, single-service app (FastAPI serves the static Next.js UI + API on one port), 240-project demo dataset, real DeepSeek extraction live.
+- **Product is complete AND DEPLOYED**: **242 backend tests** green, single-service app (FastAPI serves the static Next.js UI + API on one port), 240-project demo dataset, real DeepSeek extraction live.
 - **Live app**: https://the-estimator-xqzc.onrender.com — **verified live 2026-10-18** (see §5). Plan `0.5c-512mb` (~$7/mo, no cold start) — downgrade to Free or delete after ~22/10 to stop billing.
 - **GitHub**: https://github.com/iknizzz1807/the-estimator (public). `main` @ `8f1cd42` **+ 1 unpushed commit** (see §2).
 - **Next steps, in order**: (1) **push** `8f1cd42` and confirm the Render redeploy (§5); (2) fill the live URL into `docs/SUBMISSION.md` (still `TBD`) and submit via the portal; (3) **revoke the GitHub token + rotate the DeepSeek key** — both were pasted into a chat again on 2026-10-18 (§8).
@@ -78,6 +78,7 @@ docker build -f backend/Dockerfile -t the-estimator .   # full single-service im
    - `GET /` and `GET /estimate` → HTTP 200; `GET /api/scenarios` → 200.
    - **`POST /api/estimate` with `repo=ex_flask` → 4.9 s, `codebase.friction` 0.6604 (medium), `language` Python 83/83, components identical to local, 5 similar changes, base P50 207.3 → adjusted 279.9.** The whole Codebase Lab path works in production.
    - ⚠️ `codebase.self_available` is **false** on the live deploy because it predates D27 — so **"This project" is hidden there** (correct pre-D27 behaviour: hidden rather than broken). Pushing `8f1cd42` + the redeploy flips it to **true** (build-time fallback clone) — re-check this after pushing.
+   - **Re-verified after the D27 push (same day)**: `self_available` is now **true**; `POST /api/estimate` with `repo="self"` → **4.2 s, friction 0.8092 (high), Python 58/100, 5 similar changes, base P50 207.3 → adjusted 276.7**. A live/local mismatch found here (0.7343 locally) was traced to a nested demo fixture being read as our own coverage report and fixed in **D28** — local and cloud now agree exactly.
 4. **Not verified live**: the pasted-URL path (needs a request that clones a repo; the guards were verified locally), and the SSE screen click-through (§6).
 5. **After submitting**: revoke the GitHub token, rotate the DeepSeek key (§8), and downgrade/delete the Render service after ~22/10.
 
@@ -127,7 +128,7 @@ Audit note: `git log --all --full-history -- .env` is empty; secret scans (D16) 
 ## 9. Conventions for new agents
 
 - **Ownership discipline**: one writer per file set per wave; commit only your own paths; never `git add -A` blindly; ASCII commit messages.
-- **Tests**: keep them offline/deterministic (conftest forces the stub); `pytest tests/ -q` must stay green (**241 today**).
+- **Tests**: keep them offline/deterministic (conftest forces the stub); `pytest tests/ -q` must stay green (**242 today**).
 - **Honesty bar**: no claim without committed evidence; every number in README/docs must match a `docs/*.md` artifact (D14/D16). Decision gates: if an ablation fails, do not claim improvement — publish it (D26 is the newest example).
 - **Docs**: append a new `D<n>` entry to `docs/DECISIONS.md` for any significant decision; keep `docs/API.md` in sync with the implemented contract; **update this file** at the end of a session.
 - **Codebase Lab**: the block must stay honest — `null` for a component that was not measured (never a fake zero), `codebase_error` instead of a failed estimate, and one-directional adjustments only.
@@ -136,7 +137,7 @@ Audit note: `git log --all --full-history -- .env` is empty; secret scans (D16) 
 
 ```bash
 # tests (offline)
-cd backend && python -m pytest tests/ -q                 # 241 tests
+cd backend && python -m pytest tests/ -q                 # 242 tests
 
 # run locally (UI+API on :8000; UI needs frontend/out)
 cd backend && bash scripts/run_api.sh                    # POSIX

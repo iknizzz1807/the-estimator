@@ -636,6 +636,13 @@ def _collect_coverage(repo: Path) -> dict[str, Any]:
                 per_file[filename] = round(min(1.0, max(0.0, float(raw))), 4)
             except ValueError:
                 continue
+    # A report only counts if it describes THIS repository: at least one class
+    # path must exist in the checkout. Without this, a nested unrelated report is
+    # read as the repo's own coverage — measured on this repo itself:
+    # `data/demo_repos/payment_plugin/coverage.xml` (a generated fixture) was
+    # picked up for `repo="self"` and moved friction from 0.8092 to 0.7343.
+    if not any((repo / filename).is_file() for filename in per_file):
+        return unknown
     return {
         "status": "found",
         "line_rate": line_rate,

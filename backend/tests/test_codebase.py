@@ -314,6 +314,30 @@ def test_coverage_is_found_in_a_subdirectory(tmp_path: Path) -> None:
     assert compute_friction(signals)["components"]["coverage_gap"] == pytest.approx(0.2)
 
 
+def test_coverage_from_another_repo_is_ignored(tmp_path: Path) -> None:
+    """A nested report that describes a DIFFERENT repo must not be read as ours.
+
+    Measured on this repository: a generated fixture at
+    ``data/demo_repos/payment_plugin/coverage.xml`` was picked up for
+    ``repo="self"`` and moved friction from 0.8092 to 0.7343.
+    """
+    repo = tmp_path / "nested"
+    _init_repo(repo)
+    _write(repo, "app/main.py", "VALUE = 1\n")
+    _write(
+        repo,
+        "data/fixtures/coverage.xml",
+        '<?xml version="1.0" ?><coverage line-rate="0.5"><packages><package><classes>'
+        '<class filename="checkout.py" line-rate="0.94"/>'  # not a file of THIS repo
+        "</classes></package></packages></coverage>",
+    )
+    _commit(repo, "2026-01-05", ALICE, "unrelated nested report")
+
+    signals = collect_signals(repo, "2026-06-01")
+    assert signals["coverage"]["status"] == "unknown"
+    assert signals["coverage"]["path"] is None
+
+
 def test_complexity_and_coverage_signals(demo: dict[str, Path]) -> None:
     clean = collect_signals(demo["payment_plugin"], DEMO_AT)
     messy = collect_signals(demo["payment_spaghetti"], DEMO_AT)
