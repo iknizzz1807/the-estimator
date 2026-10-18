@@ -384,13 +384,23 @@ export function SpotlightTour() {
       if (isCancelled) return;
       const el = document.querySelector<HTMLElement>(currentStep.selector);
       if (el) {
-        // Auto-scroll ONCE per step only if not comfortably visible
+        // Auto-scroll ONCE per step with tailored clearance
         if (hasScrolledStepRef.current !== currentStepIndex) {
           hasScrolledStepRef.current = currentStepIndex;
           const vRect = el.getBoundingClientRect();
-          const isComfortablyInView = vRect.top >= 80 && vRect.bottom <= window.innerHeight - 60;
-          if (!isComfortablyInView) {
-            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          if (currentStep.id === "codebase_context") {
+            // Scroll down a bit so Codebase context and card below have comfortable visibility
+            const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+            const targetScrollY = currentScrollY + vRect.top - 120;
+            window.scrollTo({
+              top: Math.max(0, targetScrollY),
+              behavior: "smooth",
+            });
+          } else {
+            const isComfortablyInView = vRect.top >= 80 && vRect.bottom <= window.innerHeight - 250;
+            if (!isComfortablyInView) {
+              el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
           }
         }
 
@@ -745,8 +755,8 @@ export function SpotlightTour() {
                   onClick={handleNext}
                   className="btn btn-primary text-xs py-1 px-3 gap-1.5 cursor-pointer"
                 >
-                  <span>{currentStepIndex === steps.length - 1 ? "Hoàn thành" : "Tiếp theo"}</span>
-                  {currentStepIndex === steps.length - 1 ? (
+                  <span>{currentStepIndex === STEPS.length - 1 ? "Hoàn thành" : "Tiếp theo"}</span>
+                  {currentStepIndex === STEPS.length - 1 ? (
                     <IconCheck className="w-3 h-3" />
                   ) : (
                     <IconArrowRight className="w-3 h-3" />
