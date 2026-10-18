@@ -6,8 +6,8 @@
 
 - **Product is complete AND DEPLOYED**: **242 backend tests** green, single-service app (FastAPI serves the static Next.js UI + API on one port), 240-project demo dataset, real DeepSeek extraction live.
 - **Live app**: https://the-estimator-xqzc.onrender.com — **verified live 2026-10-18** (see §5). Plan `0.5c-512mb` (~$7/mo, no cold start) — downgrade to Free or delete after ~22/10 to stop billing.
-- **GitHub**: https://github.com/iknizzz1807/the-estimator (public). `main` @ `8f1cd42` **+ 1 unpushed commit** (see §2).
-- **Next steps, in order**: (1) **push** `8f1cd42` and confirm the Render redeploy (§5); (2) fill the live URL into `docs/SUBMISSION.md` (still `TBD`) and submit via the portal; (3) **revoke the GitHub token + rotate the DeepSeek key** — both were pasted into a chat again on 2026-10-18 (§8).
+- **GitHub**: https://github.com/iknizzz1807/the-estimator (public). `main` @ `69415d9`, **in sync with `origin/main`** (all commits pushed; reviewed 2026-10-18 evening).
+- **Next steps, in order**: (1) **submit via the portal** — `docs/SUBMISSION.md` is ready and the live URL is filled in (§5, re-verified 2026-10-18); (2) **revoke the GitHub token + rotate the DeepSeek key** — both were pasted into a chat again on 2026-10-18 (§8); (3) after ~22/10, downgrade the Render paid plan or delete the service to stop billing (§5).
 - **Deadline**: Sunday **2026-10-18 23:59** (self-imposed) / Monday 19-10 official. Competition: *Agent in the Shell* — Anduin Cybernetics, Challenge #2 "The Estimator".
 
 ## 1. What this is (one paragraph)
@@ -20,7 +20,7 @@ Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contra
 
 ## 2. Git state
 
-- `main` @ **`8f1cd42`** (D27), **ahead of `origin/main` by 1** — that commit is not pushed yet.
+- `main` @ **`69415d9`**, **in sync with `origin/main`** (everything pushed — verified by fetch 2026-10-18 evening).
 - Session commits (2026-10-18), newest last:
   - `cda3a20` — D20: surcharge coefficients measured on 29,059 real commits
   - `d81f348` — D21–D24: paste-a-repo, graceful degradation, non-Python fix, clickable examples, Python-only gate
@@ -29,6 +29,10 @@ Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contra
   - `5970e38` — README test count 188 → 239
   - `e0a4aad` — *user's parallel session* (SpotlightTour.tsx UI)
   - `8f1cd42` — D27: "This project" fallback clone
+  - `d72eec7` — D28: coverage report ownership check (local `self` now matches cloud)
+  - `894ff5d` — D29: feature overrides + "show all lower-impact unknowns"
+  - `c69d8d7` / `2edffcb` — *user's parallel session* (README.md)
+  - `69415d9` — check_math.py helper (README `$$` block sanity check)
 - The user runs **parallel sessions** (separate UI commits land mid-session). Pull before editing; **never `git add -A`** — commit only your own paths.
 - Commit convention: ASCII messages, scoped prefixes (`feat(api):`, `fix(frontend):`, `docs:`, `chore(deploy):`).
 
@@ -71,13 +75,13 @@ docker build -f backend/Dockerfile -t the-estimator .   # full single-service im
 
 ## 5. DEPLOY STATUS (verified 2026-10-18)
 
-1. **GitHub** ✅ public. `main` @ `8f1cd42`; **1 commit unpushed** (`8f1cd42`, D27).
+1. **GitHub** ✅ public. `main` @ `69415d9`, in sync with `origin/main` (all pushed).
 2. **Render** ✅ DEPLOYED AND LIVE: https://the-estimator-xqzc.onrender.com — manual Web Service, Docker runtime, branch `main`, region Singapore, health check `/api/health`, env `LLM_PROVIDER=deepseek` + `DEEPSEEK_API_KEY`. The Dockerfile's build-time `fetch_example_repos.py` step **works on Render** (verified — the examples are present).
 3. **Live verification (2026-10-18, this session)**:
    - `GET /api/health` → `status ok`, `model_loaded true`, `llm_provider deepseek`, `mode calibrated`, `n_train 228`, `codebase.url_clone true`, **`codebase.examples` = the 5 Python repos** (Flask/Click/Requests/Stripe/SMART-FHIR with pinned dates).
    - `GET /` and `GET /estimate` → HTTP 200; `GET /api/scenarios` → 200.
    - **`POST /api/estimate` with `repo=ex_flask` → 4.9 s, `codebase.friction` 0.6604 (medium), `language` Python 83/83, components identical to local, 5 similar changes, base P50 207.3 → adjusted 279.9.** The whole Codebase Lab path works in production.
-   - ⚠️ `codebase.self_available` is **false** on the live deploy because it predates D27 — so **"This project" is hidden there** (correct pre-D27 behaviour: hidden rather than broken). Pushing `8f1cd42` + the redeploy flips it to **true** (build-time fallback clone) — re-check this after pushing.
+   - ✅ `codebase.self_available` is **true** on the live deploy (re-checked 2026-10-18 evening: `repo="self"` → friction 0.8092 high, `coverage_gap: null`, language Python 58/100 — identical to the local checkout after the D28 fix).
    - **Re-verified after the D27 push (same day)**: `self_available` is now **true**; `POST /api/estimate` with `repo="self"` → **4.2 s, friction 0.8092 (high), Python 58/100, 5 similar changes, base P50 207.3 → adjusted 276.7**. A live/local mismatch found here (0.7343 locally) was traced to a nested demo fixture being read as our own coverage report and fixed in **D28** — local and cloud now agree exactly.
 4. **Not verified live**: the pasted-URL path (needs a request that clones a repo; the guards were verified locally), and the SSE screen click-through (§6).
 5. **After submitting**: revoke the GitHub token, rotate the DeepSeek key (§8), and downgrade/delete the Render service after ~22/10.

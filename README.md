@@ -11,13 +11,13 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Next.js 15](https://img.shields.io/badge/Next.js-15%20Static%20Export-black?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Offline Tests](https://img.shields.io/badge/Tests-239%20passed%20(offline)-success?style=flat-square)](backend/tests/)
+[![Offline Tests](https://img.shields.io/badge/Tests-242%20passed%20(offline)-success?style=flat-square)](backend/tests/)
 
 **Biến email/RFP của khách hàng thành dải nỗ lực dự án chuẩn xác (P10/P50/P90), tự động trích xuất câu hỏi làm rõ quan trọng nhất, đóng gói báo giá theo ngân sách và liên tục học hỏi từ các dự án đã hoàn thành.**
 
 ---
 
-### 📚 Toàn bộ tài liệu kỹ thuật & Báo cáo kiểm chứng (14 Documents)
+### 📚 Toàn bộ tài liệu kỹ thuật & Báo cáo kiểm chứng (16 Documents)
 
 | Tài liệu cốt lõi | Báo cáo kiểm chứng thực nghiệm (Empirical Reports) |
 |---|---|
@@ -243,7 +243,7 @@ $$
   - `complexity`: Độ phức tạp Cyclomatic trung bình đo bằng Radon (saturate tại 20).
   - `author_concentration`: Tỷ lệ tập trung code của top committers (nguy cơ Bus Factor).
 
-- **Commit tương đồng (Similar Past Changes)**: Truy xuất 10 commit có mô tả tương đồng nhất qua Jaccard similarity. Đo lường tỷ lệ sửa đổi file thực tế (tỷ lệ multi-file modification đạt 96% ở repo phức tạp).
+- **Commit tương đồng (Similar Past Changes)**: Truy xuất 10 commit có mô tả tương đồng nhất qua Jaccard similarity. Đo lường hình dạng thay đổi thực tế của chúng (trên chính repo này: 96% là sửa đổi file có sẵn — D27).
 
 - **Quy tắc phụ phí một chiều (Surcharge only, never discount)**:
 
@@ -343,7 +343,7 @@ Một trong những giá trị văn hóa kỹ thuật cao nhất của The Estim
 - **Kết quả**: Học sinh chỉ đạt Micro-F1 **0.442** (so với 0.923 của giáo viên) và đường cong học tập bị bão hòa. Muốn thay thế hoàn toàn LLM bằng mô hình phân loại nhỏ chạy offline, doanh nghiệp cần tối thiểu hàng nghìn mẫu RFP thực tế.
 
 ### 6. Bản chất của các hệ số Codebase Lab
-- Hệ số tương quan giữa ma sát và độ phình kích thước commit đã được chứng minh dương tính trên **29,058 commit thật** ([`docs/SURCHARGE_CALIBRATION.md`](docs/SURCHARGE_CALIBRATION.md)).
+- Hệ số tương quan giữa ma sát và độ phình kích thước commit đã được chứng minh dương tính trên **29,059 commit thật** ([`docs/SURCHARGE_CALIBRATION.md`](docs/SURCHARGE_CALIBRATION.md)).
 - Tuy nhiên, việc quy đổi từ độ xâm lấn commit ra **person-days** hiện tại mang tính **giả định demo (demo-assumed constants)**: $\times 0.30 / \times 0.60$ giãn dải và $\times 0.35$ dịch P50. Việc hiệu chuẩn tuyệt đối cần dữ liệu triplet `(Repo, RFP, Actual Person-Days)` nội bộ của từng công ty.
 
 ### 7. Hạ tầng lưu trữ Render Free Tier
@@ -422,9 +422,9 @@ Mở trình duyệt tại: **`http://localhost:8000`**
 
 ---
 
-### Cách 2: Chạy kiểm thử tự động (239 Tests Offline)
+### Cách 2: Chạy kiểm thử tự động (242 Tests Offline)
 
-Toàn bộ 239 bài kiểm thử backend đều độc lập mạng và sử dụng stub extractor tiền định:
+Toàn bộ 242 bài kiểm thử backend đều độc lập mạng và sử dụng stub extractor tiền định:
 
 ```bash
 cd backend
@@ -474,16 +474,16 @@ the-estimator/
 │   │   ├── features.py       # Single source of truth cho 15 features
 │   │   └── main.py           # FastAPI entrypoint & mount Next.js export
 │   ├── scripts/              # Các script đo lường A/B, kiểm chứng thực nghiệm
-│   ├── tests/                # 239 bài kiểm thử đơn vị & tích hợp
+│   ├── tests/                # 242 bài kiểm thử đơn vị & tích hợp
 │   ├── Dockerfile            # Multi-stage production container
 │   └── requirements.txt      # Dependencies (scikit-learn, radon, fastapi...)
 ├── frontend/                 # Giao diện Next.js 15 (TailwindCSS, Recharts)
-│   ├── src/
-│   │   ├── app/              # App router: /estimate, /history, /proof
-│   │   └── components/       # Các widgets chuyên biệt (CodebasePanel, VoI...)
+│   ├── app/                  # App router: /estimate, /history, /proof
+│   ├── components/           # Các widgets chuyên biệt (CodebasePanel, VoI...)
+│   ├── lib/                  # Types, journey config, helpers
 │   └── out/                  # Thư mục build HTML tĩnh (phục vụ bởi FastAPI)
 ├── data/                     # Dữ liệu 240 dự án (synthetic_history.csv, demo repos)
-├── docs/                     # 14 tài liệu kỹ thuật, đặc tả và báo cáo thực nghiệm
+├── docs/                     # 16 tài liệu kỹ thuật, đặc tả và báo cáo thực nghiệm
 ├── render.yaml               # Blueprint khai báo hạ tầng triển khai Render
 └── README.md                 # Tài liệu hướng dẫn chính của dự án
 ```
