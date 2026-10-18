@@ -100,9 +100,133 @@ export interface TourStep {
   ahaMoment: string;
   actionButton?: {
     label: string;
-    action: () => Promise<void> | void;
+    actionId: "load_fintech" | "select_demo_b" | "answer_question" | "run_replay";
   };
 }
+
+// 8-step guided journey constant (defined outside component so reference never changes)
+export const STEPS: TourStep[] = [
+  {
+    id: "sample_scenarios",
+    route: "/",
+    selector: '[data-tour="onboarding-samples"]',
+    category: "BƯỚC 1/8 · ONBOARDING",
+    title: "Tải kịch bản mẫu RFP (1-Click Presets)",
+    purpose:
+      "Chỗ này làm gì: Tích hợp sẵn 3 RFP thực tế (Fintech SaaS, Healthtech MVP, E-commerce). Thay vì tự soạn prompt hay dán email dài, chỉ cần 1 click là nạp toàn bộ dữ liệu vào pipeline.",
+    guidance:
+      "Hướng dẫn thao tác: Click vào kịch bản “Fintech payment + PCI” (hoặc bấm nút thực thi bên dưới) để tự nạp dữ liệu và chuyển sang màn hình dự toán.",
+    ahaMoment:
+      "Toàn bộ 15 tính năng, bằng chứng câu trích dẫn và khoảng nỗ lực P10/P50/P90 được xử lý ngay lập tức.",
+    actionButton: {
+      label: "Nạp Scenario Fintech & Chuyển sang Estimate",
+      actionId: "load_fintech",
+    },
+  },
+  {
+    id: "import_csv",
+    route: "/",
+    selector: '[data-tour="onboarding-import"]',
+    category: "BƯỚC 2/8 · CALIBRATION",
+    title: "Huấn luyện mô hình từ lịch sử (Import CSV)",
+    purpose:
+      "Chỗ này làm gì: Cho phép nhập 50–60 dự án đã bàn giao từ Jira hoặc Harvest. Thuật toán Ridge Regression sẽ tự hiệu chỉnh hệ số nỗ lực theo năng suất thực tế của team bạn, thay vì áp đặt chuẩn ngành mặc định.",
+    guidance:
+      "Hướng dẫn thao tác: Bấm nút “Import CSV…” để tải lên file dữ liệu lịch sử. Các dòng dữ liệu lỗi sẽ được cảnh báo chi tiết thay vì âm thầm bị bỏ qua.",
+    ahaMoment:
+      "Mỗi dự án hoàn thành nạp vào hệ thống trở thành mẫu học mới, giúp khoảng dự toán ngày càng sắc bén.",
+  },
+  {
+    id: "estimate_input",
+    route: "/estimate",
+    selector: '[data-tour="estimate-email-box"]',
+    category: "BƯỚC 3/8 · EXTRACTION",
+    title: "Hộp nhập RFP & Extractor chỉ đọc hiểu",
+    purpose:
+      "Chỗ này làm gì: Dán toàn bộ email khách hàng (tiếng Anh hoặc tiếng Việt). Extractor LLM chỉ làm nhiệm vụ “đọc hiểu” để trích xuất 15 thuộc tính kỹ thuật kèm câu chữ bằng chứng cụ thể — tuyệt đối không bịa số dự toán.",
+    guidance:
+      "Hướng dẫn thao tác: Có thể chỉnh sửa nội dung RFP trực tiếp tại đây. Nhấn tổ hợp phím Ctrl+Enter để chạy lại pipeline ước lượng.",
+    ahaMoment:
+      "Các con số P10/P50/P90 sinh ra 100% từ mô hình toán thống kê có thể kiểm toán, không phải hallucination từ LLM.",
+  },
+  {
+    id: "codebase_context",
+    route: "/estimate",
+    selector: '[data-tour="codebase-selector"]',
+    category: "BƯỚC 4/8 · CODEBASE LAB",
+    title: "Đo hệ số ma sát kỹ thuật (Codebase Friction)",
+    purpose:
+      "Chỗ này làm gì: Dự án làm trên codebase sạch (Plugin pattern) sẽ nhanh hơn so với codebase lộn xộn (Spaghetti). Hệ thống phân tích AST, độ phức tạp Cyclomatic và commit churn từ Git để nhân hệ số rủi ro vào dự toán.",
+    guidance:
+      "Hướng dẫn thao tác: Chọn thử giữa “Demo A (plugin)” và “Demo B (spaghetti)” rồi bấm Estimate để quan sát khoảng thời gian thay đổi.",
+    ahaMoment:
+      "Rủi ro kỹ thuật từ nợ công nghệ (tech debt) được lượng hóa bằng toán học rõ ràng, không đoán mò.",
+    actionButton: {
+      label: "Thử chọn Demo B (Spaghetti - Tăng ma sát)",
+      actionId: "select_demo_b",
+    },
+  },
+  {
+    id: "estimate_chart",
+    route: "/estimate",
+    selector: '[data-tour="estimate-chart-section"]',
+    category: "BƯỚC 5/8 · RANGE ESTIMATE",
+    title: "Khoảng nỗ lực thống kê [P10, P50, P90]",
+    purpose:
+      "Chỗ này làm gì: Cam kết một con số cố định với khách hàng là nguyên nhân hàng đầu gây vỡ tiến độ. Hệ thống trả về khoảng tin cậy 80% (Conformal Prediction): P10 (thuận lợi), P50 (khả thi nhất), P90 (an toàn bao quát biến số).",
+    guidance:
+      "Hướng dẫn thao tác: Quan sát bề rộng của dải nỗ lực. Dự án càng nhiều điểm mơ hồ thì khoảng càng rộng; khi đã rõ ràng thì dải sẽ co hẹp lại.",
+    ahaMoment:
+      "Báo giá bằng khoảng tin cậy chuẩn thống kê là cách bảo vệ tốt nhất cho ngân sách và uy tín của studio phát triển phần mềm.",
+  },
+  {
+    id: "ranked_questions",
+    route: "/estimate",
+    selector: '[data-tour="questions-section"]',
+    category: "BƯỚC 6/8 · VALUE OF INFORMATION",
+    title: "Câu hỏi xếp hạng VOI (Giảm phương sai)",
+    purpose:
+      "Chỗ này làm gì: Tự động xếp hạng các câu hỏi kỹ thuật cần hỏi khách hàng theo Giá trị thông tin (VOI). Trả lời các câu hỏi này sẽ giải quyết điểm mù và làm giảm phương sai dự toán ngay lập tức.",
+    guidance:
+      "Hướng dẫn thao tác: Bấm nút “Có” hoặc “Không” ở từng câu hỏi để xem dải P10-P90 co ngót (shrink variance) ngay trước mắt bạn.",
+    ahaMoment:
+      "Giúp PM biết chính xác nên hỏi khách hàng câu gì trước trong buổi họp để giảm thiểu tối đa rủi ro dự án.",
+    actionButton: {
+      label: "Thử trả lời câu hỏi mẫu để xem độ co ngót",
+      actionId: "answer_question",
+    },
+  },
+  {
+    id: "package_builder",
+    route: "/estimate",
+    selector: '[data-tour="package-builder-section"]',
+    category: "BƯỚC 7/8 · SCOPE PACKAGES",
+    title: "Đóng gói Scope chào thầu (Pessimistic / Balanced / Agile)",
+    purpose:
+      "Chỗ này làm gì: Tự động phân chia tính năng thành 3 gói chào hàng cho khách: Gói MVP tối thiểu (ra mắt nhanh), Gói Cân bằng chuẩn, và Gói Đầy đủ tính năng kèm theo chi phí và cam kết ngày bàn giao.",
+    guidance:
+      "Hướng dẫn thao tác: Có thể tùy chỉnh bật/tắt các tính năng trong từng gói và bấm “Print proposal” ở trên để in bản đề xuất chào thầu chuyên nghiệp.",
+    ahaMoment:
+      "Khách hàng luôn cảm thấy an tâm và hài lòng hơn khi nhận được bản chào thầu có nhiều lựa chọn rõ ràng về phạm vi và ngân sách.",
+  },
+  {
+    id: "proof_replay",
+    route: "/proof",
+    selector: '[data-tour="proof-replay-panel"]',
+    category: "BƯỚC 8/8 · PROOF & CALIBRATION",
+    title: "Kiểm chứng Walk-Forward Replay & Brier Score",
+    purpose:
+      "Chỗ này làm gì: Khác biệt then chốt giữa The Estimator và các AI wrapper thông thường: Tính năng Walk-Forward Replay chạy kiểm thử mô hình trên từng dự án lịch sử để chứng minh độ phủ thực tế đạt 75-85% chuẩn thống kê.",
+    guidance:
+      "Hướng dẫn thao tác: Bấm “Run Replay” để xem mô hình chạy kiểm thử cuộn qua toàn bộ lịch sử và đo lường sai số MAE.",
+    ahaMoment:
+      "Mọi con số ước lượng đều có cơ sở khoa học chứng minh, minh bạch và giải trình được với các bên liên quan.",
+    actionButton: {
+      label: "Chạy Replay kiểm chứng ngay",
+      actionId: "run_replay",
+    },
+  },
+];
 
 export function SpotlightTour() {
   const router = useRouter();
@@ -127,155 +251,11 @@ export function SpotlightTour() {
 
   const cardRef = useRef<HTMLDivElement | null>(null);
 
-  // Define 8-step guided journey
-  const steps: TourStep[] = [
-    {
-      id: "sample_scenarios",
-      route: "/",
-      selector: '[data-tour="onboarding-samples"]',
-      category: "BƯỚC 1/8 · ONBOARDING",
-      title: "Tải kịch bản mẫu RFP (1-Click Presets)",
-      purpose:
-        "Chỗ này làm gì: Tích hợp sẵn 3 RFP thực tế (Fintech SaaS, Healthtech MVP, E-commerce). Thay vì tự soạn prompt hay dán email dài, chỉ cần 1 click là nạp toàn bộ dữ liệu vào pipeline.",
-      guidance:
-        "Hướng dẫn thao tác: Click vào kịch bản “Fintech payment + PCI” (hoặc bấm nút thực thi bên dưới) để tự nạp dữ liệu và chuyển sang màn hình dự toán.",
-      ahaMoment:
-        "Toàn bộ 15 tính năng, bằng chứng câu trích dẫn và khoảng nỗ lực P10/P50/P90 được xử lý ngay lập tức.",
-      actionButton: {
-        label: "Nạp Scenario Fintech & Chuyển sang Estimate",
-        action: async () => {
-          const loaded = await api.loadScenario("A");
-          const scList = await api.scenarios();
-          const scA = scList.find((s) => s.id === "A");
-          storeEstimate({ estimate: loaded, scenarioTitle: "Fintech payment + PCI" });
-          if (scA?.email_text) storePrefillEmail(scA.email_text);
-          markStepComplete("scenario_stream");
-          router.push("/estimate?from=scenario");
-          setCurrentStepIndex(2);
-        },
-      },
-    },
-    {
-      id: "import_csv",
-      route: "/",
-      selector: '[data-tour="onboarding-import"]',
-      category: "BƯỚC 2/8 · CALIBRATION",
-      title: "Huấn luyện mô hình từ lịch sử (Import CSV)",
-      purpose:
-        "Chỗ này làm gì: Cho phép nhập 50–60 dự án đã bàn giao từ Jira hoặc Harvest. Thuật toán Ridge Regression sẽ tự hiệu chỉnh hệ số nỗ lực theo năng suất thực tế của team bạn, thay vì áp đặt chuẩn ngành mặc định.",
-      guidance:
-        "Hướng dẫn thao tác: Bấm nút “Import CSV…” để tải lên file dữ liệu lịch sử. Các dòng dữ liệu lỗi sẽ được cảnh báo chi tiết thay vì âm thầm bị bỏ qua.",
-      ahaMoment:
-        "Mỗi dự án hoàn thành nạp vào hệ thống trở thành mẫu học mới, giúp khoảng dự toán ngày càng sắc bén.",
-    },
-    {
-      id: "estimate_input",
-      route: "/estimate",
-      selector: '[data-tour="estimate-email-box"]',
-      category: "BƯỚC 3/8 · EXTRACTION",
-      title: "Hộp nhập RFP & Extractor chỉ đọc hiểu",
-      purpose:
-        "Chỗ này làm gì: Dán toàn bộ email khách hàng (tiếng Anh hoặc tiếng Việt). Extractor LLM chỉ làm nhiệm vụ “đọc hiểu” để trích xuất 15 thuộc tính kỹ thuật kèm câu chữ bằng chứng cụ thể — tuyệt đối không bịa số dự toán.",
-      guidance:
-        "Hướng dẫn thao tác: Có thể chỉnh sửa nội dung RFP trực tiếp tại đây. Nhấn tổ hợp phím Ctrl+Enter để chạy lại pipeline ước lượng.",
-      ahaMoment:
-        "Các con số P10/P50/P90 sinh ra 100% từ mô hình toán thống kê có thể kiểm toán, không phải hallucination từ LLM.",
-    },
-    {
-      id: "codebase_context",
-      route: "/estimate",
-      selector: '[data-tour="codebase-selector"]',
-      category: "BƯỚC 4/8 · CODEBASE LAB",
-      title: "Đo hệ số ma sát kỹ thuật (Codebase Friction)",
-      purpose:
-        "Chỗ này làm gì: Dự án làm trên codebase sạch (Plugin pattern) sẽ nhanh hơn so với codebase lộn xộn (Spaghetti). Hệ thống phân tích AST, độ phức tạp Cyclomatic và commit churn từ Git để nhân hệ số rủi ro vào dự toán.",
-      guidance:
-        "Hướng dẫn thao tác: Chọn thử giữa “Demo A (plugin)” và “Demo B (spaghetti)” rồi bấm Estimate để quan sát khoảng thời gian thay đổi.",
-      ahaMoment:
-        "Rủi ro kỹ thuật từ nợ công nghệ (tech debt) được lượng hóa bằng toán học rõ ràng, không đoán mò.",
-      actionButton: {
-        label: "Thử chọn Demo B (Spaghetti - Tăng ma sát)",
-        action: () => {
-          const btn = document.querySelector<HTMLButtonElement>(
-            '[data-tour="codebase-selector"] button:nth-child(3)'
-          );
-          if (btn) btn.click();
-        },
-      },
-    },
-    {
-      id: "estimate_chart",
-      route: "/estimate",
-      selector: '[data-tour="estimate-chart-section"]',
-      category: "BƯỚC 5/8 · RANGE ESTIMATE",
-      title: "Khoảng nỗ lực thống kê [P10, P50, P90]",
-      purpose:
-        "Chỗ này làm gì: Cam kết một con số cố định với khách hàng là nguyên nhân hàng đầu gây vỡ tiến độ. Hệ thống trả về khoảng tin cậy 80% (Conformal Prediction): P10 (thuận lợi), P50 (khả thi nhất), P90 (an toàn bao quát biến số).",
-      guidance:
-        "Hướng dẫn thao tác: Quan sát bề rộng của dải nỗ lực. Dự án càng nhiều điểm mơ hồ thì khoảng càng rộng; khi đã rõ ràng thì dải sẽ co hẹp lại.",
-      ahaMoment:
-        "Báo giá bằng khoảng tin cậy chuẩn thống kê là cách bảo vệ tốt nhất cho ngân sách và uy tín của studio phát triển phần mềm.",
-    },
-    {
-      id: "ranked_questions",
-      route: "/estimate",
-      selector: '[data-tour="questions-section"]',
-      category: "BƯỚC 6/8 · VALUE OF INFORMATION",
-      title: "Câu hỏi xếp hạng VOI (Giảm phương sai)",
-      purpose:
-        "Chỗ này làm gì: Tự động xếp hạng các câu hỏi kỹ thuật cần hỏi khách hàng theo Giá trị thông tin (VOI). Trả lời các câu hỏi này sẽ giải quyết điểm mù và làm giảm phương sai dự toán ngay lập tức.",
-      guidance:
-        "Hướng dẫn thao tác: Bấm nút “Có” hoặc “Không” ở từng câu hỏi để xem dải P10-P90 co ngót (shrink variance) ngay trước mắt bạn.",
-      ahaMoment:
-        "Giúp PM biết chính xác nên hỏi khách hàng câu gì trước trong buổi họp để giảm thiểu tối đa rủi ro dự án.",
-      actionButton: {
-        label: "Thử trả lời câu hỏi mẫu để xem độ co ngót",
-        action: () => {
-          const yesBtn = document.querySelector<HTMLButtonElement>(
-            '[data-tour="questions-section"] button:has-text("Có"), [data-tour="questions-section"] button'
-          );
-          if (yesBtn) yesBtn.click();
-        },
-      },
-    },
-    {
-      id: "package_builder",
-      route: "/estimate",
-      selector: '[data-tour="package-builder-section"]',
-      category: "BƯỚC 7/8 · SCOPE PACKAGES",
-      title: "Đóng gói Scope chào thầu (Pessimistic / Balanced / Agile)",
-      purpose:
-        "Chỗ này làm gì: Tự động phân chia tính năng thành 3 gói chào hàng cho khách: Gói MVP tối thiểu (ra mắt nhanh), Gói Cân bằng chuẩn, và Gói Đầy đủ tính năng kèm theo chi phí và cam kết ngày bàn giao.",
-      guidance:
-        "Hướng dẫn thao tác: Có thể tùy chỉnh bật/tắt các tính năng trong từng gói và bấm “Print proposal” ở trên để in bản đề xuất chào thầu chuyên nghiệp.",
-      ahaMoment:
-        "Khách hàng luôn cảm thấy an tâm và hài lòng hơn khi nhận được bản chào thầu có nhiều lựa chọn rõ ràng về phạm vi và ngân sách.",
-    },
-    {
-      id: "proof_replay",
-      route: "/proof",
-      selector: '[data-tour="proof-replay-panel"]',
-      category: "BƯỚC 8/8 · PROOF & CALIBRATION",
-      title: "Kiểm chứng Walk-Forward Replay & Brier Score",
-      purpose:
-        "Chỗ này làm gì: Khác biệt then chốt giữa The Estimator và các AI wrapper thông thường: Tính năng Walk-Forward Replay chạy kiểm thử mô hình trên từng dự án lịch sử để chứng minh độ phủ thực tế đạt 75-85% chuẩn thống kê.",
-      guidance:
-        "Hướng dẫn thao tác: Bấm “Run Replay” để xem mô hình chạy kiểm thử cuộn qua toàn bộ lịch sử và đo lường sai số MAE.",
-      ahaMoment:
-        "Mọi con số ước lượng đều có cơ sở khoa học chứng minh, minh bạch và giải trình được với các bên liên quan.",
-      actionButton: {
-        label: "Chạy Replay kiểm chứng ngay",
-        action: () => {
-          const btn = document.querySelector<HTMLButtonElement>(
-            '[data-tour="proof-replay-panel"] button'
-          );
-          if (btn) btn.click();
-        },
-      },
-    },
-  ];
+  // Guard: track which step has already been scrolled to.
+  // NEVER scroll more than once per step!
+  const hasScrolledStepRef = useRef<number | null>(null);
 
-  const currentStep = steps[currentStepIndex] || steps[0];
+  const currentStep = STEPS[currentStepIndex] || STEPS[0];
 
   // Auto Pop-up on First Visit (checked via localStorage)
   useEffect(() => {
@@ -293,26 +273,7 @@ export function SpotlightTour() {
     }
   }, []);
 
-  // Smoothly scroll window to target element
-  const scrollToTarget = useCallback((el: HTMLElement) => {
-    const vRect = el.getBoundingClientRect();
-    const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
-    const viewportHeight = window.innerHeight;
-
-    // For tall elements (like Ranked Questions), align with top clearance (80px)
-    // For smaller elements, center them vertically
-    let targetScrollY = currentScrollY + vRect.top - 80;
-    if (vRect.height < viewportHeight - 120) {
-      targetScrollY = currentScrollY + vRect.top - (viewportHeight / 2) + (vRect.height / 2);
-    }
-
-    window.scrollTo({
-      top: Math.max(0, targetScrollY),
-      behavior: "smooth",
-    });
-  }, []);
-
-  // Compute Popover Position in Document Coordinates with Smart 4-Way Placement
+  // Compute Popover Position in Document Coordinates with Stable Placement (no jumping)
   const positionCardAndHighlight = useCallback(() => {
     if (!isActive) return;
 
@@ -347,54 +308,44 @@ export function SpotlightTour() {
       height: vRect.height,
     });
 
-    // 3. Smart Placement for Card
+    // 3. Stable Document-Relative Placement for Card (invariant to scroll position)
     const cardWidth = 420;
     const cardEl = cardRef.current;
     const cardHeight = cardEl ? cardEl.offsetHeight : 340;
     const gap = 16;
+    const docWidth = document.documentElement.clientWidth;
 
-    const spaceLeft = vRect.left;
-    const spaceRight = window.innerWidth - vRect.right;
-    const spaceBelow = window.innerHeight - vRect.bottom;
-    const spaceAbove = vRect.top;
+    let computedDocLeft = docLeft;
+    let computedDocTop = docTop + vRect.height + gap;
 
-    let computedDocLeft = 0;
-    let computedDocTop = 0;
-
-    // Smart heuristic:
-    // If element is tall (e.g. Ranked Questions > 300px), prefer placing on the LEFT or RIGHT
-    if (vRect.height > 300 && spaceLeft >= cardWidth + 24) {
-      // Place to the LEFT (perfect for right-column panels like Ranked Questions)
-      computedDocLeft = docLeft - cardWidth - gap;
-      computedDocTop = docTop + 8;
-    } else if (vRect.height > 300 && spaceRight >= cardWidth + 24) {
-      // Place to the RIGHT (for left-column panels like Effort Estimate)
-      computedDocLeft = docLeft + vRect.width + gap;
-      computedDocTop = docTop + 8;
-    } else if (spaceBelow >= cardHeight + 24) {
-      // Place BELOW
-      computedDocTop = docTop + vRect.height + gap;
-      computedDocLeft = docLeft + vRect.width / 2 - cardWidth / 2;
-    } else if (spaceAbove >= cardHeight + 24) {
-      // Place ABOVE
-      computedDocTop = docTop - cardHeight - gap;
-      computedDocLeft = docLeft + vRect.width / 2 - cardWidth / 2;
-    } else if (spaceLeft >= cardWidth + 24) {
-      // Fallback side left
-      computedDocLeft = docLeft - cardWidth - gap;
-      computedDocTop = docTop;
-    } else if (spaceRight >= cardWidth + 24) {
-      // Fallback side right
-      computedDocLeft = docLeft + vRect.width + gap;
-      computedDocTop = docTop;
+    // If element is tall (> 260px) and there is ample horizontal space (e.g. desktop >= 1200px)
+    if (vRect.height > 260 && docWidth >= 1200) {
+      if (docLeft >= docWidth / 2) {
+        // Element is on the right side: place card to the left
+        computedDocLeft = docLeft - cardWidth - gap;
+        computedDocTop = docTop + 8;
+      } else {
+        // Element is on the left side: place card to the right
+        computedDocLeft = docLeft + vRect.width + gap;
+        computedDocTop = docTop + 8;
+      }
     } else {
-      // Default below
+      // Place below element by default
       computedDocTop = docTop + vRect.height + gap;
-      computedDocLeft = docLeft;
+      computedDocLeft = docLeft + (vRect.width - cardWidth) / 2;
+
+      // If placing below exceeds document bottom, place above
+      const documentHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight
+      );
+      if (computedDocTop + cardHeight > documentHeight - 20 && docTop > cardHeight + gap) {
+        computedDocTop = docTop - cardHeight - gap;
+      }
     }
 
-    // Clamp horizontally within document margins
-    const maxDocLeft = document.documentElement.clientWidth - cardWidth - 20;
+    // Clamp horizontally within document boundaries
+    const maxDocLeft = docWidth - cardWidth - 20;
     computedDocLeft = Math.max(16, Math.min(maxDocLeft, computedDocLeft));
     computedDocTop = Math.max(16, computedDocTop);
 
@@ -402,11 +353,15 @@ export function SpotlightTour() {
       left: computedDocLeft,
       top: computedDocTop,
     });
-  }, [isActive, currentStep, pathname]);
+  }, [isActive, currentStep.route, currentStep.selector, pathname]);
 
   // Handle Step Transition: route navigation, data population, and smooth auto-scrolling
+  // STRICTLY fires only when isActive, currentStepIndex, or pathname changes.
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive) {
+      hasScrolledStepRef.current = null;
+      return;
+    }
 
     if (currentStep.route !== pathname) {
       router.push(currentStep.route);
@@ -425,44 +380,61 @@ export function SpotlightTour() {
     let attempts = 0;
     const maxAttempts = 30;
 
-    const findAndScroll = () => {
+    const findAndPosition = () => {
       if (isCancelled) return;
       const el = document.querySelector<HTMLElement>(currentStep.selector);
       if (el) {
-        // Auto-scroll window to element
-        scrollToTarget(el);
+        // Auto-scroll ONCE per step only if not comfortably visible
+        if (hasScrolledStepRef.current !== currentStepIndex) {
+          hasScrolledStepRef.current = currentStepIndex;
+          const vRect = el.getBoundingClientRect();
+          const isComfortablyInView = vRect.top >= 80 && vRect.bottom <= window.innerHeight - 60;
+          if (!isComfortablyInView) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
 
         // Position card and highlight in document coordinates
         positionCardAndHighlight();
 
-        // Also update viewport rect after scroll completes
+        // Update viewport cutout once scroll finishes smoothly
         setTimeout(() => {
-          if (!isCancelled) positionCardAndHighlight();
-        }, 400);
+          if (!isCancelled) {
+            const freshEl = document.querySelector<HTMLElement>(currentStep.selector);
+            if (freshEl) {
+              setTargetViewportRect(freshEl.getBoundingClientRect());
+            }
+          }
+        }, 450);
       } else if (attempts < maxAttempts) {
         attempts++;
-        setTimeout(findAndScroll, 70);
+        setTimeout(findAndPosition, 70);
       }
     };
 
-    const timer = setTimeout(findAndScroll, 50);
+    const timer = setTimeout(findAndPosition, 60);
 
     return () => {
       isCancelled = true;
       clearTimeout(timer);
     };
-  }, [isActive, currentStepIndex, currentStep, pathname, router, scrollToTarget, positionCardAndHighlight]);
+  }, [isActive, currentStepIndex, pathname, currentStep.route, currentStep.selector, router, positionCardAndHighlight]);
 
-  // Window scroll listener: updates ONLY viewport rect for SVG mask hole
-  // DOES NOT move cardCoords, so the card stays anchored to the document!
+  // Window scroll listener: updates ONLY viewport rect for SVG mask hole via requestAnimationFrame
+  // ABSOLUTELY NEVER fights or touches user scrolling!
   useEffect(() => {
     if (!isActive) return;
 
+    let rafId: number | null = null;
     const handleScroll = () => {
-      const el = document.querySelector<HTMLElement>(currentStep.selector);
-      if (el) {
-        setTargetViewportRect(el.getBoundingClientRect());
-      }
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        const el = document.querySelector<HTMLElement>(currentStep.selector);
+        if (el) {
+          setTargetViewportRect(el.getBoundingClientRect());
+        }
+      });
     };
 
     const handleResize = () => {
@@ -473,10 +445,11 @@ export function SpotlightTour() {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      if (rafId !== null) window.cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
-  }, [isActive, currentStep, positionCardAndHighlight]);
+  }, [isActive, currentStep.selector, positionCardAndHighlight]);
 
   // Keyboard Shortcuts: Ctrl/Cmd + T, Arrows, Esc
   useEffect(() => {
@@ -506,8 +479,8 @@ export function SpotlightTour() {
   };
 
   const handleNext = () => {
-    if (currentStepIndex < steps.length - 1) {
-      const nextStep = steps[currentStepIndex + 1];
+    if (currentStepIndex < STEPS.length - 1) {
+      const nextStep = STEPS[currentStepIndex + 1];
       setCurrentStepIndex((prev) => prev + 1);
       if (nextStep.route !== pathname) {
         router.push(nextStep.route);
@@ -519,7 +492,7 @@ export function SpotlightTour() {
 
   const handlePrev = () => {
     if (currentStepIndex > 0) {
-      const prevStep = steps[currentStepIndex - 1];
+      const prevStep = STEPS[currentStepIndex - 1];
       setCurrentStepIndex((prev) => prev - 1);
       if (prevStep.route !== pathname) {
         router.push(prevStep.route);
@@ -531,7 +504,32 @@ export function SpotlightTour() {
     if (!currentStep.actionButton) return;
     setIsExecutingAction(true);
     try {
-      await currentStep.actionButton.action();
+      const actionId = currentStep.actionButton.actionId;
+      if (actionId === "load_fintech") {
+        const loaded = await api.loadScenario("A");
+        const scList = await api.scenarios();
+        const scA = scList.find((s) => s.id === "A");
+        storeEstimate({ estimate: loaded, scenarioTitle: "Fintech payment + PCI" });
+        if (scA?.email_text) storePrefillEmail(scA.email_text);
+        markStepComplete("scenario_stream");
+        router.push("/estimate?from=scenario");
+        setCurrentStepIndex(2);
+      } else if (actionId === "select_demo_b") {
+        const btn = document.querySelector<HTMLButtonElement>(
+          '[data-tour="codebase-selector"] button:nth-child(3)'
+        );
+        if (btn) btn.click();
+      } else if (actionId === "answer_question") {
+        const yesBtn = document.querySelector<HTMLButtonElement>(
+          '[data-tour="questions-section"] button:has-text("Có"), [data-tour="questions-section"] button'
+        );
+        if (yesBtn) yesBtn.click();
+      } else if (actionId === "run_replay") {
+        const btn = document.querySelector<HTMLButtonElement>(
+          '[data-tour="proof-replay-panel"] button'
+        );
+        if (btn) btn.click();
+      }
     } catch (err) {
       console.error("Tour action execution failed", err);
     } finally {
@@ -574,7 +572,11 @@ export function SpotlightTour() {
       {isActive && (
         <>
           {/* SVG Cutout Mask (Fixed to viewport so darkening covers entire screen) */}
-          <svg className="fixed inset-0 h-full w-full pointer-events-none z-[9990] transition-opacity duration-300">
+          <svg
+            className="fixed inset-0 h-full w-full pointer-events-none z-[9990] transition-opacity duration-300"
+            style={{ pointerEvents: "none" }}
+            aria-hidden="true"
+          >
             <defs>
               <mask id="tour-spotlight-mask">
                 <rect width="100%" height="100%" fill="white" />
@@ -595,6 +597,7 @@ export function SpotlightTour() {
               height="100%"
               fill="rgba(1, 1, 2, 0.78)"
               mask="url(#tour-spotlight-mask)"
+              style={{ pointerEvents: "none" }}
             />
           </svg>
 
@@ -633,7 +636,7 @@ export function SpotlightTour() {
                   {currentStep.category}
                 </span>
                 <span className="text-[11px] text-[var(--ink-tertiary)] font-mono">
-                  {currentStepIndex + 1}/{steps.length}
+                  {currentStepIndex + 1}/{STEPS.length}
                 </span>
               </div>
               <button
@@ -705,12 +708,12 @@ export function SpotlightTour() {
             <div className="mt-3.5 flex items-center justify-between border-t border-[var(--hairline)] pt-3">
               {/* Step indicator dots */}
               <div className="flex items-center gap-1">
-                {steps.map((_, idx) => (
+                {STEPS.map((_, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => {
-                      const target = steps[idx];
+                      const target = STEPS[idx];
                       setCurrentStepIndex(idx);
                       if (target.route !== pathname) {
                         router.push(target.route);
