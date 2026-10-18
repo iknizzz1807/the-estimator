@@ -183,6 +183,17 @@ Fix: **a report only counts if it describes this repository** — at least one `
 
 Verified after the fix: local `self` is **0.8092 (high)** with components `churn 0.65, fan_in 1.0, complexity 1.0, coverage_gap null, author_concentration 0.5551` — **identical to the live cloud response**. Test added (`test_coverage_from_another_repo_is_ignored`); suite **242 passed**.
 
+## D29 — Feature overrides + "show all unknowns" in the UI (2026-10-18)
+
+Two UI additions requested after the live review. Both are **frontend-only**: `_parse_answers` already accepted any of the 15 canonical features with 0/1, and answer-refinement calls are already side-effect free — so **no contract change and no measured number changes**.
+
+- **(a) "Show all N lower-impact unknowns"** in the ranked-questions panel. The ranked list stays the top-5 by VoI; the expander exposes the remaining unknowns using the same `applyAnswers` flow. **Collapsed by default** and carrying the copy *"Answer only what you actually know — leaving a feature unknown keeps the range honest."*
+- **(b) Every extracted-feature card is now overridable** (Có/Không per card) and an override is **labelled**: a `you set this` badge, a line *"Extracted: Unknown — overridden by you"* that keeps the extractor's original value visible, the evidence quote untouched, and a `N you set` counter in the grid header. The list is taken from the **original** response so rows stay put once answered (the ranked list behaves the same way).
+- **Why the care**: (1) the product's promise is *"missing information is never silently guessed"* — making it frictionless to answer 10 low-impact features invites guessing, which would produce a narrow `"point"` interval that looks more confident than it is; hence the collapsed default and the explicit copy. (2) Auditability is a core claim, so an override must **never** hide what the LLM said — the badge and the retained extraction line are the mechanism.
+- **Effect**: a PM can now reach a fully-known vector, where `method` flips to `"point"`. README limitation #10 still applies (absolute width is not monotone per single answer; the *relative* uncertainty always shrinks).
+- **Verified**: frontend build clean, `/estimate` 29.9 kB, the new copy is present in the shipped bundle, `/estimate` serves 200; backend suite unchanged at **242 passed**.
+- **Deliberately not done**: caching the extraction. Every answer click still re-runs the LLM extraction (~2–3 s and one API call) because the refinement request re-sends `email_text`. It is a performance nicety, not a correctness issue — documented here so the next agent does not mistake it for a bug.
+
 
 
 

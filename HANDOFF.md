@@ -1,6 +1,6 @@
 # HANDOFF — The Estimator (2026-10-18)
 
-> **For any new agent/model picking this project up.** Read this file first, then `docs/DECISIONS.md` (every design decision, **D1–D28**) and `README.md` (product + measured results). This file is the operational state of the world; it is updated by whoever finishes a work session.
+> **For any new agent/model picking this project up.** Read this file first, then `docs/DECISIONS.md` (every design decision, **D1–D29**) and `README.md` (product + measured results). This file is the operational state of the world; it is updated by whoever finishes a work session.
 
 ## 0. TL;DR
 
@@ -16,7 +16,7 @@ Paste a customer email/RFP → LLM (DeepSeek V4.1 Flash) extracts 15 binary proj
 
 **Codebase Lab as of 2026-10-18** (D20–D27): the repository selector offers **demo_a / demo_b** (synthetic), **5 pre-cloned real Python repos** (Flask, Click, Requests, Stripe SDK, SMART-on-FHIR — one click, instant), **"This project"** (local checkout, or a build-time clone of this repo on cloud), and a **pasted public GitHub URL** (strict `github.com` allow-list). It is **Python-only, enforced** — a repo whose primary source language is not Python is refused with a clear message rather than mis-scored.
 
-Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contract incl. v0.2 + the Codebase Lab additions) · `docs/DECISIONS.md` (D1–D28) · `docs/SUBMISSION.md` (submission text EN+VI).
+Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contract incl. v0.2 + the Codebase Lab additions) · `docs/DECISIONS.md` (D1–D29) · `docs/SUBMISSION.md` (submission text EN+VI).
 
 ## 2. Git state
 
@@ -65,7 +65,7 @@ docker build -f backend/Dockerfile -t the-estimator .   # full single-service im
 
 - **Backend** `backend/app/`: `api/routes.py` (endpoints + SSE), `api/state.py` (pipeline, DB wiring, Codebase Lab block, repo resolution/validation, example registry, reset, import), `services/`: `extraction.py`, `providers.py` (deepseek|gemini|openai|stub|distilled + truncated-JSON repair), `estimation.py`, `similarity.py`, `voi.py`, `learning.py`, `replay.py`, `ab.py`, `llm_baseline.py`, `packages.py`, `codebase.py` (friction/invasiveness/similar-changes + `detect_primary_language` + `is_test_file`), `retrieval.py` (D18 spike — **not wired**), `distilled.py`; `data_gen/`; `db/`.
 - **Codebase Lab scope (important)**: **Python-only, enforced** (D24). `fan_in` (AST import scan, D25) and `complexity` (radon, test files excluded) are Python signals; a repo whose primary source language is not Python is **refused** with a clear message. `churn`, `author_concentration`, `similar_changes`, `invasiveness` are language-agnostic. Multi-language is a stated later feature (`lizard` covers complexity; fan-in needs per-language resolvers).
-- **Frontend** `frontend/`: Next.js 15 static export; pages `/` (onboarding), `/estimate` (SSE steps, feature cards, answers→refinement, packages, pricing curve, codebase panel, repo selector + example chips + URL input), `/history`, `/proof`.
+- **Frontend** `frontend/`: Next.js 15 static export; pages `/` (onboarding), `/estimate` (SSE steps, feature cards **with per-card overrides**, answers→refinement **incl. a "show all lower-impact unknowns" expander**, packages, pricing curve, codebase panel, repo selector + example chips + URL input), `/history`, `/proof`.
 - **Scripts** `backend/scripts/`: `run_api.sh` / `run_api.ps1`, `seed_db.py`, `build_demo_repos.py`, `fetch_example_repos.py` (**new** — clones the 5 examples + the `self` fallback), `extraction_eval.py`, `ab_measurement.py`, `surcharge_calibration.py` (**new**, D20), `pr_leadtime_study.py` (**new**, D26), `swebench_validation.py`, `codebase_history_experiment.py`, `itemlet_validation.py`, `distillation_experiment.py`, `tawos_validation.py`, `retrieval_eval.py`.
 - **Data** `data/`: `synthetic_history.csv` (240 projects / 228 done, sha1 `b1df6f1b…`), `ground_truth.json` (never read by services), `tawos_subset.csv`, `itemlet_projects.csv`, `distillation_labels.csv` + `distilled_model.joblib`. **Gitignored & regenerable**: `estimator.db`, `demo_repos/`, `repo_cache/` (pasted-URL clones), `example_repos/` (pre-cloned examples + `examples.json` manifest + the `self` fallback).
 
@@ -109,6 +109,7 @@ docker build -f backend/Dockerfile -t the-estimator .   # full single-service im
 - **Surcharge magnitude is partly measured, partly assumed (D20)**: friction → size (4/4 repos) and friction → spread (3/4; `requests` is the exception) are measured on 29,059 real commits; the last link (**change size → person-days**) is **not** measurable from public data. A public-data workaround (PR lead time) was **tried and rejected** (D26 — pooled coefficient −0.892, gate failed).
 - **The product is not instrumented**: nothing records `(repo signals, actual days)` pairs, so the codebase coefficient cannot be learned yet. This is the only remaining path (deliberately not done on the submission-critical path).
 - **`/api/estimate` has no auth and no rate limit** → an anonymous visitor can spend the DeepSeek budget. Consider a per-IP limit, or `LLM_PROVIDER=stub` on a public demo.
+- **Each answer click re-runs the LLM extraction** (~2–3 s + one API call): the refinement request re-sends `email_text`, so extraction is redone even though it is deterministic at temperature 0. Not a bug (refinement calls are side-effect free), just wasteful — caching the extraction per email would make the click instant and free (D29).
 - Codebase adjustments are **one-directional** (surcharge only, never a discount) and the coefficients are labelled `DEMO-ASSUMED` in every API response.
 - `/api/ab` treats `n=0` as default-10; re-submitting an actual is not idempotent; `answers={}` persists a row; `ImportCSVModal` error hint checks the wrong string; Reset doesn't clear `sessionStorage`; `mock.ts` values are stale (offline-only mode, contract keys match).
 - An **external monitor** polls `GET /health` (wrong path — the real one is `/api/health`) roughly every 10 s and gets 404s. Harmless; find and disable it.

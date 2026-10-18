@@ -384,6 +384,18 @@ export default function EstimatePage() {
     ? estimate.findings.filter((f) => f.value === null).length
     : 0;
 
+  // Original extraction values, keyed by feature — so an override never hides
+  // what the LLM said (audit trail, DECISIONS D29).
+  const originals: Record<string, 0 | 1 | null> = Object.fromEntries(
+    (baseEstimate?.findings ?? estimate?.findings ?? []).map((f) => [f.name, f.value])
+  );
+  // Lower-impact unknowns: taken from the ORIGINAL response so rows stay put
+  // after they are answered (the ranked list behaves the same way).
+  const rankedFeatures = new Set(baseQuestions.map((q) => q.feature));
+  const otherUnknown = (baseEstimate?.findings ?? [])
+    .filter((f) => f.value === null && !rankedFeatures.has(f.name))
+    .map((f) => f.name);
+
   return (
     <div className="space-y-5">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -744,6 +756,7 @@ export default function EstimatePage() {
             >
               <RankedQuestionsList
                 questions={baseQuestions}
+                otherUnknown={otherUnknown}
                 answers={answers}
                 onAnswer={(feature, value) => void applyAnswers(feature, value)}
                 onClearAnswers={clearAnswers}
@@ -769,9 +782,15 @@ export default function EstimatePage() {
 
           <Panel
             title="Extracted features (15)"
-            subtitle="Every card carries confidence and a verbatim evidence quote — review before sending."
+            subtitle="Every card carries confidence and a verbatim evidence quote. You can override any card — an override is labelled and the extractor's original value stays visible."
           >
-            <FeatureGrid findings={estimate.findings} />
+            <FeatureGrid
+              findings={estimate.findings}
+              originals={originals}
+              answers={answers}
+              onAnswer={(feature, value) => void applyAnswers(feature, value)}
+              busy={answering}
+            />
           </Panel>
 
           <div className="grid gap-5 xl:grid-cols-2">

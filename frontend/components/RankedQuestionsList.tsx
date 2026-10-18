@@ -37,12 +37,19 @@ async function copyText(text: string): Promise<boolean> {
  */
 export function RankedQuestionsList({
   questions,
+  otherUnknown = [],
   answers = {},
   onAnswer,
   onClearAnswers,
   busy = false,
 }: {
   questions: VoIQuestion[];
+  /**
+   * Unknown features NOT in the ranked list (lower impact by construction). The
+   * PM can still pin them, but the copy is explicit that guessing is worse than
+   * leaving them unknown (DECISIONS D29).
+   */
+  otherUnknown?: string[];
   /** Accumulated yes(1)/no(0) answers keyed by feature. */
   answers?: AnswersMap;
   onAnswer?: (feature: string, value: 0 | 1) => void;
@@ -53,8 +60,9 @@ export function RankedQuestionsList({
   const [language, setLanguage] = useState<QuestionLanguage>("en");
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
+  const [showAllUnknown, setShowAllUnknown] = useState(false);
 
-  if (questions.length === 0) {
+  if (questions.length === 0 && otherUnknown.length === 0) {
     return (
       <EmptyState
         title="No open questions"
@@ -261,6 +269,89 @@ export function RankedQuestionsList({
           );
         })}
       </ol>
+
+      {/* Lower-impact unknowns: opt-in, with honest copy. Answering them is a
+          legitimate way to reach a fully-known vector (method flips to "point"),
+          but guessing produces false certainty — so the default is collapsed. */}
+      {otherUnknown.length > 0 && (
+        <div className="space-y-2 border-t border-[#23252a] pt-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#23252a] bg-[#141516] px-2.5 py-1 text-xs font-medium text-[#f7f8f8] transition-colors hover:border-[#34343a] hover:bg-[#18191a]"
+              aria-expanded={showAllUnknown}
+              onClick={() => setShowAllUnknown((value) => !value)}
+            >
+              {showAllUnknown ? "▾" : "▸"} {showAllUnknown ? "Hide" : "Show all"}{" "}
+              {otherUnknown.length} lower-impact unknown
+              {otherUnknown.length === 1 ? "" : "s"}
+            </button>
+            <span className="text-[11px] text-[#62666d]">
+              Answer only what you actually know — leaving a feature unknown keeps
+              the range honest.
+            </span>
+          </div>
+
+          {showAllUnknown && (
+            <ul className="space-y-1.5">
+              {otherUnknown.map((feature) => {
+                const chosen = answers[feature];
+                return (
+                  <li
+                    key={feature}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-[#23252a] bg-[#0f1011] px-3 py-2"
+                  >
+                    <div className="min-w-0">
+                      <span className="text-[12.5px] text-[#f7f8f8]">
+                        {featureLabel(feature)}
+                      </span>
+                      {chosen !== undefined && (
+                        <span className="ml-2 text-[11px] text-[#27a644]">
+                          · {chosen === 1 ? "Có (In scope)" : "Không (Out of scope)"}
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      className="flex shrink-0 items-center gap-1"
+                      role="group"
+                      aria-label={`Answer question about ${featureLabel(feature)}`}
+                    >
+                      <button
+                        type="button"
+                        disabled={busy}
+                        aria-pressed={chosen === 1}
+                        className={`rounded-full px-2.5 py-0.5 font-mono text-xs font-medium transition-colors ${
+                          chosen === 1
+                            ? "border border-[rgba(94,106,210,0.6)] bg-[rgba(94,106,210,0.18)] text-[#828fff]"
+                            : "border border-[#23252a] bg-[#141516] text-[#8a8f98] hover:border-[#34343a] hover:text-[#f7f8f8]"
+                        } disabled:cursor-not-allowed disabled:opacity-50`}
+                        title="Có — yes, this capability is in scope."
+                        onClick={() => onAnswer?.(feature, 1)}
+                      >
+                        Có
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        aria-pressed={chosen === 0}
+                        className={`rounded-full px-2.5 py-0.5 font-mono text-xs font-medium transition-colors ${
+                          chosen === 0
+                            ? "border border-[rgba(245,158,11,0.5)] bg-[rgba(245,158,11,0.15)] text-[#f59e0b]"
+                            : "border border-[#23252a] bg-[#141516] text-[#8a8f98] hover:border-[#34343a] hover:text-[#f7f8f8]"
+                        } disabled:cursor-not-allowed disabled:opacity-50`}
+                        title="Không — no, this capability is not needed."
+                        onClick={() => onAnswer?.(feature, 0)}
+                      >
+                        Không
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }
