@@ -18,15 +18,15 @@ Replay đo thật walk-forward: hệ thống MAE 17.36 trên 218 bước (team 3
 
 ## Links (điền sau khi deploy)
 
-- Live app: TBD (dán Render URL sau khi deploy thành công)
+- Live app: **https://the-estimator-xqzc.onrender.com** (verified live 2026-10-18: `/api/health` ok, deepseek, calibrated; Codebase Lab examples work — see `HANDOFF.md` §5)
 - GitHub repo (public): https://github.com/iknizzz1807/the-estimator
 - Video demo: optional
 
 ## Checklist nộp bài (checklist.md Phase 8)
 
-- [ ] Live App hoạt động từ public URL
-- [ ] GitHub repo public, clone được
-- [ ] README đầy đủ + sơ đồ Mermaid
-- [ ] Không có .env / API key / node_modules bị commit
-- [ ] Mô tả ngắn 100–200 từ (file này)
+- [x] Live App hoạt động từ public URL
+- [x] GitHub repo public, clone được
+- [x] README đầy đủ + sơ đồ Mermaid
+- [x] Không có .env / API key / node_modules bị commit
+- [x] Mô tả ngắn 100–200 từ (file này)
 - [ ] Nộp qua portal trước 23:59 ngày 18/10/2026
