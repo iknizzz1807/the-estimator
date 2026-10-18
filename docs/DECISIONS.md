@@ -155,6 +155,16 @@ The three Python-only quality items deferred by D24 were implemented (all stdlib
 - **Tests**: 6 new (`_module_refs` exactness incl. comment/string and multi-line, relative anchoring, syntax-error fallback; `is_test_file` conventions; complexity exclusion; coverage-in-subdirectory + POSIX path). Suite: **239 passed**.
 - **Still open** (unchanged from D24): `fan_in`/`complexity` remain Python-only; `lizard` + per-language import resolvers are the multi-language path; test files are still counted in `churn` and `fan_in` (deliberately: they are real maintenance surface — only `complexity` was approved for exclusion).
 
+## D26 — PR lead time as an effort proxy: tried and REJECTED (2026-10-18)
+
+D20 left one link assumed: *change size -> person-days*, unmeasurable because no public dataset pairs repository signals with logged effort. This entry closes the cheapest public-data workaround I had proposed: GitHub publishes a real per-change duration (a merged PR's `created_at -> merged_at`), so `scripts/pr_leadtime_study.py` tested whether repository friction predicts it, controlling for the change's own size (changed files, added+removed lines), a bot flag and a month trend. Friction is git-only (D20 components) and computed from commits strictly before each PR's creation (leakage guard), bucketed per month.
+
+**Pre-registered gate: FAILED.** Pooled over **3,240 merged PRs** (flask, click, requests, stripe-python, client-py) the friction coefficient on `log1p(lead time days)` is **-0.892** (95% CI [-1.263, -0.507]) — not merely non-positive, but **negative**: higher friction is associated with *shorter* lead time. Per repo: flask 0.015 [-0.637, 0.644], click -1.836 [-2.606, -1.112], requests 0.525 [-4.134, 4.954], stripe-python -0.001 [-0.401, 0.400], client-py -7.783 [-10.849, -3.789].
+
+Why the design cannot work here: (1) the target is **nearly degenerate** — median lead time is 0.30–0.64 days, i.e. most PRs in these libraries merge the day they are opened, leaving almost no variation; (2) the predictor **barely varies within a repo** (0.80–0.96 for four of five), so the coefficient is estimated off between-repo differences; (3) friction and calendar time are correlated and the month-trend control absorbs that trend, making the residual coefficient unstable and able to flip sign — which it did.
+
+**Decision: no product coefficient is derived from this, and lead time is not a usable effort proxy.** The assumed `size -> person-days` link stands (D20/D24), and the only remaining path to measuring it is instrumenting the product to record `(repo signals, actual days)` pairs (D24 roadmap). Reported as a documented negative, in the same spirit as `docs/TAWOS_VALIDATION.md` and `docs/CODEBASE_VALIDATION.md`. Full numbers, method and limitations: `docs/PR_LEADTIME_VALIDATION.md`. Note: the study needs `GITHUB_TOKEN` at run time only (never persisted); the local clones come from `scripts/fetch_example_repos.py`.
+
 
 
 
