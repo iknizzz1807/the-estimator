@@ -24,12 +24,14 @@ Live: https://the-estimator-xqzc.onrender.com · Repo: https://github.com/iknizz
 ## Các bước
 
 ```mermaid
-flowchart LR
-    A[1. Extract<br/>15 features + trích dẫn] --> B[2. Estimate<br/>Ridge + conformal + MC]
-    B --> C[3. Hỏi và trả lời<br/>dải hẹp dần]
-    C --> D[4. Báo giá<br/>3 gói theo ngân sách]
-    D --> E[5. Học<br/>từ actual_days]
-    E --> F[6. Codebase Lab<br/>rủi ro repo, tùy chọn]
+flowchart TB
+    A["1. Extract<br/>15 features + trích dẫn"]
+    B["2. Estimate<br/>Ridge + conformal + MC"]
+    C["3. Hỏi và trả lời<br/>dải hẹp dần"]
+    D["4. Báo giá<br/>3 gói theo ngân sách"]
+    E["5. Học<br/>từ actual_days"]
+    F["6. Codebase Lab<br/>rủi ro repo, tùy chọn"]
+    A --> B --> C --> D --> E --> F
 ```
 
 1. Extract: LLM đọc email, trả về 15 feature dạng true/false/null kèm trích dẫn. Câu phủ định được xử lý đúng ("không cần mobile app" ra false).
@@ -47,21 +49,21 @@ Toàn bộ chạy trong một service duy nhất. Hai thứ duy nhất nằm ngo
 flowchart TB
     UI["Next.js 15 static export<br/>/ · /estimate · /history · /proof"]
     API["FastAPI :8000<br/>REST + SSE"]
-    PIPE["Pipeline<br/>extract → estimate → câu hỏi → báo giá"]
-    LEARN["learning + replay<br/>retrain và walk-forward"]
+    PIPE["Pipeline<br/>extract → estimate → hỏi → báo giá"]
+    LEARN["learning + replay<br/>retrain, walk-forward"]
     CB["Codebase Lab<br/>friction + similar changes"]
     DB[("SQLite<br/>240 dự án demo")]
-    LLM["DeepSeek API<br/>thiếu key thì chạy stub offline"]
-    GH["GitHub công khai<br/>allow-list github.com"]
+    LLM["DeepSeek<br/>(tùy chọn)"]
+    GH["GitHub<br/>(tùy chọn)"]
 
     UI -->|"HTTP + SSE"| API
     API --> PIPE
     API --> LEARN
-    API --> CB
-    PIPE -.-> LLM
-    CB -.-> GH
+    PIPE --> CB
     PIPE --> DB
     LEARN --> DB
+    PIPE -.-> LLM
+    CB -.-> GH
 ```
 
 ## Kết quả
@@ -87,6 +89,16 @@ Codebase Lab trả lời một câu hỏi khác với phần estimate: dự án 
 Kết quả chỉ dùng để nới dải rủi ro, một chiều: codebase sạch không bao giờ được giảm giá, vì giảm giá là under-quote. Hướng và độ lớn của hiệu ứng đã đo trên 29,059 commit thật của flask/requests/pytest/sympy; cơ chế "thay đổi tương tự" được kiểm chứng trên 29,058 commit (−2.8% MAE so với baseline repo-median). Riêng mắt xích từ kích thước thay đổi ra person-days chưa có dữ liệu công khai để đo, nên ba hệ số vẫn là giả định demo và được gắn nhãn DEMO-ASSUMED trong mọi response.
 
 Có sẵn 5 repo Python để bấm thử ngay (Flask, Click, Requests, Stripe SDK, SMART FHIR) hoặc dán URL công khai; chỉ nhận github.com để tránh lỗ hổng SSRF. Module hiện chỉ phân tích repo Python, repo ngôn ngữ khác bị từ chối kèm thông báo thay vì cho điểm sai.
+
+## Khi có dữ liệu thật
+
+Điểm yếu lớn nhất của dự án hiện tại không nằm ở mô hình mà ở dữ liệu: nó chưa từng chạy trong một doanh nghiệp thật, nên lịch sử huấn luyện là 240 dự án synthetic và hệ số Codebase Lab là giả định demo. Bù lại, kiến trúc đã sẵn sàng cho dữ liệu thật, và đây là chỗ nó tốt lên nhanh nhất khi được dùng lâu dài.
+
+Vòng lặp học đã chạy đúng cơ chế (nhập actual_days, retrain, cập nhật hệ số), nên với lịch sử thật nó sẽ hiệu chuẩn theo đúng vận tốc của đội đó thay vì theo công thức mô phỏng. Cú drift +22% trong dữ liệu demo cho thấy cơ chế này hoạt động: sau drift, hệ thống sai 31.05 ngày còn ước lượng tay sai 52.90. Dùng càng lâu, dữ liệu càng nhiều, ước lượng càng sát đội đó.
+
+Phần đáng giá nhất là Codebase Lab. Hiện tại friction chỉ được cộng thêm ở cuối bằng ba hằng số demo-assumed, một chiều, vì không có dataset công khai nào ghép tín hiệu repo với số ngày thực tế để học quan hệ đó. Sau một thời gian dùng thật, doanh nghiệp sẽ có các cặp (tín hiệu codebase, actual_days). Khi đó churn, fan-in, invasiveness... trở thành những cột bình thường trong ma trận hồi quy Ridge: mô hình tự học hệ số cho chúng từ dữ liệu thay vì dùng hằng số, conformal prediction cho khoảng tin cậy cho cả phần này, và không cần cơ chế surcharge một chiều như hiện tại nữa.
+
+Việc cần làm trước khi tới được đó: ghi lại cặp (tín hiệu codebase, actual_days) mỗi khi dự án kết thúc. Sản phẩm hiện chưa instrument phần này (ghi chú trong D24).
 
 ## Vài quyết định
 
