@@ -39,6 +39,31 @@ flowchart LR
 5. Học: nhập actual_days, mô hình retrain và cập nhật hệ số. Dữ liệu demo có một cú drift năng suất +22% giữa chừng để thấy vòng lặp thích nghi còn ước lượng tay thì không.
 6. Codebase Lab: dán URL GitHub công khai hoặc chọn repo có sẵn, hệ thống đọc git history để ước lượng rủi ro. Repo lỗi chỉ trả về cảnh báo chứ không làm mất kết quả estimate.
 
+## Kiến trúc
+
+Toàn bộ chạy trong một service duy nhất. Hai thứ duy nhất nằm ngoài (DeepSeek, GitHub) đều là tùy chọn.
+
+```mermaid
+flowchart TB
+    UI["Next.js 15 static export<br/>/ · /estimate · /history · /proof"]
+    API["FastAPI :8000<br/>REST + SSE"]
+    PIPE["Pipeline<br/>extract → estimate → câu hỏi → báo giá"]
+    LEARN["learning + replay<br/>retrain và walk-forward"]
+    CB["Codebase Lab<br/>friction + similar changes"]
+    DB[("SQLite<br/>240 dự án demo")]
+    LLM["DeepSeek API<br/>thiếu key thì chạy stub offline"]
+    GH["GitHub công khai<br/>allow-list github.com"]
+
+    UI -->|"HTTP + SSE"| API
+    API --> PIPE
+    API --> LEARN
+    API --> CB
+    PIPE -.-> LLM
+    CB -.-> GH
+    PIPE --> DB
+    LEARN --> DB
+```
+
 ## Kết quả
 
 Replay walk-forward trên 240 dự án demo (228 đã hoàn thành, 218 bước), gọi DeepSeek thật ở temperature 0:
