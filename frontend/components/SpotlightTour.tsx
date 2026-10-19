@@ -248,6 +248,7 @@ export function SpotlightTour() {
 
   const [cardCoords, setCardCoords] = useState<{ left: number; top: number }>({ left: 16, top: 16 });
   const [isExecutingAction, setIsExecutingAction] = useState(false);
+  const [isPreparingEstimate, setIsPreparingEstimate] = useState(false);
 
   const cardRef = useRef<HTMLDivElement | null>(null);
 
@@ -488,13 +489,51 @@ export function SpotlightTour() {
     setIsActive(false);
   };
 
+  /**
+   * Preload the demo estimate BEFORE the tour navigates to /estimate.
+   *
+   * Without this, the tour arrives on an empty /estimate screen, the
+   * `ensure_estimate` journey action starts a 2-5s backend call, and the
+   * later tour steps (chart, questions, packages) have no UI to highlight.
+   * Loading first means the estimate screen is populated on arrival.
+   */
+  const ensureEstimateReady = async (): Promise<boolean> => {
+    if (readStoredEstimate()) return true;
+    setIsPreparingEstimate(true);
+    try {
+      const loaded = await api.loadScenario("A");
+      const scenarioList = await api.scenarios();
+      const scenarioA = scenarioList.find((s) => s.id === "A");
+      storeEstimate({ estimate: loaded, scenarioTitle: "Fintech payment + PCI" });
+      if (scenarioA?.email_text) storePrefillEmail(scenarioA.email_text);
+      markStepComplete("scenario_stream");
+      return true;
+    } catch (err) {
+      // Navigate anyway: /estimate has its own fallback (ensure_estimate).
+      console.error("Failed to preload the estimate for the tour", err);
+      return false;
+    } finally {
+      setIsPreparingEstimate(false);
+    }
+  };
+
+  const goToStep = async (index: number) => {
+    const target = STEPS[index];
+    if (!target) return;
+    const leavingForEstimate =
+      target.route === "/estimate" && target.route !== pathname;
+    if (leavingForEstimate) {
+      await ensureEstimateReady();
+    }
+    setCurrentStepIndex(index);
+    if (target.route !== pathname) {
+      router.push(target.route);
+    }
+  };
+
   const handleNext = () => {
     if (currentStepIndex < STEPS.length - 1) {
-      const nextStep = STEPS[currentStepIndex + 1];
-      setCurrentStepIndex((prev) => prev + 1);
-      if (nextStep.route !== pathname) {
-        router.push(nextStep.route);
-      }
+      void goToStep(currentStepIndex + 1);
     } else {
       handleClose();
     }
@@ -502,11 +541,7 @@ export function SpotlightTour() {
 
   const handlePrev = () => {
     if (currentStepIndex > 0) {
-      const prevStep = STEPS[currentStepIndex - 1];
-      setCurrentStepIndex((prev) => prev - 1);
-      if (prevStep.route !== pathname) {
-        router.push(prevStep.route);
-      }
+      void goToStep(currentStepIndex - 1);
     }
   };
 
@@ -722,14 +757,9 @@ export function SpotlightTour() {
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => {
-                      const target = STEPS[idx];
-                      setCurrentStepIndex(idx);
-                      if (target.route !== pathname) {
-                        router.push(target.route);
-                      }
-                    }}
-                    className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                    disabled={isPreparingEstimate}
+                    onClick={() => void goToStep(idx)}
+                    className={`h-1.5 rounded-full transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
                       idx === currentStepIndex
                         ? "w-4 bg-[var(--primary)]"
                         : "w-1.5 bg-[var(--surface-3)] hover:bg-[var(--ink-tertiary)]"
@@ -743,7 +773,7 @@ export function SpotlightTour() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  disabled={currentStepIndex === 0}
+                  disabled={currentStepIndex === 0 || isPreparingEstimate}
                   onClick={handlePrev}
                   className="btn text-xs py-1 px-2.5 gap-1.5 disabled:opacity-40 cursor-pointer"
                 >
@@ -752,14 +782,26 @@ export function SpotlightTour() {
                 </button>
                 <button
                   type="button"
+                  disabled={isPreparingEstimate}
                   onClick={handleNext}
-                  className="btn btn-primary text-xs py-1 px-3 gap-1.5 cursor-pointer"
+                  className="btn btn-primary text-xs py-1 px-3 gap-1.5 cursor-pointer disabled:cursor-wait disabled:opacity-70"
                 >
-                  <span>{currentStepIndex === STEPS.length - 1 ? "Hoàn thành" : "Tiếp theo"}</span>
-                  {currentStepIndex === STEPS.length - 1 ? (
-                    <IconCheck className="w-3 h-3" />
+                  {isPreparingEstimate ? (
+                    <>
+                      <Spinner className="h-3 w-3" />
+                      <span>Đang chuẩn bị estimate…</span>
+                    </>
                   ) : (
-                    <IconArrowRight className="w-3 h-3" />
+                    <>
+                      <span>
+                        {currentStepIndex === STEPS.length - 1 ? "Hoàn thành" : "Tiếp theo"}
+                      </span>
+                      {currentStepIndex === STEPS.length - 1 ? (
+                        <IconCheck className="w-3 h-3" />
+                      ) : (
+                        <IconArrowRight className="w-3 h-3" />
+                      )}
+                    </>
                   )}
                 </button>
               </div>

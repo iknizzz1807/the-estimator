@@ -183,7 +183,9 @@ export default function EstimatePage() {
           }
         }
       } else if (action.type === "ensure_estimate") {
-        if (!estimate) {
+        // The tour preloads Scenario A before navigating; only fall back to
+        // loading it here if that preload did not happen/finish.
+        if (!estimate && !readStoredEstimate()) {
           try {
             const loaded = await api.loadScenario("A");
             const scList = await api.scenarios();
