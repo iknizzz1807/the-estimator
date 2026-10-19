@@ -555,6 +555,28 @@ export default function EstimatePage() {
             {estimate && !running && (estimate.codebase?.repo ?? null) !== repo && (
               <span className="chip chip-unknown">press Estimate to apply</span>
             )}
+            <span className="flex basis-full items-start gap-1.5 text-[10px] leading-relaxed text-[var(--faint)]">
+              <svg
+                className="mt-px h-3 w-3 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              <span>
+                <span className="font-medium text-[var(--dim)]">Python repos only.</span>{" "}
+                Fan-in and complexity are Python-specific signals, so a non-Python repo
+                is refused rather than mis-scored. Full multi-language support is out of
+                scope for this time-boxed hackathon demo.
+              </span>
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <button
