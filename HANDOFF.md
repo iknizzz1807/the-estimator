@@ -6,7 +6,7 @@
 
 - **Product is complete AND DEPLOYED**: **242 backend tests** green, single-service app (FastAPI serves the static Next.js UI + API on one port), 240-project demo dataset, real DeepSeek extraction live.
 - **Live app**: https://the-estimator-xqzc.onrender.com — **verified live 2026-10-18** (see §5). Plan `0.5c-512mb` (~$7/mo, no cold start) — downgrade to Free or delete after ~22/10 to stop billing.
-- **GitHub**: https://github.com/iknizzz1807/the-estimator (public). `main` @ `69415d9`, **in sync with `origin/main`** (all commits pushed; reviewed 2026-10-18 evening).
+- **GitHub**: https://github.com/iknizzz1807/the-estimator (public). `main` @ `1c98145`, **in sync with `origin/main`** (all pushed; latest session 2026-10-19).
 - **Next steps, in order**: (1) **submit via the portal** — `docs/SUBMISSION.md` is ready and the live URL is filled in (§5, re-verified 2026-10-18); (2) **revoke the GitHub token + rotate the DeepSeek key** — both were pasted into a chat again on 2026-10-18 (§8); (3) after ~22/10, downgrade the Render paid plan or delete the service to stop billing (§5).
 - **Deadline**: Sunday **2026-10-18 23:59** (self-imposed) / Monday 19-10 official. Competition: *Agent in the Shell* — Anduin Cybernetics, Challenge #2 "The Estimator".
 
@@ -21,7 +21,7 @@ Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contra
 ## 2. Git state
 
 - `main` @ **`69415d9`**, **in sync with `origin/main`** (everything pushed — verified by fetch 2026-10-18 evening).
-- Session commits (2026-10-18), newest last:
+- Session commits (2026-10-18/19), newest last:
   - `cda3a20` — D20: surcharge coefficients measured on 29,059 real commits
   - `d81f348` — D21–D24: paste-a-repo, graceful degradation, non-Python fix, clickable examples, Python-only gate
   - `2144113` — D25: AST import scan, tests out of complexity, coverage in subdirs
@@ -35,6 +35,9 @@ Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contra
   - `69415d9` — check_math.py helper (README `$$` block sanity check)
   - `339d19c` — stale-number sweep (242 tests, 16 docs, 29,059 targets, layout, 96% wording)
   - `cf04a3f` — D30: README rewrite (498 → 222 lines, proof-first) + LICENSE (MIT); D30 documents the 13 corrected claims
+  - `d2aabcd` — README rewritten again in a plainer voice (222 → 111 lines; no meta-framing)
+  - `7c69c0b` / `463197e` — vertical diagrams + "khi có dữ liệu thật" section (codebase as direct model input, not post-hoc surcharge)
+  - `1c98145` — 5 downloadable sample CSVs (`frontend/public/samples/`) + download links in the import modal (verified via the real import API: 5/25/100/500/20+4 skip)
 - The user runs **parallel sessions** (separate UI commits land mid-session). Pull before editing; **never `git add -A`** — commit only your own paths.
 - Commit convention: ASCII messages, scoped prefixes (`feat(api):`, `fix(frontend):`, `docs:`, `chore(deploy):`).
 
