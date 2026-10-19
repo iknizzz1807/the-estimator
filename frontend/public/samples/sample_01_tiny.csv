@@ -1,0 +1,6 @@
+project_id,date,actual_days,team_estimate,status,is_synthetic,email_text,feat_third_party_api,feat_payment_gateway,feat_identity_provider,feat_external_data_sync,feat_data_migration,feat_multi_currency,feat_multi_tenancy,feat_realtime_ui,feat_mobile_app,feat_offline_mode,feat_pci_dss,feat_privacy_compliance,feat_audit_logging,feat_legacy_tech_stack,feat_cross_team_coordination
+TINY-001,2025-04-23,60,51,done,0,"The client needs a B2B ordering platform. Scope includes a detailed audit trail. The client said, ""The scope is fixed"", but one more workshop may be needed.",1,0,0,0,0,0,1,0,0,0,0,0,1,0,0
+TINY-002,2025-06-06,55,41,done,0,The client needs an internal analytics dashboard. Scope includes multi-currency pricing.,1,0,0,0,0,1,0,1,0,0,0,1,1,0,0
+TINY-003,2025-06-13,46,47,done,0,The client needs a customer self-service portal. Scope includes coordination across several teams.,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1
+TINY-004,2026-03-09,77,74,done,0,The client needs a data platform for the operations team. Scope includes work on a legacy tech stack.,1,0,0,1,1,0,1,1,0,0,0,0,0,1,1
+TINY-005,2026-09-03,86,61,done,0,Khách hàng cần một hệ thống đặt lịch và điều phối. Phạm vi gồm chế độ offline.,1,1,0,0,1,1,0,1,1,1,0,1,0,0,1

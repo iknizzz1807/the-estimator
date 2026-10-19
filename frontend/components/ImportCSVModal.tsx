@@ -72,6 +72,28 @@ export function ImportCSVModal({
                 onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               />
             </label>
+            <p className="text-xs text-[var(--faint)]">
+              No file yet? Download a sample:{" "}
+              <a className="underline underline-offset-2" href="/samples/sample_01_tiny.csv" download>
+                Tiny (5)
+              </a>
+              {" · "}
+              <a className="underline underline-offset-2" href="/samples/sample_02_small.csv" download>
+                Small (25)
+              </a>
+              {" · "}
+              <a className="underline underline-offset-2" href="/samples/sample_03_medium.csv" download>
+                Medium (100)
+              </a>
+              {" · "}
+              <a className="underline underline-offset-2" href="/samples/sample_04_large.csv" download>
+                Large (500)
+              </a>
+              {" · "}
+              <a className="underline underline-offset-2" href="/samples/sample_05_edge_cases.csv" download>
+                Edge cases
+              </a>
+            </p>
             <ul className="space-y-1 text-xs text-[var(--faint)]">
               <li>
                 · <code className="num">actual_days</code> must be empty when{" "}

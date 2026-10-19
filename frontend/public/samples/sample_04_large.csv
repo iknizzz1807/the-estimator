@@ -1,0 +1,501 @@
+project_id,date,actual_days,team_estimate,status,is_synthetic,email_text,feat_third_party_api,feat_payment_gateway,feat_identity_provider,feat_external_data_sync,feat_data_migration,feat_multi_currency,feat_multi_tenancy,feat_realtime_ui,feat_mobile_app,feat_offline_mode,feat_pci_dss,feat_privacy_compliance,feat_audit_logging,feat_legacy_tech_stack,feat_cross_team_coordination
+LG-001,2025-01-01,152,151,done,0,The plan for this quarter is to keep a full audit trail of every change and follow GDPR privacy rules. A rough range is fine for planning.,1,1,1,1,1,0,0,1,0,0,1,1,1,1,1
+LG-002,2025-01-03,46,40,done,0,The plan for this quarter is to work around the legacy on-premise stack. A rough range is fine for planning.,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0
+LG-003,2025-01-05,65,60,done,0,The plan for this quarter is to follow GDPR privacy rules and keep the app usable when field staff are offline.,1,0,0,0,0,1,1,0,1,1,0,1,0,1,0
+LG-004,2025-01-07,124,154,done,0,"The team has to add SSO login with our corporate identity provider and keep a full audit trail of every change. They flagged it as ""high priority"" in the last review.",0,1,1,0,1,0,0,0,0,0,1,0,1,1,0
+LG-005,2025-01-08,56,44,done,0,The team has to keep a full audit trail of every change and work around the legacy on-premise stack. Please include the compliance overhead in the estimate.,1,0,0,1,0,0,1,0,1,1,0,0,1,1,0
+LG-006,2025-01-10,65,60,done,0,We need to run the platform multi-tenant for several client organisations. Can you estimate how long that will take?,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0
+LG-007,2025-01-11,34,24,done,0,The team has to keep a full audit trail of every change. Please include the compliance overhead in the estimate.,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1
+LG-008,2025-01-12,99,125,done,0,"The plan for this quarter is to run the platform multi-tenant for several client organisations and add card payments through a new payment gateway. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,0,0,0,0,1,0,0,0,1,0,0,0,1
+LG-009,2025-01-14,89,116,done,0,The team has to migrate the old customer database into the new platform and work around the legacy on-premise stack.,0,1,1,0,1,0,0,0,0,0,1,0,0,1,0
+LG-010,2025-01-15,72,67,done,0,We would like to work around the legacy on-premise stack and meet PCI-DSS requirements for card data. Can you estimate how long that will take?,1,1,0,1,0,1,1,0,0,0,1,1,0,1,0
+LG-011,2025-01-17,54,50,done,0,Bên mình đang muốn xử lý hệ thống cũ chạy on-premise và đăng nhập SSO bằng tài khoản công ty. Anh/chị ước lượng giúp khoảng bao lâu nhé.,1,1,1,0,0,0,0,0,0,0,0,1,0,1,1
+LG-012,2025-01-18,65,66,done,0,We need to follow GDPR privacy rules and meet PCI-DSS requirements for card data.,0,1,0,1,0,0,0,1,0,0,1,1,1,0,0
+LG-013,2025-01-19,51,47,done,0,Kế hoạch quý này gồm việc kết nối với API của đối tác CRM và đăng nhập SSO bằng tài khoản công ty.,1,0,1,1,0,0,0,1,0,0,0,0,1,1,0
+LG-014,2025-01-22,101,88,done,0,We need to add SSO login with our corporate identity provider.,1,0,1,0,1,1,0,1,0,0,0,1,0,1,1
+LG-015,2025-01-23,49,53,done,0,We need to integrate with our CRM vendor's REST API. A rough range is fine for planning.,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1
+LG-016,2025-01-24,78,59,done,0,"The team has to coordinate across three teams and one external vendor and keep a full audit trail of every change. They flagged it as ""high priority"" in the last review.",1,0,0,1,0,0,1,0,0,0,0,0,1,0,1
+LG-017,2025-01-25,75,92,done,0,Sắp tới bên mình sẽ tuân thủ quy định GDPR về dữ liệu cá nhân. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,1,0,0,1,1,1,0,0,0,1,1,0,0
+LG-018,2025-01-27,65,68,done,0,"We would like to coordinate across three teams and one external vendor. They flagged it as ""high priority"" in the last review.",0,0,0,0,0,1,1,0,1,0,0,0,0,0,1
+LG-019,2025-01-28,94,91,done,0,"Our roadmap includes work to meet PCI-DSS requirements for card data and support billing in USD, EUR and VND. Can you estimate how long that will take?",1,1,0,0,0,1,1,0,0,0,1,0,1,0,0
+LG-020,2025-01-29,61,71,done,0,"The plan for this quarter is to work around the legacy on-premise stack and migrate the old customer database into the new platform. They flagged it as ""high priority"" in the last review.",0,0,0,1,1,0,0,0,0,0,0,0,0,1,0
+LG-021,2025-01-30,67,66,done,0,The team has to work around the legacy on-premise stack. Please include the compliance overhead in the estimate.,1,0,0,0,0,0,0,0,1,1,0,0,0,1,0
+LG-022,2025-02-01,106,103,done,0,Kế hoạch quý này gồm việc đăng nhập SSO bằng tài khoản công ty và làm ứng dụng di động cho cả iOS và Android. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,1,0,0,0,0,1,1,0,1,0,1,0,1
+LG-023,2025-02-02,59,52,done,0,"The team has to support billing in USD, EUR and VND. Can you estimate how long that will take?",1,0,1,0,0,1,0,0,0,0,0,0,0,0,0
+LG-024,2025-02-03,107,109,done,0,Our roadmap includes work to migrate the old customer database into the new platform and keep project data in sync with our ERP system. Please include the compliance overhead in the estimate.,1,0,0,1,1,0,0,0,1,1,0,0,0,1,0
+LG-025,2025-02-04,84,55,done,0,"Sắp tới bên mình sẽ ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi và xử lý hệ thống cũ chạy on-premise. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,0,1,1,0,0,0,0,0,0,0,1,1,1
+LG-026,2025-02-05,61,62,done,0,"Our roadmap includes work to support billing in USD, EUR and VND and meet PCI-DSS requirements for card data. Please include the compliance overhead in the estimate.",0,0,0,0,0,1,1,1,0,0,1,1,0,0,1
+LG-027,2025-02-06,82,73,done,0,Our roadmap includes work to integrate with our CRM vendor's REST API. Can you estimate how long that will take?,1,0,0,1,0,0,1,0,0,1,0,0,0,0,0
+LG-028,2025-02-08,126,141,done,0,"We need to add card payments through a new payment gateway. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,0,1,0,0,1,0,0,0,1,0,1,0,1
+LG-029,2025-02-09,,36,in_progress,0,We need to migrate the old customer database into the new platform and integrate with our CRM vendor's REST API.,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0
+LG-030,2025-02-10,82,62,done,0,Bên mình đang muốn giữ ứng dụng hoạt động khi nhân viên mất mạng và làm ứng dụng di động cho cả iOS và Android. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,0,0,0,0,0,0,1,1,0,0,1,0,1
+LG-031,2025-02-11,51,52,done,0,We need to run the platform multi-tenant for several client organisations and integrate with our CRM vendor's REST API.,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0
+LG-032,2025-02-13,69,57,done,0,We would like to keep a full audit trail of every change and ship native iOS and Android apps. Can you estimate how long that will take?,0,0,0,1,0,0,0,0,1,1,0,0,1,0,0
+LG-033,2025-02-14,,,in_progress,0,Kế hoạch quý này gồm việc phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài và chuyển dữ liệu từ hệ thống cũ sang nền tảng mới. Anh/chị ước lượng giúp khoảng bao lâu nhé.,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1
+LG-034,2025-02-16,57,67,done,0,"Bên mình cần kết nối với API của đối tác CRM và tuân thủ quy định GDPR về dữ liệu cá nhân. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,1,0,0,0,0,0,1,0,0,1,1,0,0,0
+LG-035,2025-02-17,81,84,done,0,We would like to follow GDPR privacy rules and add SSO login with our corporate identity provider. Please include the compliance overhead in the estimate.,1,0,1,1,0,1,1,1,0,0,0,1,1,0,0
+LG-036,2025-02-19,126,145,done,0,We would like to integrate with our CRM vendor's REST API and add SSO login with our corporate identity provider. A rough range is fine for planning.,1,1,1,0,0,1,0,0,1,1,1,0,1,1,0
+LG-037,2025-02-20,90,112,done,0,"We would like to migrate the old customer database into the new platform and run the platform multi-tenant for several client organisations. Thanks, and let us know if you need more detail.",1,0,0,0,1,1,1,0,0,0,0,0,0,1,0
+LG-038,2025-02-21,113,97,done,0,Sắp tới bên mình sẽ thêm thanh toán thẻ qua cổng thanh toán mới và hiển thị cập nhật thời gian thực trên dashboard.,1,1,0,0,1,0,0,1,1,0,1,0,1,1,0
+LG-039,2025-02-22,68,90,done,0,"Sắp tới bên mình sẽ hỗ trợ thanh toán bằng VND, USD và EUR và đăng nhập SSO bằng tài khoản công ty. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,1,0,0,1,0,0,0,0,0,0,1,0,0
+LG-040,2025-02-23,66,66,done,0,"Our roadmap includes work to work around the legacy on-premise stack and keep a full audit trail of every change. Thanks, and let us know if you need more detail.",1,0,0,1,1,0,0,1,1,0,0,0,1,1,0
+LG-041,2025-02-24,72,68,done,0,Bên mình cần tuân thủ quy định GDPR về dữ liệu cá nhân.,0,1,1,0,0,0,0,0,0,0,1,1,0,0,1
+LG-042,2025-02-26,61,71,done,0,The plan for this quarter is to show live updates on the operations dashboard and coordinate across three teams and one external vendor. Please include the compliance overhead in the estimate.,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1
+LG-043,2025-02-27,94,116,done,0,"Sắp tới bên mình sẽ hiển thị cập nhật thời gian thực trên dashboard và đáp ứng yêu cầu PCI-DSS cho dữ liệu thẻ. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,1,0,0,1,0,0,1,0,0,1,0,0,1,1
+LG-044,2025-02-28,44,44,done,0,"Bên mình cần phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",0,0,0,1,0,1,0,0,1,0,0,0,0,0,1
+LG-045,2025-03-01,104,101,done,0,We would like to add SSO login with our corporate identity provider and work around the legacy on-premise stack.,1,0,1,0,0,1,1,0,0,0,0,1,0,1,1
+LG-046,2025-03-02,33,43,done,0,"Bên mình đang muốn hỗ trợ thanh toán bằng VND, USD và EUR và kết nối với API của đối tác CRM. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+LG-047,2025-03-03,68,63,done,0,Kế hoạch quý này gồm việc kết nối với API của đối tác CRM. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,1,0,1,0,0,0,0,0,0,1,1,0,1
+LG-048,2025-03-04,50,48,done,0,We need to show live updates on the operations dashboard and run the platform multi-tenant for several client organisations. A rough range is fine for planning.,1,0,0,0,1,0,1,1,0,0,0,0,1,1,0
+LG-049,2025-03-05,,72,in_progress,0,"The plan for this quarter is to meet PCI-DSS requirements for card data and support billing in USD, EUR and VND. They flagged it as ""high priority"" in the last review.",0,1,0,1,0,1,1,0,0,0,1,1,1,0,1
+LG-050,2025-03-06,22,29,done,0,"Our roadmap includes work to show live updates on the operations dashboard and keep a full audit trail of every change. They flagged it as ""high priority"" in the last review.",0,0,0,0,0,0,0,1,0,0,0,0,1,0,0
+LG-051,2025-03-07,73,93,done,0,"We need to integrate with our CRM vendor's REST API and follow GDPR privacy rules. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,1,1,0,0,0,1,0,0,0,1,0,0,0
+LG-052,2025-03-08,50,66,done,0,"Our roadmap includes work to ship native iOS and Android apps. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,1,0,0,0,0,1,1,1,1,1,0,0,0,0
+LG-053,2025-03-09,112,84,done,0,"We need to keep a full audit trail of every change and add card payments through a new payment gateway. Thanks, and let us know if you need more detail.",0,1,0,0,0,0,0,1,0,1,1,1,1,0,0
+LG-054,2025-03-10,30,20,done,0,"We would like to migrate the old customer database into the new platform. They flagged it as ""high priority"" in the last review.",0,0,0,1,1,0,0,0,0,0,0,0,0,0,0
+LG-055,2025-03-11,137,124,done,0,The plan for this quarter is to follow GDPR privacy rules and keep a full audit trail of every change. Please include the compliance overhead in the estimate.,1,0,1,1,0,0,1,1,1,0,0,1,1,1,1
+LG-056,2025-03-12,46,38,done,0,"We would like to keep the app usable when field staff are offline. Thanks, and let us know if you need more detail.",1,0,0,0,1,0,0,0,0,1,0,0,0,1,0
+LG-057,2025-03-13,84,97,done,0,We need to add SSO login with our corporate identity provider. Please include the compliance overhead in the estimate.,1,1,1,0,0,0,0,1,1,1,1,0,1,0,1
+LG-058,2025-03-14,118,78,done,0,Sắp tới bên mình sẽ kết nối với API của đối tác CRM và đăng nhập SSO bằng tài khoản công ty.,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0
+LG-059,2025-03-15,,90,in_progress,0,The team has to follow GDPR privacy rules. A rough range is fine for planning.,1,0,1,0,1,1,1,1,0,0,0,1,0,0,0
+LG-060,2025-03-16,,76,in_progress,0,"Bên mình đang muốn chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng và ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,1,1,0,1,0,1,0,0,0,1,0,1,0,0
+LG-061,2025-03-17,82,75,done,0,The plan for this quarter is to add SSO login with our corporate identity provider. Please include the compliance overhead in the estimate.,0,0,1,0,0,1,0,1,1,1,0,0,0,0,0
+LG-062,2025-03-18,79,80,done,0,Bên mình đang muốn hiển thị cập nhật thời gian thực trên dashboard. Cho mình xin khoảng thời gian dự kiến với ạ.,0,1,0,0,0,0,0,1,0,0,1,0,1,0,0
+LG-063,2025-03-19,77,56,done,0,"Kế hoạch quý này gồm việc làm ứng dụng di động cho cả iOS và Android. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,0,0,1,0,0,0,1,1,0,0,1,1,0
+LG-064,2025-03-21,53,71,done,0,Our roadmap includes work to migrate the old customer database into the new platform. Can you estimate how long that will take?,1,0,0,0,1,1,0,0,0,0,0,0,1,0,0
+LG-065,2025-03-22,86,100,done,0,"We would like to follow GDPR privacy rules and add card payments through a new payment gateway. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,1,0,0,0,0,0,1,0,1,1,0,0,0
+LG-066,2025-03-23,62,41,done,0,Sắp tới bên mình sẽ kết nối với API của đối tác CRM và đồng bộ dữ liệu liên tục với hệ thống ERP. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0
+LG-067,2025-03-24,78,71,done,0,Kế hoạch quý này gồm việc tuân thủ quy định GDPR về dữ liệu cá nhân và chuyển dữ liệu từ hệ thống cũ sang nền tảng mới.,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0
+LG-068,2025-03-25,81,81,done,0,"The plan for this quarter is to add SSO login with our corporate identity provider. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,1,0,1,0,0,1,0,0,0,0,0,0,0
+LG-069,2025-03-26,91,93,done,0,"We would like to run the platform multi-tenant for several client organisations and keep project data in sync with our ERP system. Thanks, and let us know if you need more detail.",0,0,0,1,0,0,1,0,0,1,0,0,1,0,1
+LG-070,2025-03-27,73,85,done,0,The plan for this quarter is to migrate the old customer database into the new platform and follow GDPR privacy rules.,1,0,1,1,1,0,0,1,0,0,0,1,1,1,0
+LG-071,2025-03-28,58,61,done,0,"Bên mình cần ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,0,1,0,0,0,0,0,0,0,0,1,0,0
+LG-072,2025-03-29,111,118,done,0,"The plan for this quarter is to show live updates on the operations dashboard and add SSO login with our corporate identity provider. They flagged it as ""high priority"" in the last review.",1,0,1,1,0,1,0,1,1,1,0,0,0,0,0
+LG-073,2025-03-30,67,54,done,0,We need to keep project data in sync with our ERP system and follow GDPR privacy rules. Please include the compliance overhead in the estimate.,0,0,0,1,0,0,1,0,0,1,0,1,0,0,0
+LG-074,2025-04-01,75,68,done,0,Kế hoạch quý này gồm việc đăng nhập SSO bằng tài khoản công ty.,1,1,1,0,0,0,0,1,0,0,1,0,0,0,0
+LG-075,2025-04-02,70,52,done,0,Bên mình đang muốn giữ ứng dụng hoạt động khi nhân viên mất mạng và hiển thị cập nhật thời gian thực trên dashboard. Nhờ team estimate thời gian giúp mình.,0,0,0,0,0,0,0,1,1,1,0,0,1,0,0
+LG-076,2025-04-03,42,38,done,0,"Sắp tới bên mình sẽ phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,0,0,1,0,0,0,0,0,0,0,0,0,1
+LG-077,2025-04-04,53,71,done,0,"The plan for this quarter is to meet PCI-DSS requirements for card data. They flagged it as ""high priority"" in the last review.",0,0,0,0,0,0,0,0,0,1,1,0,0,0,1
+LG-078,2025-04-06,74,59,done,0,The plan for this quarter is to ship native iOS and Android apps and work around the legacy on-premise stack. A rough range is fine for planning.,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1
+LG-079,2025-04-07,68,50,done,0,Our roadmap includes work to keep project data in sync with our ERP system and integrate with our CRM vendor's REST API.,1,0,0,1,0,0,0,0,1,0,0,0,0,0,1
+LG-080,2025-04-08,65,78,done,0,Kế hoạch quý này gồm việc phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài và đáp ứng yêu cầu PCI-DSS cho dữ liệu thẻ. Cho mình xin khoảng thời gian dự kiến với ạ.,1,1,0,0,0,0,0,0,0,0,1,0,0,0,1
+LG-081,2025-04-09,69,70,done,0,"We would like to coordinate across three teams and one external vendor. They flagged it as ""high priority"" in the last review.",0,0,1,1,1,0,0,0,0,0,0,0,1,1,1
+LG-082,2025-04-10,40,46,done,0,"The plan for this quarter is to support billing in USD, EUR and VND. Please include the compliance overhead in the estimate.",1,0,0,0,1,1,1,0,0,0,0,0,1,1,0
+LG-083,2025-04-11,114,150,done,0,The team has to follow GDPR privacy rules and migrate the old customer database into the new platform.,0,0,0,0,1,1,1,1,1,0,0,1,0,1,1
+LG-084,2025-04-12,36,34,done,0,We would like to follow GDPR privacy rules. A rough range is fine for planning.,0,1,0,1,0,1,0,0,0,0,1,1,0,0,0
+LG-085,2025-04-13,78,95,done,0,The plan for this quarter is to show live updates on the operations dashboard.,1,0,0,0,1,0,0,1,0,0,0,1,0,1,0
+LG-086,2025-04-14,,46,in_progress,0,Kế hoạch quý này gồm việc kết nối với API của đối tác CRM. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+LG-087,2025-04-15,33,26,done,0,We need to follow GDPR privacy rules. Can you estimate how long that will take?,0,1,0,0,0,0,0,0,0,0,1,1,0,0,0
+LG-088,2025-04-16,44,35,done,0,The team has to migrate the old customer database into the new platform and keep project data in sync with our ERP system. Please include the compliance overhead in the estimate.,0,0,0,1,1,0,0,0,0,1,0,0,0,1,0
+LG-089,2025-04-17,91,63,done,0,The plan for this quarter is to keep a full audit trail of every change and add card payments through a new payment gateway.,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0
+LG-090,2025-04-18,56,61,done,0,"Our roadmap includes work to add SSO login with our corporate identity provider. Thanks, and let us know if you need more detail.",0,0,1,0,0,1,0,0,1,0,0,0,0,0,0
+LG-091,2025-04-19,112,116,done,0,"We need to keep project data in sync with our ERP system and ship native iOS and Android apps. They flagged it as ""high priority"" in the last review.",1,0,1,1,0,0,0,0,1,1,0,0,1,0,1
+LG-092,2025-04-20,50,41,done,0,"Our roadmap includes work to keep project data in sync with our ERP system and support billing in USD, EUR and VND. Please include the compliance overhead in the estimate.",0,0,0,1,0,1,0,0,0,0,0,0,0,1,0
+LG-093,2025-04-21,51,43,done,0,"The plan for this quarter is to migrate the old customer database into the new platform. They flagged it as ""high priority"" in the last review.",0,0,0,1,1,1,1,1,0,0,0,0,0,1,0
+LG-094,2025-04-23,,42,in_progress,0,Kế hoạch quý này gồm việc kết nối với API của đối tác CRM.,1,0,1,0,1,0,0,0,0,0,0,1,0,1,0
+LG-095,2025-04-24,79,58,done,0,"Sắp tới bên mình sẽ đăng nhập SSO bằng tài khoản công ty và kết nối với API của đối tác CRM. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,1,1,0,0,1,0,0,0,0,1,1,1,0,0
+LG-096,2025-04-25,116,137,done,0,We need to migrate the old customer database into the new platform and keep the app usable when field staff are offline. Please include the compliance overhead in the estimate.,0,0,0,0,1,0,1,0,1,1,0,1,0,1,1
+LG-097,2025-04-27,52,49,done,0,We need to ship native iOS and Android apps. A rough range is fine for planning.,0,1,0,1,0,0,1,0,1,0,1,0,0,0,0
+LG-098,2025-04-28,111,76,done,0,"We need to migrate the old customer database into the new platform. Thanks, and let us know if you need more detail.",1,0,0,1,1,0,0,1,0,0,0,0,1,1,1
+LG-099,2025-04-29,102,132,done,0,Bên mình đang muốn phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài và đồng bộ dữ liệu liên tục với hệ thống ERP. Nhờ team estimate thời gian giúp mình.,0,0,0,1,0,0,1,0,0,0,0,0,1,1,1
+LG-100,2025-04-30,57,61,done,0,"Sắp tới bên mình sẽ kết nối với API của đối tác CRM và chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,0,0,1,0,1,0,1,0,0,1,0,1,1
+LG-101,2025-05-01,87,90,done,0,"We need to support billing in USD, EUR and VND. Thanks, and let us know if you need more detail.",1,1,0,1,0,1,0,1,1,0,1,0,1,0,1
+LG-102,2025-05-03,67,62,done,0,"The plan for this quarter is to integrate with our CRM vendor's REST API. They flagged it as ""high priority"" in the last review.",1,0,1,1,0,0,0,1,1,0,0,1,0,0,1
+LG-103,2025-05-04,84,90,done,0,"We need to migrate the old customer database into the new platform and ship native iOS and Android apps. Thanks, and let us know if you need more detail.",0,0,0,0,1,0,0,1,1,0,0,0,1,0,0
+LG-104,2025-05-05,60,77,done,0,Bên mình đang muốn xử lý hệ thống cũ chạy on-premise. Cho mình xin khoảng thời gian dự kiến với ạ.,0,1,0,0,1,0,0,1,0,0,1,0,1,1,0
+LG-105,2025-05-07,78,86,done,0,Bên mình đang muốn làm ứng dụng di động cho cả iOS và Android và chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng.,0,0,0,0,1,0,1,1,1,0,0,1,1,0,0
+LG-106,2025-05-08,92,107,done,0,The team has to add card payments through a new payment gateway and coordinate across three teams and one external vendor.,1,1,0,0,0,0,0,1,1,0,1,0,1,1,1
+LG-107,2025-05-09,84,78,done,0,"The plan for this quarter is to meet PCI-DSS requirements for card data. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,0,1,0,1,0,0,0,0,1,0,0,0,0
+LG-108,2025-05-10,48,33,done,0,Bên mình cần giữ ứng dụng hoạt động khi nhân viên mất mạng và đồng bộ dữ liệu liên tục với hệ thống ERP. Anh/chị ước lượng giúp khoảng bao lâu nhé.,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0
+LG-109,2025-05-12,110,103,done,0,The plan for this quarter is to run the platform multi-tenant for several client organisations and integrate with our CRM vendor's REST API.,1,0,1,0,1,0,1,1,0,0,0,0,0,1,0
+LG-110,2025-05-13,57,67,done,0,Kế hoạch quý này gồm việc đáp ứng yêu cầu PCI-DSS cho dữ liệu thẻ và đồng bộ dữ liệu liên tục với hệ thống ERP.,0,0,0,1,0,0,0,0,1,0,1,1,0,0,1
+LG-111,2025-05-14,129,174,done,0,We need to coordinate across three teams and one external vendor and ship native iOS and Android apps. Can you estimate how long that will take?,1,0,0,0,0,0,0,1,1,1,0,0,0,0,1
+LG-112,2025-05-15,75,58,done,0,"Kế hoạch quý này gồm việc hỗ trợ thanh toán bằng VND, USD và EUR và thêm thanh toán thẻ qua cổng thanh toán mới. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,1,0,0,0,1,0,0,0,0,1,0,1,0,1
+LG-113,2025-05-16,68,62,done,0,The team has to integrate with our CRM vendor's REST API. Can you estimate how long that will take?,1,0,0,1,0,0,0,0,1,0,0,0,0,0,1
+LG-114,2025-05-17,68,85,done,0,The team has to keep a full audit trail of every change. A rough range is fine for planning.,1,0,1,0,0,1,1,0,0,0,0,1,1,0,0
+LG-115,2025-05-18,39,44,done,0,Bên mình đang muốn ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi.,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+LG-116,2025-05-21,35,31,done,0,The plan for this quarter is to keep a full audit trail of every change. A rough range is fine for planning.,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+LG-117,2025-05-22,43,32,done,0,"We need to keep the app usable when field staff are offline and integrate with our CRM vendor's REST API. They flagged it as ""high priority"" in the last review.",1,0,0,0,0,0,1,0,0,1,0,0,1,0,0
+LG-118,2025-05-24,36,45,done,0,The team has to migrate the old customer database into the new platform and work around the legacy on-premise stack.,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0
+LG-119,2025-05-25,25,28,done,0,Kế hoạch quý này gồm việc chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Cho mình xin khoảng thời gian dự kiến với ạ.,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+LG-120,2025-05-27,64,66,done,0,"Bên mình cần hỗ trợ thanh toán bằng VND, USD và EUR và tuân thủ quy định GDPR về dữ liệu cá nhân.",1,0,0,1,0,1,0,0,0,0,0,1,0,0,0
+LG-121,2025-05-28,38,50,done,0,We need to keep project data in sync with our ERP system and show live updates on the operations dashboard. Please include the compliance overhead in the estimate.,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0
+LG-122,2025-05-30,57,38,done,0,Kế hoạch quý này gồm việc ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi và kết nối với API của đối tác CRM. Anh/chị ước lượng giúp khoảng bao lâu nhé.,1,0,1,0,1,0,0,0,1,0,0,0,1,1,0
+LG-123,2025-06-02,81,97,done,0,"The team has to migrate the old customer database into the new platform and support billing in USD, EUR and VND.",1,0,0,1,1,1,1,1,0,0,0,0,0,1,1
+LG-124,2025-06-04,,,in_progress,0,The team has to keep a full audit trail of every change.,1,0,0,0,1,1,0,0,0,0,0,0,1,1,0
+LG-125,2025-06-05,37,33,done,0,"The plan for this quarter is to keep project data in sync with our ERP system. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,0,1,1,0,0,0,0,0,0,0,0,0,0
+LG-126,2025-06-09,89,112,done,0,Kế hoạch quý này gồm việc làm ứng dụng di động cho cả iOS và Android và thêm thanh toán thẻ qua cổng thanh toán mới. Cho mình xin khoảng thời gian dự kiến với ạ.,0,1,0,1,0,0,0,1,1,1,1,1,0,0,1
+LG-127,2025-06-10,,84,in_progress,0,We would like to add card payments through a new payment gateway.,0,1,1,0,1,0,0,1,1,1,1,1,1,1,0
+LG-128,2025-06-13,142,148,done,0,We would like to keep project data in sync with our ERP system. A rough range is fine for planning.,1,1,1,1,0,0,0,0,1,1,1,0,1,1,0
+LG-129,2025-06-14,87,96,done,0,Bên mình đang muốn ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi và kết nối với API của đối tác CRM. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,1,0,1,0,0,0,0,0,0,0,1,1,0
+LG-130,2025-06-16,59,68,done,0,"Bên mình cần giữ ứng dụng hoạt động khi nhân viên mất mạng. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,0,1,0,0,0,0,0,1,1,0,0,1,0,0
+LG-131,2025-06-18,86,85,done,0,"We need to integrate with our CRM vendor's REST API and keep project data in sync with our ERP system. Thanks, and let us know if you need more detail.",1,0,0,1,1,0,1,0,1,1,0,0,0,1,0
+LG-132,2025-06-19,75,78,done,0,The plan for this quarter is to follow GDPR privacy rules and coordinate across three teams and one external vendor.,0,1,1,0,0,0,0,0,1,0,1,1,0,0,1
+LG-133,2025-06-20,67,85,done,0,We would like to work around the legacy on-premise stack and keep a full audit trail of every change.,1,0,0,1,1,1,0,0,1,1,0,0,1,1,0
+LG-134,2025-06-21,98,71,done,0,"We would like to keep a full audit trail of every change and show live updates on the operations dashboard. Thanks, and let us know if you need more detail.",0,0,0,0,0,0,0,1,1,0,0,0,1,1,1
+LG-135,2025-06-22,102,107,done,0,The team has to ship native iOS and Android apps.,1,0,0,0,1,0,0,0,1,1,0,0,0,1,0
+LG-136,2025-06-24,61,49,done,0,"The plan for this quarter is to follow GDPR privacy rules and ship native iOS and Android apps. Thanks, and let us know if you need more detail.",0,0,0,0,1,0,0,0,1,0,0,1,0,1,0
+LG-137,2025-06-25,51,58,done,0,We would like to work around the legacy on-premise stack and show live updates on the operations dashboard. Can you estimate how long that will take?,1,0,0,0,1,0,0,1,0,0,0,0,0,1,1
+LG-138,2025-06-26,49,64,done,0,Bên mình đang muốn ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi. Nhờ team estimate thời gian giúp mình.,1,0,0,0,0,1,0,1,0,0,0,0,1,0,0
+LG-139,2025-06-27,,76,in_progress,0,"Our roadmap includes work to run the platform multi-tenant for several client organisations. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,0,1,0,1,1,1,1,0,0,0,1,0,1
+LG-140,2025-06-28,63,57,done,0,The plan for this quarter is to coordinate across three teams and one external vendor.,1,0,1,1,0,1,0,0,0,0,0,0,0,0,1
+LG-141,2025-06-29,64,59,done,0,"Bên mình cần kết nối với API của đối tác CRM và ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,1,0,0,0,0,1,1,1,0,0,0,1,0,1
+LG-142,2025-06-30,47,43,done,0,Bên mình cần ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi và đăng nhập SSO bằng tài khoản công ty. Cho mình xin khoảng thời gian dự kiến với ạ.,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0
+LG-143,2025-07-01,47,40,done,0,"The team has to add card payments through a new payment gateway and ship native iOS and Android apps. Thanks, and let us know if you need more detail.",1,1,0,0,0,0,0,0,1,1,1,0,1,0,0
+LG-144,2025-07-02,135,111,done,0,"Bên mình đang muốn đồng bộ dữ liệu liên tục với hệ thống ERP. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,1,1,0,0,1,0,0,0,0,1,1,0,0
+LG-145,2025-07-03,92,100,done,0,The plan for this quarter is to integrate with our CRM vendor's REST API and coordinate across three teams and one external vendor. Can you estimate how long that will take?,1,0,0,0,0,1,1,0,0,0,0,1,1,0,1
+LG-146,2025-07-04,77,90,done,0,We need to integrate with our CRM vendor's REST API and run the platform multi-tenant for several client organisations. Please include the compliance overhead in the estimate.,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+LG-147,2025-07-05,91,77,done,0,Kế hoạch quý này gồm việc chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Anh/chị ước lượng giúp khoảng bao lâu nhé.,0,1,0,1,1,0,1,0,0,0,1,1,0,1,0
+LG-148,2025-07-06,50,65,done,0,The team has to integrate with our CRM vendor's REST API and keep a full audit trail of every change. Can you estimate how long that will take?,1,1,0,0,1,0,1,0,1,0,1,0,1,0,0
+LG-149,2025-07-07,75,93,done,0,"Our roadmap includes work to integrate with our CRM vendor's REST API. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,1,0,1,0,0,0,0,0,0,0,0,1,1
+LG-150,2025-07-09,89,87,done,0,Bên mình đang muốn ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi.,0,0,0,0,0,0,1,1,0,1,0,0,1,1,1
+LG-151,2025-07-11,,47,in_progress,0,"Bên mình cần chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng và phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,0,0,0,0,1,0,0,0,0,0,0,0,1
+LG-152,2025-07-12,88,81,done,0,Sắp tới bên mình sẽ đồng bộ dữ liệu liên tục với hệ thống ERP.,1,0,0,1,0,0,0,1,0,0,0,0,1,1,0
+LG-153,2025-07-13,49,57,done,0,Our roadmap includes work to run the platform multi-tenant for several client organisations and add SSO login with our corporate identity provider.,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0
+LG-154,2025-07-18,90,104,done,0,We need to follow GDPR privacy rules.,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1
+LG-155,2025-07-20,46,34,done,0,"The plan for this quarter is to keep the app usable when field staff are offline and keep project data in sync with our ERP system. Thanks, and let us know if you need more detail.",0,0,0,1,0,0,0,1,1,1,0,0,0,0,0
+LG-156,2025-07-21,146,172,done,0,"We need to meet PCI-DSS requirements for card data. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,1,1,0,1,1,0,1,1,1,0,1,0,0
+LG-157,2025-07-22,90,120,done,0,Sắp tới bên mình sẽ đăng nhập SSO bằng tài khoản công ty.,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+LG-158,2025-07-23,22,18,done,0,Our roadmap includes work to show live updates on the operations dashboard. Please include the compliance overhead in the estimate.,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+LG-159,2025-07-24,137,178,done,0,Our roadmap includes work to ship native iOS and Android apps and meet PCI-DSS requirements for card data. Please include the compliance overhead in the estimate.,1,1,1,1,0,0,0,1,1,1,1,1,1,0,0
+LG-160,2025-07-25,69,66,done,0,"Kế hoạch quý này gồm việc xử lý hệ thống cũ chạy on-premise. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",0,0,0,0,1,0,0,0,0,0,0,0,1,1,0
+LG-161,2025-07-28,89,84,done,0,"Bên mình cần đồng bộ dữ liệu liên tục với hệ thống ERP và ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,1,1,1,1,1,0,1,0,0,1,0,1,1,0
+LG-162,2025-07-29,49,62,done,0,"We would like to keep a full audit trail of every change and support billing in USD, EUR and VND. They flagged it as ""high priority"" in the last review.",0,0,0,0,0,1,0,0,0,0,1,1,1,1,0
+LG-163,2025-07-30,72,79,done,0,Sắp tới bên mình sẽ xử lý hệ thống cũ chạy on-premise và ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi.,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0
+LG-164,2025-08-02,86,87,done,0,"We need to work around the legacy on-premise stack and support billing in USD, EUR and VND.",0,0,0,0,0,1,1,0,1,0,1,1,0,1,0
+LG-165,2025-08-03,139,140,done,0,"The plan for this quarter is to migrate the old customer database into the new platform. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,1,0,1,0,0,1,0,0,0,0,1,1,0
+LG-166,2025-08-04,73,98,done,0,"We would like to meet PCI-DSS requirements for card data. Thanks, and let us know if you need more detail.",0,1,0,0,0,0,1,0,1,1,1,1,1,0,0
+LG-167,2025-08-08,121,117,done,0,"Bên mình cần xử lý hệ thống cũ chạy on-premise. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,1,1,1,1,0,1,1,0,0,0,0,0,1,0
+LG-168,2025-08-09,103,130,done,0,We need to keep the app usable when field staff are offline and integrate with our CRM vendor's REST API. A rough range is fine for planning.,1,0,1,0,1,1,0,0,0,1,0,0,0,1,0
+LG-169,2025-08-11,77,80,done,0,The plan for this quarter is to keep project data in sync with our ERP system.,0,0,1,1,0,1,0,0,1,0,0,1,0,0,1
+LG-170,2025-08-12,47,55,done,0,Kế hoạch quý này gồm việc hiển thị cập nhật thời gian thực trên dashboard. Cho mình xin khoảng thời gian dự kiến với ạ.,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+LG-171,2025-08-13,102,114,done,0,"Our roadmap includes work to ship native iOS and Android apps and coordinate across three teams and one external vendor. They flagged it as ""high priority"" in the last review.",1,0,0,0,1,0,1,1,1,0,0,1,0,0,1
+LG-172,2025-08-14,58,66,done,0,"Our roadmap includes work to coordinate across three teams and one external vendor. Thanks, and let us know if you need more detail.",0,1,0,1,0,0,0,0,1,1,1,0,0,0,1
+LG-173,2025-08-15,147,191,done,0,The plan for this quarter is to ship native iOS and Android apps. A rough range is fine for planning.,1,1,1,1,0,0,1,0,1,1,1,1,0,0,1
+LG-174,2025-08-17,54,62,done,0,"The plan for this quarter is to support billing in USD, EUR and VND and keep a full audit trail of every change. Please include the compliance overhead in the estimate.",0,0,1,0,0,1,0,0,0,0,0,1,1,0,1
+LG-175,2025-08-19,53,38,done,0,Bên mình đang muốn chuyển dữ liệu từ hệ thống cũ sang nền tảng mới và xử lý hệ thống cũ chạy on-premise. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0
+LG-176,2025-08-20,,47,in_progress,0,Our roadmap includes work to run the platform multi-tenant for several client organisations and keep a full audit trail of every change.,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1
+LG-177,2025-08-22,51,59,done,0,The plan for this quarter is to follow GDPR privacy rules and meet PCI-DSS requirements for card data.,1,1,0,0,1,0,0,0,0,0,1,1,0,1,0
+LG-178,2025-08-23,,61,in_progress,0,The plan for this quarter is to integrate with our CRM vendor's REST API and add SSO login with our corporate identity provider.,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0
+LG-179,2025-08-25,36,33,done,0,Bên mình đang muốn chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng.,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0
+LG-180,2025-08-26,,104,in_progress,0,Our roadmap includes work to add card payments through a new payment gateway and integrate with our CRM vendor's REST API.,1,1,0,0,0,0,1,0,0,0,1,1,1,0,1
+LG-181,2025-08-27,46,60,done,0,"The plan for this quarter is to work around the legacy on-premise stack. Thanks, and let us know if you need more detail.",1,0,0,0,1,0,0,0,0,0,0,0,1,1,0
+LG-182,2025-08-28,81,102,done,0,Sắp tới bên mình sẽ kết nối với API của đối tác CRM và đồng bộ dữ liệu liên tục với hệ thống ERP. Nhờ team estimate thời gian giúp mình.,1,0,1,1,0,1,0,1,1,0,0,1,1,1,1
+LG-183,2025-08-29,71,73,done,0,Our roadmap includes work to show live updates on the operations dashboard and keep a full audit trail of every change. Can you estimate how long that will take?,0,1,0,1,0,0,0,1,0,0,1,0,1,0,0
+LG-184,2025-08-30,55,41,done,0,Bên mình cần tuân thủ quy định GDPR về dữ liệu cá nhân. Anh/chị ước lượng giúp khoảng bao lâu nhé.,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0
+LG-185,2025-08-31,44,57,done,0,The team has to integrate with our CRM vendor's REST API and keep project data in sync with our ERP system. Can you estimate how long that will take?,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+LG-186,2025-09-02,99,67,done,0,"The team has to keep the app usable when field staff are offline and show live updates on the operations dashboard. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,0,1,0,0,0,1,1,1,0,0,1,0,1
+LG-187,2025-09-03,56,41,done,0,"Bên mình đang muốn phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,0,0,0,0,0,0,0,0,1,0,1,1,1
+LG-188,2025-09-04,88,64,done,0,"The team has to keep project data in sync with our ERP system. They flagged it as ""high priority"" in the last review.",1,1,1,1,0,0,0,0,0,1,0,1,0,0,0
+LG-189,2025-09-05,44,41,done,0,"The plan for this quarter is to add card payments through a new payment gateway. Thanks, and let us know if you need more detail.",0,1,1,0,0,0,0,0,0,0,1,0,0,0,1
+LG-190,2025-09-06,54,47,done,0,The plan for this quarter is to migrate the old customer database into the new platform and integrate with our CRM vendor's REST API. Can you estimate how long that will take?,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0
+LG-191,2025-09-07,62,74,done,0,Bên mình đang muốn chuyển dữ liệu từ hệ thống cũ sang nền tảng mới. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,1,0,1,1,0,0,0,0,0,0,0,1,1
+LG-192,2025-09-08,96,101,done,0,Bên mình đang muốn chuyển dữ liệu từ hệ thống cũ sang nền tảng mới. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,0,1,1,0,0,0,0,0,0,0,0,1,1
+LG-193,2025-09-10,73,66,done,0,Bên mình đang muốn đáp ứng yêu cầu PCI-DSS cho dữ liệu thẻ và xử lý hệ thống cũ chạy on-premise.,1,0,0,1,1,0,0,1,0,0,1,0,1,1,0
+LG-194,2025-09-11,,,in_progress,0,We need to add SSO login with our corporate identity provider. Please include the compliance overhead in the estimate.,0,0,1,0,1,1,0,0,0,0,1,1,0,1,1
+LG-195,2025-09-12,54,44,done,0,The plan for this quarter is to keep project data in sync with our ERP system and show live updates on the operations dashboard. Can you estimate how long that will take?,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1
+LG-196,2025-09-13,54,55,done,0,We need to add card payments through a new payment gateway and follow GDPR privacy rules.,1,1,0,1,0,0,0,1,0,0,0,1,1,1,0
+LG-197,2025-09-14,,,in_progress,0,"The plan for this quarter is to keep project data in sync with our ERP system. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,0,1,1,1,0,0,0,0,0,1,0,1,1
+LG-198,2025-09-15,,,in_progress,0,"We would like to show live updates on the operations dashboard. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,1,1,0,0,1,0,1,0,0,1,0,1,0,1
+LG-199,2025-09-16,82,69,done,0,The plan for this quarter is to keep project data in sync with our ERP system and meet PCI-DSS requirements for card data. Please include the compliance overhead in the estimate.,0,1,0,1,0,0,0,0,1,1,1,1,1,0,1
+LG-200,2025-09-17,57,38,done,0,The team has to keep a full audit trail of every change. Please include the compliance overhead in the estimate.,0,0,1,0,0,0,0,1,0,0,0,1,1,0,0
+LG-201,2025-09-18,86,74,done,0,Our roadmap includes work to ship native iOS and Android apps. Can you estimate how long that will take?,1,1,1,0,1,0,0,1,1,0,0,0,1,1,0
+LG-202,2025-09-19,45,57,done,0,"The team has to ship native iOS and Android apps and coordinate across three teams and one external vendor. They flagged it as ""high priority"" in the last review.",0,0,0,0,0,0,0,0,1,1,0,0,0,1,1
+LG-203,2025-09-21,67,53,done,0,The plan for this quarter is to integrate with our CRM vendor's REST API and meet PCI-DSS requirements for card data. A rough range is fine for planning.,1,1,1,1,0,0,0,0,0,0,1,0,0,0,1
+LG-204,2025-09-22,64,63,done,0,We need to add SSO login with our corporate identity provider and ship native iOS and Android apps. A rough range is fine for planning.,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0
+LG-205,2025-09-23,35,27,done,0,Bên mình đang muốn phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài. Anh/chị ước lượng giúp khoảng bao lâu nhé.,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+LG-206,2025-09-25,63,82,done,0,"Our roadmap includes work to meet PCI-DSS requirements for card data and keep project data in sync with our ERP system. They flagged it as ""high priority"" in the last review.",0,1,0,1,0,0,0,0,0,0,1,0,0,0,0
+LG-207,2025-09-26,103,93,done,0,"We need to add card payments through a new payment gateway and run the platform multi-tenant for several client organisations. Thanks, and let us know if you need more detail.",1,1,0,1,0,0,1,0,1,1,1,0,0,0,0
+LG-208,2025-09-27,66,58,done,0,"The team has to integrate with our CRM vendor's REST API and support billing in USD, EUR and VND. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,1,0,0,1,1,0,0,0,0,0,1,0,0
+LG-209,2025-09-28,43,45,done,0,We need to add SSO login with our corporate identity provider and integrate with our CRM vendor's REST API. A rough range is fine for planning.,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+LG-210,2025-09-29,55,39,done,0,"The team has to keep project data in sync with our ERP system. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,0,1,1,0,0,1,0,0,0,0,0,0,0
+LG-211,2025-09-30,30,26,done,0,Kế hoạch quý này gồm việc đồng bộ dữ liệu liên tục với hệ thống ERP. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+LG-212,2025-10-01,103,134,done,0,The plan for this quarter is to keep a full audit trail of every change and follow GDPR privacy rules. Please include the compliance overhead in the estimate.,1,0,1,0,0,0,0,0,0,0,0,1,1,0,1
+LG-213,2025-10-02,66,58,done,0,"We need to migrate the old customer database into the new platform and show live updates on the operations dashboard. They flagged it as ""high priority"" in the last review.",0,0,0,0,1,0,0,1,0,0,0,0,0,1,0
+LG-214,2025-10-04,72,92,done,0,The team has to keep a full audit trail of every change.,0,0,1,0,0,0,1,0,0,0,0,1,1,0,0
+LG-215,2025-10-05,140,149,done,0,The team has to coordinate across three teams and one external vendor. Can you estimate how long that will take?,0,1,1,1,1,0,0,0,1,1,1,0,1,1,1
+LG-216,2025-10-06,51,50,done,0,Bên mình đang muốn kết nối với API của đối tác CRM và ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi. Cho mình xin khoảng thời gian dự kiến với ạ.,1,1,1,0,0,1,0,0,0,0,1,0,1,0,1
+LG-217,2025-10-07,75,74,done,0,The team has to work around the legacy on-premise stack and keep a full audit trail of every change. A rough range is fine for planning.,0,0,0,0,1,0,0,1,0,0,0,0,1,1,0
+LG-218,2025-10-08,75,78,done,0,Sắp tới bên mình sẽ đồng bộ dữ liệu liên tục với hệ thống ERP và tuân thủ quy định GDPR về dữ liệu cá nhân. Nhờ team estimate thời gian giúp mình.,0,0,1,1,1,0,0,0,0,0,0,1,0,1,0
+LG-219,2025-10-12,40,42,done,0,Our roadmap includes work to ship native iOS and Android apps and add SSO login with our corporate identity provider.,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0
+LG-220,2025-10-13,42,45,done,0,"Sắp tới bên mình sẽ thêm thanh toán thẻ qua cổng thanh toán mới và đăng nhập SSO bằng tài khoản công ty. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",0,1,1,0,0,0,0,0,0,0,1,0,0,0,0
+LG-221,2025-10-14,58,62,done,0,"Our roadmap includes work to ship native iOS and Android apps and coordinate across three teams and one external vendor. Thanks, and let us know if you need more detail.",1,0,0,0,0,0,0,0,1,0,0,0,0,0,1
+LG-222,2025-10-17,57,40,done,0,Kế hoạch quý này gồm việc tuân thủ quy định GDPR về dữ liệu cá nhân và xử lý hệ thống cũ chạy on-premise. Anh/chị ước lượng giúp khoảng bao lâu nhé.,1,0,1,1,1,0,0,0,0,0,0,1,0,1,1
+LG-223,2025-10-18,126,112,done,0,The plan for this quarter is to keep project data in sync with our ERP system and ship native iOS and Android apps.,1,0,1,1,0,0,1,0,1,1,0,0,1,0,1
+LG-224,2025-10-19,72,74,done,0,Kế hoạch quý này gồm việc tuân thủ quy định GDPR về dữ liệu cá nhân và thêm thanh toán thẻ qua cổng thanh toán mới.,0,1,1,0,0,1,0,1,0,0,1,1,0,0,0
+LG-225,2025-10-20,59,53,done,0,We would like to keep the app usable when field staff are offline and keep a full audit trail of every change. Please include the compliance overhead in the estimate.,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0
+LG-226,2025-10-22,85,109,done,0,"Sắp tới bên mình sẽ hỗ trợ thanh toán bằng VND, USD và EUR.",0,0,1,1,0,1,0,0,0,0,0,0,1,0,1
+LG-227,2025-10-23,52,50,done,0,"The team has to coordinate across three teams and one external vendor. Thanks, and let us know if you need more detail.",0,0,0,0,0,0,1,1,1,0,0,0,0,0,1
+LG-228,2025-10-24,117,118,done,0,Our roadmap includes work to keep project data in sync with our ERP system. Please include the compliance overhead in the estimate.,1,1,0,1,1,0,0,0,0,0,1,1,1,1,0
+LG-229,2025-10-25,70,60,done,0,"Our roadmap includes work to ship native iOS and Android apps and follow GDPR privacy rules. Thanks, and let us know if you need more detail.",1,0,0,0,0,1,0,0,1,1,0,1,0,1,0
+LG-230,2025-10-26,69,92,done,0,"Our roadmap includes work to show live updates on the operations dashboard and support billing in USD, EUR and VND. A rough range is fine for planning.",0,0,0,0,0,1,1,1,0,0,0,1,0,0,0
+LG-231,2025-10-27,94,73,done,0,We need to add card payments through a new payment gateway and ship native iOS and Android apps.,1,1,0,1,0,0,0,0,1,1,0,0,1,0,1
+LG-232,2025-10-28,76,89,done,0,We would like to meet PCI-DSS requirements for card data.,0,1,0,0,0,0,1,0,1,0,1,1,0,0,0
+LG-233,2025-10-29,104,70,done,0,"The team has to support billing in USD, EUR and VND and run the platform multi-tenant for several client organisations. A rough range is fine for planning.",1,0,0,1,0,1,1,0,1,1,0,0,0,0,0
+LG-234,2025-10-30,93,122,done,0,"Bên mình cần xử lý hệ thống cũ chạy on-premise và thêm thanh toán thẻ qua cổng thanh toán mới. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",0,1,0,0,1,0,0,1,0,0,1,0,0,1,1
+LG-235,2025-10-31,81,99,done,0,"The plan for this quarter is to add SSO login with our corporate identity provider. Thanks, and let us know if you need more detail.",1,1,1,0,0,0,1,0,1,0,1,0,0,0,1
+LG-236,2025-11-01,102,86,done,0,"The plan for this quarter is to follow GDPR privacy rules and keep the app usable when field staff are offline. They flagged it as ""high priority"" in the last review.",0,0,0,0,0,1,1,0,1,1,0,1,0,0,1
+LG-237,2025-11-02,,76,in_progress,0,"The team has to add SSO login with our corporate identity provider and migrate the old customer database into the new platform. They flagged it as ""high priority"" in the last review.",0,0,1,0,1,1,0,0,0,0,0,0,0,1,0
+LG-238,2025-11-03,89,72,done,0,Bên mình đang muốn chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng và hiển thị cập nhật thời gian thực trên dashboard. Anh/chị ước lượng giúp khoảng bao lâu nhé.,1,0,0,1,0,0,1,1,1,0,0,0,0,0,0
+LG-239,2025-11-04,,42,in_progress,0,"The team has to integrate with our CRM vendor's REST API and coordinate across three teams and one external vendor. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,0,0,0,0,0,1,0,0,0,0,0,0,1
+LG-240,2025-11-05,27,25,done,0,We would like to add SSO login with our corporate identity provider and keep project data in sync with our ERP system. A rough range is fine for planning.,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0
+LG-241,2025-11-06,92,102,done,0,"Our roadmap includes work to keep project data in sync with our ERP system and meet PCI-DSS requirements for card data. Thanks, and let us know if you need more detail.",0,1,0,1,1,0,0,0,0,0,1,0,0,0,1
+LG-242,2025-11-07,20,18,done,0,The plan for this quarter is to add SSO login with our corporate identity provider. A rough range is fine for planning.,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+LG-243,2025-11-08,71,76,done,0,"The plan for this quarter is to run the platform multi-tenant for several client organisations. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,0,1,1,0,1,0,0,0,1,0,0,1,1
+LG-244,2025-11-09,,107,in_progress,0,Sắp tới bên mình sẽ tuân thủ quy định GDPR về dữ liệu cá nhân và đồng bộ dữ liệu liên tục với hệ thống ERP.,1,1,1,1,0,0,0,0,0,0,1,1,1,0,1
+LG-245,2025-11-10,50,49,done,0,We would like to meet PCI-DSS requirements for card data and run the platform multi-tenant for several client organisations.,1,1,0,0,0,0,1,1,0,0,1,0,0,0,0
+LG-246,2025-11-11,84,91,done,0,"Our roadmap includes work to follow GDPR privacy rules and ship native iOS and Android apps. They flagged it as ""high priority"" in the last review.",1,0,0,1,0,0,0,0,1,1,0,1,0,0,1
+LG-247,2025-11-12,104,92,done,0,"Sắp tới bên mình sẽ tuân thủ quy định GDPR về dữ liệu cá nhân và làm ứng dụng di động cho cả iOS và Android. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,1,1,1,0,0,0,1,1,0,1,0,0,1
+LG-248,2025-11-13,90,88,done,0,"The team has to migrate the old customer database into the new platform and add SSO login with our corporate identity provider. Thanks, and let us know if you need more detail.",0,0,1,0,1,0,1,1,0,0,0,1,0,1,1
+LG-249,2025-11-14,106,142,done,0,"We would like to integrate with our CRM vendor's REST API and meet PCI-DSS requirements for card data. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,1,0,0,1,0,0,1,1,1,1,1,0,0
+LG-250,2025-11-15,81,72,done,0,Sắp tới bên mình sẽ ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi và phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài.,0,1,0,1,1,1,1,0,0,0,1,0,1,1,1
+LG-251,2025-11-16,,81,in_progress,0,We would like to show live updates on the operations dashboard and follow GDPR privacy rules.,0,0,0,0,1,0,1,1,0,0,0,1,1,0,0
+LG-252,2025-11-18,107,122,done,0,Bên mình đang muốn kết nối với API của đối tác CRM và xử lý hệ thống cũ chạy on-premise.,1,0,0,1,1,0,1,0,0,0,1,1,0,1,0
+LG-253,2025-11-21,67,72,done,0,Bên mình cần kết nối với API của đối tác CRM và đồng bộ dữ liệu liên tục với hệ thống ERP. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,0,1,0,0,1,0,0,0,0,0,1,0,0
+LG-254,2025-11-22,107,92,done,0,The team has to integrate with our CRM vendor's REST API and meet PCI-DSS requirements for card data. A rough range is fine for planning.,1,1,0,1,1,0,1,1,0,0,1,0,0,1,0
+LG-255,2025-11-25,,50,in_progress,0,"Bên mình đang muốn hiển thị cập nhật thời gian thực trên dashboard. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,0,0,0,0,0,1,0,0,0,0,0,0,1
+LG-256,2025-11-26,129,147,done,0,We would like to add SSO login with our corporate identity provider and work around the legacy on-premise stack. Please include the compliance overhead in the estimate.,0,0,1,0,1,1,0,1,0,0,0,0,0,1,0
+LG-257,2025-11-27,118,158,done,0,The plan for this quarter is to meet PCI-DSS requirements for card data.,1,1,0,1,1,0,0,1,1,1,1,0,0,1,0
+LG-258,2025-11-28,,72,in_progress,0,"We need to ship native iOS and Android apps. Thanks, and let us know if you need more detail.",0,0,0,1,0,1,0,1,1,1,0,0,0,0,0
+LG-259,2025-12-01,,80,in_progress,0,"The plan for this quarter is to work around the legacy on-premise stack and keep a full audit trail of every change. They flagged it as ""high priority"" in the last review.",1,0,0,0,0,0,0,0,0,0,0,0,1,1,1
+LG-260,2025-12-02,78,87,done,0,The plan for this quarter is to keep project data in sync with our ERP system and migrate the old customer database into the new platform. A rough range is fine for planning.,0,0,0,1,1,0,0,1,0,0,0,0,0,1,0
+LG-261,2025-12-03,51,42,done,0,"Bên mình đang muốn chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,0,0,0,1,0,1,0,0,0,0,0,0,0,0
+LG-262,2025-12-04,114,120,done,0,"Sắp tới bên mình sẽ kết nối với API của đối tác CRM và chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,0,0,1,1,1,1,1,1,0,0,1,1,0
+LG-263,2025-12-05,107,112,done,0,"Bên mình đang muốn xử lý hệ thống cũ chạy on-premise và hỗ trợ thanh toán bằng VND, USD và EUR. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,0,0,1,1,0,1,0,0,0,0,0,1,0
+LG-264,2025-12-07,72,66,done,0,"We need to follow GDPR privacy rules and keep a full audit trail of every change. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,1,0,0,0,0,0,0,0,0,1,1,0,0
+LG-265,2025-12-09,82,67,done,0,"We need to add card payments through a new payment gateway. They flagged it as ""high priority"" in the last review.",0,1,1,1,0,0,1,0,0,1,1,1,0,1,0
+LG-266,2025-12-10,,64,in_progress,0,"The team has to run the platform multi-tenant for several client organisations. They flagged it as ""high priority"" in the last review.",1,0,1,0,0,1,1,1,1,0,0,0,1,0,0
+LG-267,2025-12-11,44,59,done,0,"The plan for this quarter is to support billing in USD, EUR and VND and add SSO login with our corporate identity provider. A rough range is fine for planning.",0,0,1,0,0,1,0,0,0,0,0,0,0,1,1
+LG-268,2025-12-12,,58,in_progress,0,"Bên mình cần chuyển dữ liệu từ hệ thống cũ sang nền tảng mới. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",0,1,0,0,1,0,0,1,1,0,1,1,0,1,1
+LG-269,2025-12-13,,,in_progress,0,"The team has to integrate with our CRM vendor's REST API. Thanks, and let us know if you need more detail.",1,0,0,1,0,0,0,0,0,0,0,1,1,0,0
+LG-270,2025-12-14,84,61,done,0,"Our roadmap includes work to meet PCI-DSS requirements for card data and keep the app usable when field staff are offline. Thanks, and let us know if you need more detail.",1,1,0,0,0,0,0,1,0,1,1,0,1,0,1
+LG-271,2025-12-15,108,103,done,0,The plan for this quarter is to coordinate across three teams and one external vendor and add card payments through a new payment gateway.,1,1,0,0,1,0,0,0,0,0,0,0,1,1,1
+LG-272,2025-12-16,46,42,done,0,We would like to keep project data in sync with our ERP system and coordinate across three teams and one external vendor. A rough range is fine for planning.,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1
+LG-273,2025-12-17,87,98,done,0,"The team has to add SSO login with our corporate identity provider and ship native iOS and Android apps. Thanks, and let us know if you need more detail.",1,0,1,0,0,0,0,1,1,0,0,0,0,1,1
+LG-274,2025-12-18,89,91,done,0,"Bên mình cần đồng bộ dữ liệu liên tục với hệ thống ERP. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,1,1,1,0,1,1,1,0,0,0,1,1,1,0
+LG-275,2025-12-19,74,100,done,0,Kế hoạch quý này gồm việc kết nối với API của đối tác CRM và đăng nhập SSO bằng tài khoản công ty.,1,0,1,0,1,0,0,0,0,0,0,0,1,1,0
+LG-276,2025-12-20,87,111,done,0,We need to add SSO login with our corporate identity provider. Please include the compliance overhead in the estimate.,0,0,1,0,1,0,1,1,0,0,0,1,0,0,1
+LG-277,2025-12-21,77,99,done,0,"We would like to add SSO login with our corporate identity provider. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,1,0,0,0,1,0,0,0,0,0,1,0,0
+LG-278,2025-12-22,,94,in_progress,0,Bên mình đang muốn ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi.,0,1,1,0,0,0,0,0,0,0,1,0,1,1,0
+LG-279,2025-12-23,,70,in_progress,0,Bên mình đang muốn chuyển dữ liệu từ hệ thống cũ sang nền tảng mới. Cho mình xin khoảng thời gian dự kiến với ạ.,0,0,0,0,1,0,0,1,0,0,0,0,1,1,0
+LG-280,2025-12-24,22,18,done,0,"We need to support billing in USD, EUR and VND. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+LG-281,2025-12-25,70,46,done,0,"Sắp tới bên mình sẽ chuyển dữ liệu từ hệ thống cũ sang nền tảng mới và đăng nhập SSO bằng tài khoản công ty. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,0,1,1,1,0,1,1,0,0,0,0,0,0,0
+LG-282,2025-12-26,24,20,done,0,We need to ship native iOS and Android apps. Please include the compliance overhead in the estimate.,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+LG-283,2025-12-27,71,51,done,0,The team has to run the platform multi-tenant for several client organisations and ship native iOS and Android apps.,1,0,1,0,0,0,1,0,1,0,0,1,0,0,0
+LG-284,2025-12-28,63,78,done,0,"The team has to migrate the old customer database into the new platform. Thanks, and let us know if you need more detail.",1,0,0,0,1,0,1,0,0,0,0,0,0,1,0
+LG-285,2025-12-29,47,41,done,0,Bên mình cần chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng và đồng bộ dữ liệu liên tục với hệ thống ERP.,1,0,0,1,0,0,1,0,0,0,0,0,1,0,0
+LG-286,2025-12-30,59,52,done,0,Bên mình cần đăng nhập SSO bằng tài khoản công ty. Nhờ team estimate thời gian giúp mình.,0,0,1,0,1,0,0,0,0,0,0,0,0,1,1
+LG-287,2025-12-31,,73,in_progress,0,We would like to keep the app usable when field staff are offline.,0,0,0,1,1,0,0,1,1,1,0,0,0,1,1
+LG-288,2026-01-01,62,64,done,0,Our roadmap includes work to migrate the old customer database into the new platform. Can you estimate how long that will take?,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1
+LG-289,2026-01-03,74,78,done,0,Our roadmap includes work to keep a full audit trail of every change. Can you estimate how long that will take?,0,0,1,0,0,0,0,0,0,0,0,1,1,0,1
+LG-290,2026-01-04,70,59,done,0,The team has to work around the legacy on-premise stack and add SSO login with our corporate identity provider.,1,0,1,1,1,0,0,1,0,0,0,0,0,1,0
+LG-291,2026-01-05,148,163,done,0,We need to add card payments through a new payment gateway.,1,1,1,1,1,0,0,0,0,0,1,0,1,1,1
+LG-292,2026-01-06,38,26,done,0,We would like to ship native iOS and Android apps.,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0
+LG-293,2026-01-08,48,61,done,0,The plan for this quarter is to ship native iOS and Android apps and keep the app usable when field staff are offline.,1,0,0,0,0,0,0,0,1,1,0,0,0,0,1
+LG-294,2026-01-09,92,84,done,0,The plan for this quarter is to integrate with our CRM vendor's REST API and add SSO login with our corporate identity provider. Can you estimate how long that will take?,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1
+LG-295,2026-01-10,126,127,done,0,Kế hoạch quý này gồm việc chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng.,1,0,0,0,1,0,1,0,1,1,0,1,0,1,1
+LG-296,2026-01-11,,82,in_progress,0,Kế hoạch quý này gồm việc tuân thủ quy định GDPR về dữ liệu cá nhân và hiển thị cập nhật thời gian thực trên dashboard. Nhờ team estimate thời gian giúp mình.,1,1,0,0,0,0,0,1,0,0,1,1,0,0,0
+LG-297,2026-01-12,110,95,done,0,Bên mình cần tuân thủ quy định GDPR về dữ liệu cá nhân. Anh/chị ước lượng giúp khoảng bao lâu nhé.,1,1,0,0,0,1,1,1,0,0,0,1,1,1,1
+LG-298,2026-01-13,,75,in_progress,0,"Bên mình đang muốn chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",0,0,1,0,0,0,1,0,0,0,0,1,1,0,1
+LG-299,2026-01-14,54,42,done,0,Bên mình đang muốn chuyển dữ liệu từ hệ thống cũ sang nền tảng mới.,1,0,0,0,1,0,0,0,0,0,1,1,1,1,0
+LG-300,2026-01-15,80,94,done,0,"The team has to support billing in USD, EUR and VND and keep project data in sync with our ERP system. Thanks, and let us know if you need more detail.",0,0,1,1,0,1,0,0,0,1,0,0,0,0,0
+LG-301,2026-01-16,,24,in_progress,0,"We need to show live updates on the operations dashboard. They flagged it as ""high priority"" in the last review.",0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+LG-302,2026-01-17,74,66,done,0,Our roadmap includes work to ship native iOS and Android apps and add SSO login with our corporate identity provider.,0,0,1,0,1,0,1,0,1,0,0,0,1,0,0
+LG-303,2026-01-18,53,44,done,0,"We would like to run the platform multi-tenant for several client organisations. Thanks, and let us know if you need more detail.",0,0,0,0,1,1,1,1,0,0,0,0,1,1,0
+LG-304,2026-01-19,67,87,done,0,We need to add card payments through a new payment gateway and keep project data in sync with our ERP system. A rough range is fine for planning.,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0
+LG-305,2026-01-20,119,101,done,0,"We would like to integrate with our CRM vendor's REST API and support billing in USD, EUR and VND.",1,0,0,0,1,1,0,1,0,0,0,0,1,1,0
+LG-306,2026-01-21,116,153,done,0,"We need to integrate with our CRM vendor's REST API. Thanks, and let us know if you need more detail.",1,1,1,0,1,0,1,0,0,0,1,0,1,0,0
+LG-307,2026-01-23,73,94,done,0,The plan for this quarter is to meet PCI-DSS requirements for card data and add card payments through a new payment gateway.,1,1,1,1,0,1,0,0,0,0,1,0,1,0,0
+LG-308,2026-01-24,,,in_progress,0,"We need to support billing in USD, EUR and VND. A rough range is fine for planning.",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+LG-309,2026-01-25,25,32,done,0,"We would like to support billing in USD, EUR and VND. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,0,0,0,1,0,0,1,1,0,0,0,0,0
+LG-310,2026-01-26,,73,in_progress,0,Our roadmap includes work to keep the app usable when field staff are offline.,1,0,0,0,1,0,0,0,0,1,0,1,1,1,1
+LG-311,2026-01-27,28,30,done,0,Our roadmap includes work to coordinate across three teams and one external vendor.,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+LG-312,2026-01-28,50,61,done,0,"Bên mình đang muốn xử lý hệ thống cũ chạy on-premise và thêm thanh toán thẻ qua cổng thanh toán mới. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,1,0,1,0,0,0,0,0,0,1,0,0,1,1
+LG-313,2026-01-30,70,56,done,0,"The team has to integrate with our CRM vendor's REST API and add SSO login with our corporate identity provider. Thanks, and let us know if you need more detail.",1,0,1,0,1,0,0,0,1,1,0,1,0,1,1
+LG-314,2026-01-31,88,65,done,0,"Bên mình đang muốn thêm thanh toán thẻ qua cổng thanh toán mới. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,1,0,1,0,0,1,0,0,0,0,0,1,0,1
+LG-315,2026-02-01,66,54,done,0,"The plan for this quarter is to integrate with our CRM vendor's REST API and keep a full audit trail of every change. They flagged it as ""high priority"" in the last review.",1,0,0,0,0,1,0,0,0,0,0,0,1,0,1
+LG-316,2026-02-02,91,112,done,0,Kế hoạch quý này gồm việc giữ ứng dụng hoạt động khi nhân viên mất mạng và kết nối với API của đối tác CRM.,1,0,1,0,0,0,0,1,1,1,0,1,0,0,1
+LG-317,2026-02-03,,38,in_progress,0,"We need to add card payments through a new payment gateway and meet PCI-DSS requirements for card data. They flagged it as ""high priority"" in the last review.",0,1,0,0,0,0,0,0,0,0,1,0,0,0,1
+LG-318,2026-02-04,142,100,done,0,Bên mình đang muốn hiển thị cập nhật thời gian thực trên dashboard và đăng nhập SSO bằng tài khoản công ty. Anh/chị ước lượng giúp khoảng bao lâu nhé.,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0
+LG-319,2026-02-05,74,85,done,0,Our roadmap includes work to integrate with our CRM vendor's REST API. A rough range is fine for planning.,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0
+LG-320,2026-02-06,116,112,done,0,The plan for this quarter is to work around the legacy on-premise stack. A rough range is fine for planning.,1,0,0,1,0,0,0,1,1,0,0,0,1,1,1
+LG-321,2026-02-07,63,56,done,0,We would like to keep a full audit trail of every change. Please include the compliance overhead in the estimate.,0,1,0,0,1,0,0,0,1,0,1,0,1,1,0
+LG-322,2026-02-08,43,37,done,0,"Our roadmap includes work to keep a full audit trail of every change. They flagged it as ""high priority"" in the last review.",1,0,0,0,0,0,1,0,0,0,0,0,1,0,0
+LG-323,2026-02-09,66,88,done,0,"The plan for this quarter is to coordinate across three teams and one external vendor. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,1,1,0,0,0,0,0,1,0,1,1,1,0,1
+LG-324,2026-02-10,65,48,done,0,"The plan for this quarter is to show live updates on the operations dashboard and add SSO login with our corporate identity provider. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,1,0,0,0,0,1,1,1,0,0,0,1,1
+LG-325,2026-02-11,33,43,done,0,Bên mình đang muốn chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Nhờ team estimate thời gian giúp mình.,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+LG-326,2026-02-12,63,75,done,0,Kế hoạch quý này gồm việc kết nối với API của đối tác CRM. Nhờ team estimate thời gian giúp mình.,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0
+LG-327,2026-02-13,43,33,done,0,We would like to integrate with our CRM vendor's REST API and run the platform multi-tenant for several client organisations. A rough range is fine for planning.,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+LG-328,2026-02-15,75,94,done,0,Bên mình đang muốn chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Nhờ team estimate thời gian giúp mình.,1,1,0,0,0,0,1,0,1,0,1,0,0,0,0
+LG-329,2026-02-16,72,54,done,0,Our roadmap includes work to run the platform multi-tenant for several client organisations and add SSO login with our corporate identity provider. A rough range is fine for planning.,0,1,1,0,0,0,1,0,0,0,1,0,0,0,0
+LG-330,2026-02-17,49,37,done,0,The team has to keep project data in sync with our ERP system and follow GDPR privacy rules. Please include the compliance overhead in the estimate.,1,0,1,1,0,0,0,0,0,0,0,1,0,0,0
+LG-331,2026-02-19,56,54,done,0,We need to add SSO login with our corporate identity provider and follow GDPR privacy rules.,1,0,1,0,1,0,0,1,0,0,0,1,0,1,0
+LG-332,2026-02-21,122,127,done,0,Sắp tới bên mình sẽ thêm thanh toán thẻ qua cổng thanh toán mới và chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Cho mình xin khoảng thời gian dự kiến với ạ.,1,1,0,1,1,0,1,0,0,0,1,1,1,0,0
+LG-333,2026-02-22,,60,in_progress,0,The plan for this quarter is to ship native iOS and Android apps.,0,0,1,1,0,0,1,0,1,0,0,1,0,0,0
+LG-334,2026-02-24,66,61,done,0,Bên mình cần hiển thị cập nhật thời gian thực trên dashboard.,1,0,1,0,0,1,0,1,0,0,0,0,0,0,0
+LG-335,2026-02-25,115,117,done,0,Bên mình cần hiển thị cập nhật thời gian thực trên dashboard. Cho mình xin khoảng thời gian dự kiến với ạ.,0,1,0,0,0,0,1,1,1,1,1,1,0,1,0
+LG-336,2026-02-28,57,72,done,0,The plan for this quarter is to integrate with our CRM vendor's REST API. A rough range is fine for planning.,1,0,0,1,0,0,0,1,0,0,0,0,0,0,0
+LG-337,2026-03-01,99,76,done,0,"Sắp tới bên mình sẽ đăng nhập SSO bằng tài khoản công ty và đồng bộ dữ liệu liên tục với hệ thống ERP. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,1,1,1,0,0,0,0,0,0,0,0,1,0,0
+LG-338,2026-03-02,84,83,done,0,The plan for this quarter is to follow GDPR privacy rules.,1,0,0,0,1,0,0,0,0,1,0,1,0,0,0
+LG-339,2026-03-04,,,in_progress,0,Bên mình đang muốn hiển thị cập nhật thời gian thực trên dashboard và đồng bộ dữ liệu liên tục với hệ thống ERP. Nhờ team estimate thời gian giúp mình.,0,0,1,1,0,0,0,1,0,0,0,0,1,0,0
+LG-340,2026-03-05,80,96,done,0,"The team has to add SSO login with our corporate identity provider. Thanks, and let us know if you need more detail.",1,0,1,1,0,0,0,0,1,1,0,0,0,0,0
+LG-341,2026-03-06,94,88,done,0,"The plan for this quarter is to support billing in USD, EUR and VND and keep a full audit trail of every change. Can you estimate how long that will take?",1,0,0,0,1,1,0,0,0,0,0,0,1,1,0
+LG-342,2026-03-07,,,in_progress,0,"Bên mình cần thêm thanh toán thẻ qua cổng thanh toán mới và kết nối với API của đối tác CRM. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,1,0,0,0,0,1,0,0,1,0,0,1,0,1
+LG-343,2026-03-08,74,95,done,0,Sắp tới bên mình sẽ thêm thanh toán thẻ qua cổng thanh toán mới và đăng nhập SSO bằng tài khoản công ty.,0,1,1,1,0,0,0,0,0,0,1,0,0,0,0
+LG-344,2026-03-11,,66,in_progress,0,"Our roadmap includes work to add card payments through a new payment gateway and integrate with our CRM vendor's REST API. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+LG-345,2026-03-12,115,92,done,0,Our roadmap includes work to meet PCI-DSS requirements for card data and ship native iOS and Android apps. A rough range is fine for planning.,0,1,1,1,1,0,0,0,1,0,1,0,0,0,0
+LG-346,2026-03-13,46,59,done,0,Kế hoạch quý này gồm việc ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi và kết nối với API của đối tác CRM. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+LG-347,2026-03-14,70,46,done,0,We would like to integrate with our CRM vendor's REST API.,1,1,0,0,0,0,1,0,1,0,1,0,0,0,0
+LG-348,2026-03-16,74,89,done,0,We need to keep the app usable when field staff are offline and coordinate across three teams and one external vendor.,1,0,0,0,0,0,0,0,1,1,0,0,0,0,1
+LG-349,2026-03-17,,47,in_progress,0,We need to keep project data in sync with our ERP system and follow GDPR privacy rules.,1,0,1,1,0,0,0,0,0,0,0,1,0,0,1
+LG-350,2026-03-18,43,46,done,0,Bên mình đang muốn chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng và kết nối với API của đối tác CRM.,1,0,0,1,0,0,1,0,0,0,0,0,1,0,0
+LG-351,2026-03-19,94,78,done,0,The plan for this quarter is to coordinate across three teams and one external vendor and show live updates on the operations dashboard. A rough range is fine for planning.,0,1,0,1,0,1,1,1,1,1,1,0,1,0,1
+LG-352,2026-03-20,,,in_progress,0,Kế hoạch quý này gồm việc đồng bộ dữ liệu liên tục với hệ thống ERP.,1,0,0,1,1,0,1,0,0,0,0,1,1,1,0
+LG-353,2026-03-21,128,91,done,0,We need to keep project data in sync with our ERP system and integrate with our CRM vendor's REST API.,1,0,1,1,0,0,0,0,0,0,0,1,0,0,0
+LG-354,2026-03-22,89,113,done,0,The plan for this quarter is to migrate the old customer database into the new platform. Please include the compliance overhead in the estimate.,1,0,0,0,1,0,1,0,0,0,0,1,0,1,0
+LG-355,2026-03-23,,73,in_progress,0,The plan for this quarter is to keep the app usable when field staff are offline and follow GDPR privacy rules. A rough range is fine for planning.,0,0,1,0,0,0,0,0,1,1,0,1,0,0,1
+LG-356,2026-03-24,116,151,done,0,"Our roadmap includes work to coordinate across three teams and one external vendor. Thanks, and let us know if you need more detail.",1,0,0,1,0,1,0,1,0,1,0,0,1,0,1
+LG-357,2026-03-25,77,93,done,0,"The plan for this quarter is to add SSO login with our corporate identity provider. Thanks, and let us know if you need more detail.",1,0,1,0,0,0,0,1,0,0,0,0,0,0,0
+LG-358,2026-03-26,78,64,done,0,"Our roadmap includes work to meet PCI-DSS requirements for card data. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,1,1,0,0,0,0,1,1,0,1,1,0,0,0
+LG-359,2026-03-28,51,59,done,0,Bên mình đang muốn kết nối với API của đối tác CRM và đăng nhập SSO bằng tài khoản công ty.,1,0,1,0,0,0,0,1,0,0,0,1,0,0,1
+LG-360,2026-03-29,141,179,done,0,"The plan for this quarter is to work around the legacy on-premise stack and keep a full audit trail of every change. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,1,1,1,1,1,0,1,0,1,1,1,1,1
+LG-361,2026-03-30,87,74,done,0,The team has to show live updates on the operations dashboard. A rough range is fine for planning.,0,1,1,0,0,0,1,1,0,0,1,0,1,0,0
+LG-362,2026-03-31,95,124,done,0,The plan for this quarter is to ship native iOS and Android apps and keep project data in sync with our ERP system. A rough range is fine for planning.,1,0,0,1,1,1,0,0,1,1,0,0,0,1,0
+LG-363,2026-04-01,36,48,done,0,"Sắp tới bên mình sẽ chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,0,1,0,0,0,1,0,0,0,0,0,0,0,0
+LG-364,2026-04-02,43,54,done,0,We need to add card payments through a new payment gateway and keep project data in sync with our ERP system. A rough range is fine for planning.,0,1,1,1,0,0,0,1,0,0,0,0,0,0,0
+LG-365,2026-04-03,72,61,done,0,"The plan for this quarter is to follow GDPR privacy rules. Thanks, and let us know if you need more detail.",1,1,1,0,0,0,0,0,0,0,0,1,0,0,0
+LG-366,2026-04-04,52,62,done,0,Our roadmap includes work to ship native iOS and Android apps.,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0
+LG-367,2026-04-05,102,82,done,0,"Our roadmap includes work to keep project data in sync with our ERP system and support billing in USD, EUR and VND. Can you estimate how long that will take?",0,0,0,1,1,1,0,1,1,0,0,0,0,1,1
+LG-368,2026-04-06,81,56,done,0,"Sắp tới bên mình sẽ đồng bộ dữ liệu liên tục với hệ thống ERP và làm ứng dụng di động cho cả iOS và Android. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,1,1,0,1,0,0,1,0,0,1,1,0,1
+LG-369,2026-04-07,,,in_progress,0,The plan for this quarter is to integrate with our CRM vendor's REST API and follow GDPR privacy rules. Can you estimate how long that will take?,1,0,0,1,0,0,0,0,1,0,0,1,0,0,0
+LG-370,2026-04-09,82,59,done,0,We need to migrate the old customer database into the new platform and add SSO login with our corporate identity provider. A rough range is fine for planning.,0,0,1,0,1,1,0,0,0,0,0,0,0,1,0
+LG-371,2026-04-10,39,34,done,0,Our roadmap includes work to add SSO login with our corporate identity provider.,0,0,1,1,0,0,0,0,0,0,0,1,0,0,0
+LG-372,2026-04-11,103,72,done,0,"Our roadmap includes work to meet PCI-DSS requirements for card data and support billing in USD, EUR and VND. Thanks, and let us know if you need more detail.",1,1,0,1,0,1,1,0,0,0,1,0,0,0,0
+LG-373,2026-04-12,43,53,done,0,The plan for this quarter is to keep project data in sync with our ERP system and add card payments through a new payment gateway.,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1
+LG-374,2026-04-13,,,in_progress,0,The team has to ship native iOS and Android apps.,1,0,0,0,0,0,1,1,1,1,0,1,0,0,0
+LG-375,2026-04-15,,68,in_progress,0,We need to migrate the old customer database into the new platform. Please include the compliance overhead in the estimate.,0,0,0,0,1,0,0,1,0,0,0,0,0,1,1
+LG-376,2026-04-17,29,31,done,0,Bên mình đang muốn đăng nhập SSO bằng tài khoản công ty và chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng.,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0
+LG-377,2026-04-18,59,42,done,0,We would like to add SSO login with our corporate identity provider.,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0
+LG-378,2026-04-19,,,in_progress,0,Our roadmap includes work to follow GDPR privacy rules. A rough range is fine for planning.,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1
+LG-379,2026-04-20,,,in_progress,0,"Kế hoạch quý này gồm việc ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,1,1,0,0,0,0,0,0,0,0,1,0,0
+LG-380,2026-04-21,,46,in_progress,0,We would like to integrate with our CRM vendor's REST API and add SSO login with our corporate identity provider. Please include the compliance overhead in the estimate.,1,0,1,0,0,1,1,0,0,0,0,0,1,0,0
+LG-381,2026-04-22,,,in_progress,0,"Our roadmap includes work to run the platform multi-tenant for several client organisations. They flagged it as ""high priority"" in the last review.",0,1,1,1,0,0,1,0,0,0,1,0,0,0,1
+LG-382,2026-04-24,72,59,done,0,Bên mình cần xử lý hệ thống cũ chạy on-premise và tuân thủ quy định GDPR về dữ liệu cá nhân.,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0
+LG-383,2026-04-25,67,75,done,0,"Sắp tới bên mình sẽ chuyển dữ liệu từ hệ thống cũ sang nền tảng mới và xử lý hệ thống cũ chạy on-premise. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,0,0,0,1,0,1,0,0,0,0,0,0,1,1
+LG-384,2026-04-26,48,65,done,0,"Our roadmap includes work to show live updates on the operations dashboard and run the platform multi-tenant for several client organisations. They flagged it as ""high priority"" in the last review.",0,0,1,1,0,0,1,1,0,0,0,1,1,0,0
+LG-385,2026-04-28,61,59,done,0,"The plan for this quarter is to add SSO login with our corporate identity provider and ship native iOS and Android apps. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,1,0,0,0,1,1,1,0,0,0,0,0,0
+LG-386,2026-04-29,54,39,done,0,Kế hoạch quý này gồm việc đăng nhập SSO bằng tài khoản công ty.,0,1,1,1,0,0,1,0,0,0,1,1,0,0,0
+LG-387,2026-05-01,78,99,done,0,"Kế hoạch quý này gồm việc xử lý hệ thống cũ chạy on-premise và đăng nhập SSO bằng tài khoản công ty. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,1,1,1,0,1,0,0,0,0,1,0,1,0
+LG-388,2026-05-03,65,84,done,0,The team has to add card payments through a new payment gateway and meet PCI-DSS requirements for card data.,1,1,0,0,0,0,1,0,0,0,1,0,0,0,0
+LG-389,2026-05-04,73,69,done,0,"We would like to follow GDPR privacy rules and support billing in USD, EUR and VND. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,1,0,0,0,1,0,0,0,0,0,1,0,0,0
+LG-390,2026-05-05,64,73,done,0,"We would like to keep a full audit trail of every change. They flagged it as ""high priority"" in the last review.",1,1,0,1,0,0,0,0,0,0,1,0,1,0,1
+LG-391,2026-05-08,29,36,done,0,"Our roadmap includes work to coordinate across three teams and one external vendor and keep a full audit trail of every change. Thanks, and let us know if you need more detail.",1,0,0,0,0,0,1,0,0,0,0,0,1,0,1
+LG-392,2026-05-09,56,71,done,0,"Bên mình đang muốn làm ứng dụng di động cho cả iOS và Android. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,0,0,1,1,0,0,0,1,0,0,0,0,1,0
+LG-393,2026-05-11,52,58,done,0,"Our roadmap includes work to follow GDPR privacy rules and integrate with our CRM vendor's REST API. Thanks, and let us know if you need more detail.",1,1,0,0,0,0,1,0,0,0,1,1,0,0,1
+LG-394,2026-05-12,85,77,done,0,"Our roadmap includes work to keep project data in sync with our ERP system and migrate the old customer database into the new platform. They flagged it as ""high priority"" in the last review.",0,0,0,1,1,0,0,0,0,0,0,0,0,1,0
+LG-395,2026-05-13,84,84,done,0,We need to ship native iOS and Android apps and add card payments through a new payment gateway.,0,1,0,0,0,0,1,0,1,1,0,0,0,1,0
+LG-396,2026-05-14,,89,pending,0,Our roadmap includes work to add SSO login with our corporate identity provider.,1,1,1,0,0,0,0,0,0,0,1,1,0,0,1
+LG-397,2026-05-16,,,pending,0,Bên mình đang muốn phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài và đồng bộ dữ liệu liên tục với hệ thống ERP. Nhờ team estimate thời gian giúp mình.,1,0,1,1,0,0,0,1,0,0,0,0,1,0,1
+LG-398,2026-05-17,54,50,done,0,Bên mình đang muốn ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi và phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài. Nhờ team estimate thời gian giúp mình.,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1
+LG-399,2026-05-18,,,pending,0,We would like to ship native iOS and Android apps.,0,0,0,1,0,1,1,0,1,0,0,0,1,0,0
+LG-400,2026-05-19,,83,pending,0,The plan for this quarter is to keep a full audit trail of every change. A rough range is fine for planning.,0,0,0,0,1,0,1,0,0,1,0,0,1,1,1
+LG-401,2026-05-20,103,138,done,0,We would like to meet PCI-DSS requirements for card data. Can you estimate how long that will take?,0,1,1,0,1,0,0,0,0,0,1,0,0,1,1
+LG-402,2026-05-21,151,116,done,0,"Our roadmap includes work to migrate the old customer database into the new platform. They flagged it as ""high priority"" in the last review.",0,0,0,1,1,0,1,0,0,1,0,0,1,0,0
+LG-403,2026-05-22,,77,pending,0,Our roadmap includes work to run the platform multi-tenant for several client organisations.,0,0,0,1,0,0,1,0,1,1,0,1,1,0,0
+LG-404,2026-05-23,75,94,done,0,"The plan for this quarter is to migrate the old customer database into the new platform and integrate with our CRM vendor's REST API. They flagged it as ""high priority"" in the last review.",1,0,0,0,1,0,0,0,0,0,0,0,1,1,0
+LG-405,2026-05-24,47,42,done,0,"The team has to meet PCI-DSS requirements for card data and show live updates on the operations dashboard. Thanks, and let us know if you need more detail.",0,1,0,1,0,0,0,1,0,0,1,0,0,0,1
+LG-406,2026-05-25,,73,pending,0,The team has to keep a full audit trail of every change. Please include the compliance overhead in the estimate.,0,0,1,0,0,0,0,1,0,1,0,0,1,0,0
+LG-407,2026-05-27,48,49,done,0,We would like to coordinate across three teams and one external vendor and show live updates on the operations dashboard. Can you estimate how long that will take?,0,0,0,0,1,0,0,1,0,0,0,0,0,1,1
+LG-408,2026-05-28,,48,pending,0,"The team has to add SSO login with our corporate identity provider. Thanks, and let us know if you need more detail.",1,0,1,1,0,1,1,0,0,0,0,1,0,0,0
+LG-409,2026-05-29,64,45,done,0,The team has to meet PCI-DSS requirements for card data and integrate with our CRM vendor's REST API.,1,0,0,1,0,0,1,0,0,0,1,1,0,0,0
+LG-410,2026-05-30,79,69,done,0,"Bên mình cần tuân thủ quy định GDPR về dữ liệu cá nhân. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,0,1,1,0,0,0,0,0,0,0,1,1,0,1
+LG-411,2026-05-31,105,79,done,0,"The team has to follow GDPR privacy rules and add card payments through a new payment gateway. Thanks, and let us know if you need more detail.",1,1,1,0,0,0,0,0,0,0,1,1,0,0,0
+LG-412,2026-06-01,56,74,done,0,"Kế hoạch quý này gồm việc chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng và xử lý hệ thống cũ chạy on-premise. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,1,0,0,0,1,1,0,0,0,1,0,0,1,0
+LG-413,2026-06-02,34,45,done,0,"The team has to support billing in USD, EUR and VND and keep a full audit trail of every change.",0,0,0,0,0,1,0,0,0,0,0,0,1,0,0
+LG-414,2026-06-03,62,79,done,0,We need to show live updates on the operations dashboard.,1,0,1,0,0,0,0,1,1,0,0,0,1,0,0
+LG-415,2026-06-04,57,58,done,0,Bên mình cần làm ứng dụng di động cho cả iOS và Android. Nhờ team estimate thời gian giúp mình.,1,1,0,1,1,0,0,0,1,0,0,0,0,1,1
+LG-416,2026-06-05,48,61,done,0,We would like to work around the legacy on-premise stack.,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1
+LG-417,2026-06-07,41,42,done,0,We need to coordinate across three teams and one external vendor and show live updates on the operations dashboard. Please include the compliance overhead in the estimate.,0,0,0,0,1,0,0,1,0,0,0,1,0,1,1
+LG-418,2026-06-08,43,29,done,0,Bên mình đang muốn hiển thị cập nhật thời gian thực trên dashboard và làm ứng dụng di động cho cả iOS và Android. Anh/chị ước lượng giúp khoảng bao lâu nhé.,0,0,0,1,0,0,0,1,1,0,0,1,1,0,0
+LG-419,2026-06-09,,85,pending,0,The plan for this quarter is to keep project data in sync with our ERP system and ship native iOS and Android apps. Can you estimate how long that will take?,0,0,0,1,0,0,0,0,1,1,0,1,1,0,1
+LG-420,2026-06-11,82,79,done,0,"The team has to show live updates on the operations dashboard and integrate with our CRM vendor's REST API. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,0,0,0,0,0,1,0,0,0,0,1,0,1
+LG-421,2026-06-14,45,60,done,0,"Kế hoạch quý này gồm việc giữ ứng dụng hoạt động khi nhân viên mất mạng và hỗ trợ thanh toán bằng VND, USD và EUR. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,0,0,0,1,0,0,0,1,0,0,0,0,1
+LG-422,2026-06-15,87,95,done,0,Our roadmap includes work to keep project data in sync with our ERP system.,1,1,0,1,1,0,0,0,0,0,1,0,0,1,1
+LG-423,2026-06-19,60,74,done,0,"We would like to meet PCI-DSS requirements for card data and add card payments through a new payment gateway. They flagged it as ""high priority"" in the last review.",1,1,0,0,0,0,0,0,0,1,1,0,1,0,0
+LG-424,2026-06-20,,69,pending,0,Bên mình cần ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi và chuyển dữ liệu từ hệ thống cũ sang nền tảng mới. Cho mình xin khoảng thời gian dự kiến với ạ.,1,0,0,1,1,0,0,0,0,0,0,0,1,1,0
+LG-425,2026-06-21,,,pending,0,"The team has to keep a full audit trail of every change. They flagged it as ""high priority"" in the last review.",1,0,1,0,0,1,0,0,0,0,0,0,1,0,1
+LG-426,2026-06-22,39,47,done,0,"The team has to support billing in USD, EUR and VND and coordinate across three teams and one external vendor. Can you estimate how long that will take?",1,0,0,0,0,1,0,1,0,0,0,0,0,0,1
+LG-427,2026-06-23,78,78,done,0,We need to keep a full audit trail of every change and keep the app usable when field staff are offline. Please include the compliance overhead in the estimate.,1,0,1,0,0,1,0,1,1,1,0,1,1,0,0
+LG-428,2026-06-25,49,51,done,0,Kế hoạch quý này gồm việc phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài và ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi. Cho mình xin khoảng thời gian dự kiến với ạ.,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1
+LG-429,2026-06-29,61,72,done,0,"Our roadmap includes work to work around the legacy on-premise stack and migrate the old customer database into the new platform. They flagged it as ""high priority"" in the last review.",1,0,0,0,1,0,0,0,0,0,0,0,0,1,0
+LG-430,2026-06-30,64,84,done,0,"We need to add card payments through a new payment gateway. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,1,0,0,0,0,0,0,0,0,1,1,0,0,0
+LG-431,2026-07-02,72,91,done,0,Sắp tới bên mình sẽ hiển thị cập nhật thời gian thực trên dashboard và xử lý hệ thống cũ chạy on-premise. Anh/chị ước lượng giúp khoảng bao lâu nhé.,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0
+LG-432,2026-07-03,96,76,done,0,Bên mình đang muốn đăng nhập SSO bằng tài khoản công ty. Anh/chị ước lượng giúp khoảng bao lâu nhé.,0,1,1,1,0,0,0,0,1,1,0,1,0,0,1
+LG-433,2026-07-06,22,25,done,0,"The plan for this quarter is to integrate with our CRM vendor's REST API and run the platform multi-tenant for several client organisations. They flagged it as ""high priority"" in the last review.",1,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+LG-434,2026-07-08,35,35,done,0,Our roadmap includes work to coordinate across three teams and one external vendor and show live updates on the operations dashboard. Please include the compliance overhead in the estimate.,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1
+LG-435,2026-07-09,65,47,done,0,"We need to support billing in USD, EUR and VND. Please include the compliance overhead in the estimate.",1,0,1,0,0,1,1,0,0,0,0,1,1,1,0
+LG-436,2026-07-10,,,pending,0,"The plan for this quarter is to keep the app usable when field staff are offline. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,1,0,0,0,0,0,1,1,0,1,1,0,0
+LG-437,2026-07-12,100,103,done,0,We would like to keep project data in sync with our ERP system. A rough range is fine for planning.,0,0,1,1,1,1,0,1,0,0,0,0,1,1,0
+LG-438,2026-07-15,75,63,done,0,We would like to keep project data in sync with our ERP system and coordinate across three teams and one external vendor. Can you estimate how long that will take?,0,0,0,1,1,0,1,0,0,0,0,0,0,1,1
+LG-439,2026-07-16,165,166,done,0,"Our roadmap includes work to keep a full audit trail of every change and coordinate across three teams and one external vendor. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,1,1,0,0,1,0,0,0,0,1,1,0,1
+LG-440,2026-07-17,45,34,done,0,"We would like to run the platform multi-tenant for several client organisations and keep a full audit trail of every change. They flagged it as ""high priority"" in the last review.",0,0,1,0,0,0,1,0,0,0,0,0,1,0,1
+LG-441,2026-07-18,84,99,done,0,We would like to add card payments through a new payment gateway and keep a full audit trail of every change.,0,1,1,0,0,0,1,0,1,1,1,0,1,0,0
+LG-442,2026-07-19,70,80,done,0,"Bên mình đang muốn đồng bộ dữ liệu liên tục với hệ thống ERP và đáp ứng yêu cầu PCI-DSS cho dữ liệu thẻ. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",0,1,0,1,0,0,0,1,1,0,1,0,0,1,0
+LG-443,2026-07-20,41,29,done,0,"Bên mình cần phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài và đăng nhập SSO bằng tài khoản công ty. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,1,0,0,0,0,0,0,0,0,1,0,0,1
+LG-444,2026-07-21,104,139,done,0,Our roadmap includes work to work around the legacy on-premise stack and integrate with our CRM vendor's REST API.,1,0,0,0,1,0,0,1,1,0,0,1,1,1,0
+LG-445,2026-07-22,,77,pending,0,"Bên mình đang muốn hiển thị cập nhật thời gian thực trên dashboard và hỗ trợ thanh toán bằng VND, USD và EUR. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,1,0,0,1,0,1,0,0,0,1,1,0,0
+LG-446,2026-07-23,135,119,done,0,Our roadmap includes work to integrate with our CRM vendor's REST API.,1,1,0,1,0,1,0,0,0,0,1,1,1,0,0
+LG-447,2026-07-24,,51,pending,0,"Bên mình đang muốn xử lý hệ thống cũ chạy on-premise và phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,0,0,0,0,0,0,0,0,0,0,0,1,1
+LG-448,2026-07-25,29,39,done,0,The plan for this quarter is to show live updates on the operations dashboard. Can you estimate how long that will take?,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+LG-449,2026-07-26,101,72,done,0,We would like to keep a full audit trail of every change.,0,0,1,0,1,0,0,0,0,0,0,1,1,1,1
+LG-450,2026-07-27,91,93,done,0,"The team has to coordinate across three teams and one external vendor. They flagged it as ""high priority"" in the last review.",1,1,0,1,0,0,0,0,0,0,1,0,1,0,1
+LG-451,2026-07-28,48,63,done,0,The team has to integrate with our CRM vendor's REST API and add SSO login with our corporate identity provider.,1,0,1,1,0,1,0,0,0,0,0,1,0,0,0
+LG-452,2026-07-29,94,71,done,0,We would like to coordinate across three teams and one external vendor and keep a full audit trail of every change.,0,0,1,1,0,0,0,1,0,0,0,1,1,0,1
+LG-453,2026-07-31,53,37,done,0,"The plan for this quarter is to follow GDPR privacy rules. Thanks, and let us know if you need more detail.",1,0,0,1,0,0,0,0,0,0,0,1,1,1,0
+LG-454,2026-08-01,7,5,done,0,Kế hoạch quý này gồm việc đồng bộ dữ liệu liên tục với hệ thống ERP.,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0
+LG-455,2026-08-02,,74,pending,0,The plan for this quarter is to add SSO login with our corporate identity provider and show live updates on the operations dashboard.,0,1,1,1,0,1,0,1,0,0,1,0,0,0,0
+LG-456,2026-08-03,69,71,done,0,"Our roadmap includes work to coordinate across three teams and one external vendor and keep the app usable when field staff are offline. Thanks, and let us know if you need more detail.",1,0,0,0,0,0,0,0,0,1,0,1,1,0,1
+LG-457,2026-08-04,74,66,done,0,The plan for this quarter is to follow GDPR privacy rules and integrate with our CRM vendor's REST API. A rough range is fine for planning.,1,0,0,1,0,0,1,0,0,0,0,1,0,0,0
+LG-458,2026-08-05,86,105,done,0,"Our roadmap includes work to add card payments through a new payment gateway and keep a full audit trail of every change. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,1,0,1,0,0,0,0,0,0,1,0,1,0,1
+LG-459,2026-08-06,,154,pending,0,Bên mình cần đăng nhập SSO bằng tài khoản công ty và xử lý hệ thống cũ chạy on-premise. Nhờ team estimate thời gian giúp mình.,0,0,1,1,0,1,0,1,1,1,0,1,1,1,1
+LG-460,2026-08-07,83,71,done,0,"Our roadmap includes work to add SSO login with our corporate identity provider and keep a full audit trail of every change. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",1,0,1,1,1,0,0,1,1,0,0,0,1,0,0
+LG-461,2026-08-08,60,41,done,0,"The team has to follow GDPR privacy rules. Thanks, and let us know if you need more detail.",0,1,0,1,0,0,0,0,0,1,1,1,0,0,0
+LG-462,2026-08-09,,59,pending,0,Bên mình đang muốn đáp ứng yêu cầu PCI-DSS cho dữ liệu thẻ. Cho mình xin khoảng thời gian dự kiến với ạ.,0,1,1,1,1,0,0,0,0,0,1,0,0,0,1
+LG-463,2026-08-11,141,178,done,0,Our roadmap includes work to meet PCI-DSS requirements for card data.,1,1,1,1,1,0,0,0,0,0,1,0,1,1,1
+LG-464,2026-08-12,,,pending,0,"Our roadmap includes work to add card payments through a new payment gateway. Thanks, and let us know if you need more detail.",1,1,0,0,1,0,0,1,1,0,1,0,1,1,0
+LG-465,2026-08-13,,,pending,0,We would like to integrate with our CRM vendor's REST API and add SSO login with our corporate identity provider. A rough range is fine for planning.,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+LG-466,2026-08-14,39,36,done,0,Our roadmap includes work to migrate the old customer database into the new platform.,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+LG-467,2026-08-15,66,77,done,0,Bên mình đang muốn phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài và đáp ứng yêu cầu PCI-DSS cho dữ liệu thẻ. Cho mình xin khoảng thời gian dự kiến với ạ.,0,1,0,0,0,1,0,0,0,0,1,0,1,0,1
+LG-468,2026-08-17,,,pending,0,We need to migrate the old customer database into the new platform and work around the legacy on-premise stack. A rough range is fine for planning.,1,0,0,0,1,0,0,1,0,0,0,0,0,1,0
+LG-469,2026-08-18,59,60,done,0,Bên mình đang muốn phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài và thêm thanh toán thẻ qua cổng thanh toán mới.,1,1,1,0,0,0,0,0,0,0,1,0,1,0,1
+LG-470,2026-08-19,62,57,done,0,"The team has to follow GDPR privacy rules and ship native iOS and Android apps. The client calls this ""phase 2"" of the rollout, so plan for the long haul.",0,0,1,0,0,0,0,0,1,0,0,1,1,0,0
+LG-471,2026-08-20,128,101,done,0,"The plan for this quarter is to show live updates on the operations dashboard. Thanks, and let us know if you need more detail.",0,1,0,1,0,0,0,1,0,0,1,0,0,0,0
+LG-472,2026-08-21,93,89,done,0,We need to migrate the old customer database into the new platform and meet PCI-DSS requirements for card data. Can you estimate how long that will take?,1,1,0,1,1,0,0,1,0,0,1,1,1,0,0
+LG-473,2026-08-22,,,pending,0,"Our roadmap includes work to show live updates on the operations dashboard and ship native iOS and Android apps. They flagged it as ""high priority"" in the last review.",0,0,0,0,0,0,1,1,1,0,0,0,0,1,0
+LG-474,2026-08-23,,,pending,0,We would like to run the platform multi-tenant for several client organisations and add SSO login with our corporate identity provider.,1,0,1,0,0,0,1,0,0,0,0,0,0,0,1
+LG-475,2026-08-25,,82,pending,0,"We need to keep project data in sync with our ERP system. They flagged it as ""high priority"" in the last review.",1,0,0,1,0,0,1,1,0,1,0,0,1,0,0
+LG-476,2026-08-26,71,96,done,0,The plan for this quarter is to work around the legacy on-premise stack and migrate the old customer database into the new platform.,1,0,0,1,1,1,0,0,0,0,0,1,0,1,0
+LG-477,2026-08-28,115,129,done,0,"Sắp tới bên mình sẽ chạy nền tảng theo mô hình multi-tenant cho nhiều khách hàng và hiển thị cập nhật thời gian thực trên dashboard. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",1,0,1,0,0,1,1,1,0,0,0,0,0,1,1
+LG-478,2026-08-30,59,60,done,0,We would like to coordinate across three teams and one external vendor and work around the legacy on-premise stack. A rough range is fine for planning.,0,0,0,0,1,1,0,0,0,1,0,1,0,1,1
+LG-479,2026-08-31,52,45,done,0,Bên mình đang muốn ghi nhật ký kiểm toán đầy đủ cho mọi thay đổi và tuân thủ quy định GDPR về dữ liệu cá nhân.,1,0,0,0,0,1,0,0,0,0,0,1,1,0,0
+LG-480,2026-09-02,73,96,done,0,The team has to integrate with our CRM vendor's REST API.,1,1,0,0,0,0,1,0,0,0,1,1,0,0,0
+LG-481,2026-09-03,67,69,done,0,Our roadmap includes work to add card payments through a new payment gateway and coordinate across three teams and one external vendor. A rough range is fine for planning.,0,1,1,0,0,0,0,0,0,0,1,0,1,1,1
+LG-482,2026-09-05,83,63,done,0,"Our roadmap includes work to ship native iOS and Android apps. Thanks, and let us know if you need more detail.",1,0,0,0,0,0,0,0,1,1,0,0,1,0,0
+LG-483,2026-09-06,101,116,done,0,"Sắp tới bên mình sẽ tuân thủ quy định GDPR về dữ liệu cá nhân và làm ứng dụng di động cho cả iOS và Android. Khách gọi đây là ""giai đoạn 2"", nên cần tính kỹ giúp mình.",0,0,0,1,0,0,0,1,1,1,0,1,0,0,0
+LG-484,2026-09-07,48,60,done,0,Sắp tới bên mình sẽ hiển thị cập nhật thời gian thực trên dashboard. Nhờ team estimate thời gian giúp mình.,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+LG-485,2026-09-08,46,31,done,0,"Our roadmap includes work to run the platform multi-tenant for several client organisations. Thanks, and let us know if you need more detail.",0,0,1,0,0,0,1,0,0,0,0,1,1,0,0
+LG-486,2026-09-09,67,74,done,0,We need to add card payments through a new payment gateway and integrate with our CRM vendor's REST API. A rough range is fine for planning.,1,1,0,0,0,1,0,0,0,0,1,0,0,0,1
+LG-487,2026-09-13,77,50,done,0,The plan for this quarter is to integrate with our CRM vendor's REST API and work around the legacy on-premise stack. Can you estimate how long that will take?,1,0,0,0,1,1,0,1,0,1,0,0,0,1,0
+LG-488,2026-09-14,42,30,done,0,We need to run the platform multi-tenant for several client organisations. A rough range is fine for planning.,0,1,0,0,0,0,1,0,0,0,0,0,1,1,0
+LG-489,2026-09-15,86,57,done,0,"The plan for this quarter is to migrate the old customer database into the new platform. They flagged it as ""high priority"" in the last review.",0,0,0,0,1,0,0,1,1,0,0,0,0,1,1
+LG-490,2026-09-16,,62,pending,0,"The team has to ship native iOS and Android apps. They flagged it as ""high priority"" in the last review.",1,0,0,1,0,0,0,0,1,0,0,1,1,0,0
+LG-491,2026-09-17,71,47,done,0,The plan for this quarter is to coordinate across three teams and one external vendor.,0,0,0,0,0,0,1,0,0,0,0,1,0,1,1
+LG-492,2026-09-18,,70,pending,0,"We need to keep project data in sync with our ERP system and follow GDPR privacy rules. Thanks, and let us know if you need more detail.",0,0,0,1,0,0,0,1,0,0,0,1,0,0,0
+LG-493,2026-09-19,58,62,done,0,The team has to integrate with our CRM vendor's REST API and show live updates on the operations dashboard.,1,0,1,0,0,0,1,1,0,0,0,0,0,0,0
+LG-494,2026-09-21,75,79,done,0,Kế hoạch quý này gồm việc phối hợp giữa ba nhóm và một nhà cung cấp bên ngoài. Nhờ team estimate thời gian giúp mình.,1,0,1,1,0,0,0,1,0,1,0,0,0,0,1
+LG-495,2026-09-22,36,48,done,0,"We need to show live updates on the operations dashboard. They flagged it as ""high priority"" in the last review.",0,0,0,0,0,0,0,1,0,0,0,0,1,0,1
+LG-496,2026-09-23,74,74,done,0,The plan for this quarter is to keep project data in sync with our ERP system and work around the legacy on-premise stack.,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0
+LG-497,2026-09-26,,,pending,0,Our roadmap includes work to coordinate across three teams and one external vendor and keep a full audit trail of every change. A rough range is fine for planning.,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1
+LG-498,2026-09-28,43,44,done,0,The plan for this quarter is to add card payments through a new payment gateway. Can you estimate how long that will take?,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1
+LG-499,2026-09-29,69,83,done,0,"The team has to keep project data in sync with our ERP system and work around the legacy on-premise stack. Thanks, and let us know if you need more detail.",1,0,0,1,0,0,1,0,1,1,0,0,0,1,0
+LG-500,2026-09-30,83,97,done,0,"Sắp tới bên mình sẽ làm ứng dụng di động cho cả iOS và Android và tuân thủ quy định GDPR về dữ liệu cá nhân. Mong nhận được con số ước lượng sớm, càng sát thực tế càng tốt.",1,0,1,0,1,0,0,0,1,0,0,1,0,1,1
