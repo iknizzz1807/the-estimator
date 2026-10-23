@@ -133,9 +133,9 @@ Deploy: `docker build -f backend/Dockerfile -t the-estimator . && docker run -p 
 
 ## Tài liệu
 
-Trong `docs/` có 16 file. Nên đọc trước: [`SPEC.md`](docs/SPEC.md) (đặc tả nghiệp vụ và toán), [`API.md`](docs/API.md) (contract), [`DECISIONS.md`](docs/DECISIONS.md) (nhật ký quyết định), [`DATA_GENERATION.md`](docs/DATA_GENERATION.md) (cách sinh dữ liệu demo).
+Trong `docs/` có 17 file. Nên đọc trước: [`SPEC.md`](docs/SPEC.md) (đặc tả nghiệp vụ và toán), [`API.md`](docs/API.md) (contract), [`DECISIONS.md`](docs/DECISIONS.md) (nhật ký quyết định), [`DATA_GENERATION.md`](docs/DATA_GENERATION.md) (cách sinh dữ liệu demo).
 
-Các báo cáo kiểm chứng, mọi con số trong README này đều nằm trong đó: [`AB_MEASUREMENT.md`](docs/AB_MEASUREMENT.md), [`EXTRACTION_EVAL.md`](docs/EXTRACTION_EVAL.md), [`SURCHARGE_CALIBRATION.md`](docs/SURCHARGE_CALIBRATION.md), [`CODEBASE_HISTORY_VALIDATION.md`](docs/CODEBASE_HISTORY_VALIDATION.md), [`CODEBASE_VALIDATION.md`](docs/CODEBASE_VALIDATION.md), [`TAWOS_VALIDATION.md`](docs/TAWOS_VALIDATION.md), [`ITEMLET_VALIDATION.md`](docs/ITEMLET_VALIDATION.md), [`PR_LEADTIME_VALIDATION.md`](docs/PR_LEADTIME_VALIDATION.md), [`DISTILLATION_EXPERIMENT.md`](docs/DISTILLATION_EXPERIMENT.md), [`RETRIEVAL_VALIDATION.md`](docs/RETRIEVAL_VALIDATION.md).
+Các báo cáo kiểm chứng, mọi con số trong README này đều nằm trong đó: [`AB_MEASUREMENT.md`](docs/AB_MEASUREMENT.md), [`EXTRACTION_EVAL.md`](docs/EXTRACTION_EVAL.md), [`SURCHARGE_CALIBRATION.md`](docs/SURCHARGE_CALIBRATION.md), [`CODEBASE_HISTORY_VALIDATION.md`](docs/CODEBASE_HISTORY_VALIDATION.md), [`CODEBASE_VALIDATION.md`](docs/CODEBASE_VALIDATION.md), [`TAWOS_VALIDATION.md`](docs/TAWOS_VALIDATION.md), [`ITEMLET_VALIDATION.md`](docs/ITEMLET_VALIDATION.md), [`PR_LEADTIME_VALIDATION.md`](docs/PR_LEADTIME_VALIDATION.md), [`DISTILLATION_EXPERIMENT.md`](docs/DISTILLATION_EXPERIMENT.md), [`RETRIEVAL_VALIDATION.md`](docs/RETRIEVAL_VALIDATION.md), [`MC_ABLATION.md`](docs/MC_ABLATION.md).
 
 Còn lại: [`SUBMISSION.md`](docs/SUBMISSION.md), [`USER_JOURNEY_GUIDE_PROPOSAL.md`](docs/USER_JOURNEY_GUIDE_PROPOSAL.md).
 
