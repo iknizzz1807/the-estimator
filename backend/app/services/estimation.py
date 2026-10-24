@@ -271,8 +271,9 @@ def estimate_mc(
     features: Mapping[str, Any] | None,
     n: int = 2000,
     seed: int = 42,
+    null_prior: Mapping[str, float] | None = None,
 ) -> dict[str, Any]:
-    """Interval estimate that treats unknown features as unknown, not as 0.
+    """Interval estimate that treats unknown features as unresolved, not as 0.
 
     A feature is unknown when the mapping explicitly maps it to ``None``
     (``resolve_features`` emits all 15 canonical keys). Keys absent from the
@@ -281,9 +282,13 @@ def estimate_mc(
 
     For each of the ``n`` Monte Carlo draws:
 
-    1. every unknown feature is sampled ``Bernoulli(p)`` with ``p`` the
-       training-set prevalence stored on the model
-       (``DEFAULT_FEATURE_PREVALENCE`` ~0.3 for missing keys);
+    1. every unknown feature is sampled ``Bernoulli(p)``. When ``null_prior``
+       is provided, ``p`` is the mechanism-aware prior ``P(feature=1 | the
+       extraction left it null)`` for that feature (the API loads
+       ``data/null_prior.json`` when available); otherwise ``p`` is the
+       training-set prevalence stored on the model. The distinction matters:
+       an unresolved feature usually means "the request did not mention it",
+       not "a coin flip with the marginal prevalence".
     2. ``log_pred_draw`` is the Ridge prediction on the completed binary
        vector;
     3. a residual is added, bootstrapped from the stored out-of-fold conformal
@@ -314,7 +319,11 @@ def estimate_mc(
     prevalence = getattr(model, "feature_prevalence", None) or {}
     index = {name: i for i, name in enumerate(model.feature_names)}
     for name in unknown:
-        p = float(prevalence.get(name, DEFAULT_FEATURE_PREVALENCE))
+        p = float(
+            (null_prior or {}).get(
+                name, prevalence.get(name, DEFAULT_FEATURE_PREVALENCE)
+            )
+        )
         x_draw[:, index[name]] = rng.random(n) < p
 
     log_pred = np.asarray(model.model.predict(x_draw), dtype=float).ravel()

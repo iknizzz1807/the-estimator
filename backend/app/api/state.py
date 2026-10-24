@@ -841,13 +841,44 @@ def extract_stage(state: AppState, email_text: str) -> tuple[ExtractionResult, s
     return result, result.provider
 
 
+def _load_null_prior() -> dict[str, float]:
+    """P(feature=1 | the extraction left it null), from data/null_prior.json.
+
+    The file is produced by ``scripts/build_null_prior.py`` from extraction
+    history (a null means the request did not mention the feature, which is a
+    very different event from a random coin flip). A missing or invalid file
+    returns ``{}``, so :func:`estimate_mc` falls back to the marginal
+    training prevalence (legacy behaviour).
+    """
+    path = REPO_ROOT / "data" / "null_prior.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    features = payload.get("features") if isinstance(payload, dict) else None
+    if not isinstance(features, dict):
+        return {}
+    out: dict[str, float] = {}
+    for name, value in features.items():
+        try:
+            rate = float(value)
+        except (TypeError, ValueError):
+            continue
+        if 0.0 <= rate <= 1.0:
+            out[str(name)] = rate
+    return out
+
+
 def predict(state: AppState, features: Mapping[str, Any] | None) -> dict[str, Any]:
     """Calibrated prediction when a model exists, cold start otherwise.
 
     Contract v0.2: while the calibrated model still sees unknown (``None``)
     features the interval comes from :func:`estimate_mc`
-    (``method="mc"``, unknown features sampled at their training prevalence);
-    fully-known vectors and warm-up/cold-start models use the deterministic
+    (``method="mc"``). Unknown features are sampled from the mechanism-aware
+    extraction-null prior (``data/null_prior.json``) when present, not from the
+    marginal training prevalence: an unresolved feature usually means "the
+    request did not mention it", and the null-conditioned rate is much lower.
+    Fully-known vectors and warm-up/cold-start models use the deterministic
     point estimator (``method="point"``). ``unit``/``method`` are always
     present.
     """
@@ -858,7 +889,9 @@ def predict(state: AppState, features: Mapping[str, Any] | None) -> dict[str, An
         if name in source and source[name] is None
     ]
     if state.model is not None and state.model.calibrated and unknowns:
-        return estimate_mc(state.model, source)
+        return estimate_mc(
+            state.model, source, null_prior=_load_null_prior()
+        )
 
     prediction = (
         estimate(state.model, source)

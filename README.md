@@ -109,7 +109,7 @@ Việc cần làm trước khi tới được đó: ghi lại cặp (tín hiệu
 - Codebase Lab đứng ở vai trò giải thích rủi ro. Kết quả âm tính trên SWE-bench được ghi lại đầy đủ chứ không bỏ qua.
 - Retrieval cho yêu cầu mới đã thử và pass gate (hit@10 khoảng 0.65–0.81) nhưng chưa nối vào sản phẩm; muốn nối vào số thì phải qua một ablation đăng ký trước.
 
-Nhật ký đầy đủ 28 mục: [`docs/DECISIONS.md`](docs/DECISIONS.md) (D1–D29, D19 để trống).
+Nhật ký đầy đủ 30 mục: [`docs/DECISIONS.md`](docs/DECISIONS.md) (D1–D31, D19 để trống).
 
 ## Chạy thử
 

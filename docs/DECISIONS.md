@@ -204,6 +204,16 @@ The README had grown to ~500 lines and was judged too long-winded for a time-sta
 - Added **`LICENSE` (MIT)** — the badge previously linked to a 404.
 - Rule unchanged: numbers in README must match `docs/*.md` artifacts (D14/D16); this entry is the paper trail for the corrections.
 
+## D31 — Mechanism-aware missing-data prior (2026-10-24)
+
+External harsh reviews exposed a specification error in `estimate_mc`: it sampled every unresolved feature at the **marginal** training prevalence (25.2%), but an extraction `null` means the request did not mention the feature, and only **4.1%** of null cells are positive (per-feature 1.7–8.5%). On the real end-to-end replay (228 emails, 218 steps) the global prior is worse than zero-fill: **49.64 vs 21.34 days MAE**, coverage 55.5% vs 74.3%.
+
+- **Fix**: `estimate_mc(..., null_prior=...)` uses a per-feature `P(feature=1 | null)` estimated walk-forward from extraction history; `scripts/build_null_prior.py` writes `data/null_prior.json` (the API loads it in `state._load_null_prior`); without the file, the marginal fallback remains.
+- **Results**: zero-fill 21.34/74.3%; global 49.64/55.5%; **conditional 20.48/85.3%**; oracle 17.36/86.7%. With oracle answers, five questions → **17.99/85.3%**, ten → 17.46/83.0%.
+- **Why the old ablation was misleading**: `docs/MC_ABLATION.md` used uniform masking (MCAR), where the marginal prior is correct (85.6/85.2 vs zero-fill 61.2/39.3). Deployment nulls are not MCAR; the two mechanisms are now reported separately in `docs/ENDTOEND_REPLAY.md`.
+- **Review-driven corrections**: de-biased team baseline **18.26** (raw 32.93 is biased); JOSSE project-level split **2.76 vs 2.95 h** (+6.4%; experts 6.07 vs 7.45); the paper title drops "Calibrated" (the 1.10 tail widening is tuned and coverage 86.7% is above the 75–85% band); the oracle-feature replay is reported as an upper bound.
+- Tests: **242 passed**.
+
 
 
 

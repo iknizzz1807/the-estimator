@@ -59,6 +59,22 @@ Metrics: MAE of P50 (days), empirical P10–P90 coverage, relative width
 - `gbm_quant` can produce crossing quantiles; the reported interval is the raw
   q10/q90 (no rearrangement).
 
+## Additional checks (2026-10-24, after an external review)
+
+**De-biased team baseline.** The synthetic team estimate is generated with a
+0.75 optimism factor and weakened integration/migration coefficients, so its
+raw MAE (32.93) is not a fair human baseline. Multiplying each team estimate by
+the walk-forward median actual/team ratio yields a **de-biased team MAE of
+18.26**; the estimator's 17.36 is about 5% better, not 47%.
+
+**JOSSE project-level split.** The within-project split in the paper's main
+text lets the model see each test project in training. With 80% of the 371
+project prefixes as training projects and 20% held out, text+metadata reaches
+**MAE 2.76 h vs 2.95 h for the global median (+6.4%)**, MedAE 0.55 vs 0.83,
+coverage 71.2%; experts win on the 945 test rows where both exist (6.07 vs
+7.45 h). The within-project split gives the more optimistic 13.1% (3.32 vs
+3.82 h).
+
 ## Reproduce
 
 ```bash

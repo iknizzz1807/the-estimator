@@ -1,0 +1,25 @@
+{
+ "generated": "2026-10-24 11:04 UTC",
+ "source": "data/endtoend_extractions.json + data/synthetic_history.csv",
+ "rows": 228,
+ "null_cells": 2436,
+ "overall": 0.0411,
+ "min_nulls_per_feature": 5,
+ "features": {
+  "third_party_api": 0.0672,
+  "payment_gateway": 0.0435,
+  "identity_provider": 0.0278,
+  "external_data_sync": 0.0248,
+  "data_migration": 0.0845,
+  "multi_currency": 0.0174,
+  "multi_tenancy": 0.0242,
+  "realtime_ui": 0.0549,
+  "mobile_app": 0.0588,
+  "offline_mode": 0.0191,
+  "pci_dss": 0.0432,
+  "privacy_compliance": 0.0364,
+  "audit_logging": 0.0216,
+  "legacy_tech_stack": 0.0427,
+  "cross_team_coordination": 0.0651
+ }
+}

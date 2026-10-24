@@ -1,6 +1,6 @@
 # HANDOFF — The Estimator (2026-10-18)
 
-> **For any new agent/model picking this project up.** Read this file first, then `docs/DECISIONS.md` (every design decision, **D1–D29**) and `README.md` (product + measured results). This file is the operational state of the world; it is updated by whoever finishes a work session.
+> **For any new agent/model picking this project up.** Read this file first, then `docs/DECISIONS.md` (every design decision, **D1–D31**) and `README.md` (product + measured results). This file is the operational state of the world; it is updated by whoever finishes a work session.
 
 ## 0. TL;DR
 
@@ -16,7 +16,7 @@ Paste a customer email/RFP → LLM (DeepSeek V4.1 Flash) extracts 15 binary proj
 
 **Codebase Lab as of 2026-10-18** (D20–D27): the repository selector offers **demo_a / demo_b** (synthetic), **5 pre-cloned real Python repos** (Flask, Click, Requests, Stripe SDK, SMART-on-FHIR — one click, instant), **"This project"** (local checkout, or a build-time clone of this repo on cloud), and a **pasted public GitHub URL** (strict `github.com` allow-list). It is **Python-only, enforced** — a repo whose primary source language is not Python is refused with a clear message rather than mis-scored.
 
-Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contract incl. v0.2 + the Codebase Lab additions) · `docs/DECISIONS.md` (D1–D29) · `docs/SUBMISSION.md` (submission text EN+VI).
+Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contract incl. v0.2 + the Codebase Lab additions) · `docs/DECISIONS.md` (D1–D31) · `docs/SUBMISSION.md` (submission text EN+VI).
 
 ## 2. Git state
 
@@ -41,6 +41,7 @@ Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contra
   - Unknown-feature MC ablation — `backend/scripts/mc_ablation.py` + `docs/MC_ABLATION.md`: zero-fill coverage 61.2%/39.3% (q=20/40%) vs independent MC 85.6%/85.2% vs oracle 86.7%; correlation-aware variants did not improve.
   - End-to-end replay — `backend/scripts/endtoend_replay.py` + `data/endtoend_extractions.json` + `docs/ENDTOEND_REPLAY.md`: LLM-extracted features with 0 answers: MAE 49.64 / coverage 55.5%; +5 oracle answers: 20.24 / 82.1%; +10: 17.35 / 83.9%; oracle 17.36 / 86.7%.
   - Baseline comparison — `backend/scripts/baseline_comparison.py` + `docs/BASELINE_COMPARISON.md`: Ridge 17.36/86.7%/0.83 vs split conformal 17.25/75.7%/1.04 vs GBM 25.23/72.9% vs quantile GBM 25.56/66.5% vs median 32.76/77.1%.
+  - **Missing-data fix (D31)** — `estimate_mc` now accepts a **null-conditional prior** `P(feature=1 | extraction null)`; `scripts/build_null_prior.py` estimates it (4.1% overall, 1.7–8.5% per feature) and the API loads `data/null_prior.json`. End-to-end: zero-fill 21.34/74.3%, old global prior 49.64/55.5%, **conditional 20.48/85.3%**; +5 oracle answers 17.99/85.3% (oracle 17.36/86.7%). De-biased team = 18.26 MAE (raw simulated team 32.93 is biased). JOSSE project-level split: 2.76 vs 2.95 h (+6.4%), experts 6.07 vs 7.45. See `docs/ENDTOEND_REPLAY.md`.
 - The user runs **parallel sessions** (separate UI commits land mid-session). Pull before editing; **never `git add -A`** — commit only your own paths.
 - Commit convention: ASCII messages, scoped prefixes (`feat(api):`, `fix(frontend):`, `docs:`, `chore(deploy):`).
 
