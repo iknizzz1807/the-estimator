@@ -40,6 +40,7 @@ Key docs: `README.md` · `docs/SPEC.md` (business spec) · `docs/API.md` (contra
   - `1c98145` — 5 downloadable sample CSVs (`frontend/public/samples/`) + download links in the import modal (verified via the real import API: 5/25/100/500/20+4 skip)
   - Unknown-feature MC ablation — `backend/scripts/mc_ablation.py` + `docs/MC_ABLATION.md`: zero-fill coverage 61.2%/39.3% (q=20/40%) vs independent MC 85.6%/85.2% vs oracle 86.7%; correlation-aware variants did not improve.
   - End-to-end replay — `backend/scripts/endtoend_replay.py` + `data/endtoend_extractions.json` + `docs/ENDTOEND_REPLAY.md`: LLM-extracted features with 0 answers: MAE 49.64 / coverage 55.5%; +5 oracle answers: 20.24 / 82.1%; +10: 17.35 / 83.9%; oracle 17.36 / 86.7%.
+  - Baseline comparison — `backend/scripts/baseline_comparison.py` + `docs/BASELINE_COMPARISON.md`: Ridge 17.36/86.7%/0.83 vs split conformal 17.25/75.7%/1.04 vs GBM 25.23/72.9% vs quantile GBM 25.56/66.5% vs median 32.76/77.1%.
 - The user runs **parallel sessions** (separate UI commits land mid-session). Pull before editing; **never `git add -A`** — commit only your own paths.
 - Commit convention: ASCII messages, scoped prefixes (`feat(api):`, `fix(frontend):`, `docs:`, `chore(deploy):`).
 

@@ -1,0 +1,31 @@
+{
+ "generated": "2026-10-24 09:00 UTC",
+ "steps": 218,
+ "results": {
+  "ridge_style": {
+   "mae": 17.36,
+   "coverage_pct": 86.7,
+   "rel_width": 0.83
+  },
+  "ridge_split": {
+   "mae": 17.25,
+   "coverage_pct": 75.7,
+   "rel_width": 1.04
+  },
+  "gbm_split": {
+   "mae": 25.23,
+   "coverage_pct": 72.9,
+   "rel_width": 2.05
+  },
+  "gbm_quant": {
+   "mae": 25.56,
+   "coverage_pct": 66.5,
+   "rel_width": 0.98
+  },
+  "median": {
+   "mae": 32.76,
+   "coverage_pct": 77.1,
+   "rel_width": 1.77
+  }
+ }
+}
