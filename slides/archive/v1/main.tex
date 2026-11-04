@@ -1,0 +1,214 @@
+% ===========================================================================
+%  THE ESTIMATOR — 12-slide deck (16:9, Beamer + TikZ)
+%  Figures live in figures.tex (agent A). Compile with Tectonic.
+% ===========================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,backgrounds,fit,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tcolorbox}
+\usepackage{amsmath,amssymb}
+
+% ---------------------------------------------------------------- palette --
+\definecolor{ink}{HTML}{0B1F3A}
+\definecolor{teal}{HTML}{0E9F9F}
+\definecolor{teallight}{HTML}{D9F2F1}
+\definecolor{amber}{HTML}{E8A317}
+\definecolor{amberlight}{HTML}{FDF0D5}
+\definecolor{red}{HTML}{D1495B}
+\definecolor{redlight}{HTML}{F8DDE1}
+\definecolor{blue}{HTML}{3A6EA5}
+\definecolor{graytext}{HTML}{6B7280}
+\definecolor{lightsurface}{HTML}{F4F6F8}
+\definecolor{hairline}{HTML}{D9DEE5}
+
+% ----------------------------------------------------------------- beamer --
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{background canvas}{bg=white}
+\setbeamercolor{normal text}{fg=ink}
+\setbeamerfont{normal text}{family=\sffamily}
+\setbeamersize{text margin left=0.70cm,text margin right=0.70cm}
+\setlength{\parindent}{0pt}
+\pagestyle{empty}
+
+% ---------------------------------------------------------------- figures --
+\input{figures.tex}
+
+% -------------------------------------------------------------- type spec --
+\newcommand{\KickFont}{\color{teal}\bfseries\fontsize{7.5}{9}\selectfont}
+\newcommand{\KickMark}{\raisebox{0.012cm}{\color{teal}\rule{0.13cm}{0.13cm}}\hspace{0.16cm}}
+\newcommand{\StateFont}{\color{ink}\bfseries\fontsize{24}{27.5}\selectfont}
+\newcommand{\MicroFont}{\color{graytext}\fontsize{9}{11}\selectfont}
+\newcommand{\FootFont}{\color{graytext}\fontsize{6.5}{8}\selectfont}
+
+% --------------------------------------------------------------- chrome ----
+% footer: hairline + brand (left) + page number (right)
+\newcommand{\DeckFooter}[1]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \draw[hairline,line width=0.4pt]
+      ([xshift=0.70cm,yshift=-8.58cm]current page.north west) --
+      ([xshift=15.30cm,yshift=-8.58cm]current page.north west);
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-8.76cm]current page.north west)
+      {\FootFont The Estimator};
+    \node[anchor=south east,inner sep=0pt,outer sep=0pt]
+      at ([xshift=15.30cm,yshift=-8.76cm]current page.north west)
+      {\FootFont #1};
+  \end{tikzpicture}}
+
+% kicker + statement + optional micro-line + footer
+\newcommand{\Chrome}[4]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-0.22cm]current page.north west)
+      {\KickFont\KickMark #1};
+    \node[anchor=north west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-0.80cm]current page.north west)
+      {\StateFont #2};
+    \if\relax\detokenize{#3}\relax\else
+      \node[anchor=south west,inner sep=0pt,outer sep=0pt]
+        at ([xshift=0.70cm,yshift=-8.36cm]current page.north west)
+        {\MicroFont #3};
+    \fi
+  \end{tikzpicture}%
+  \DeckFooter{#4}}
+
+% centred figure, fitted optical band (content 3.00 ... 7.88 cm)
+% \raisebox pins the reference box to the 14.6 x 7.2 canvas height, so an
+% oversized node inside a figure cannot shift the picture.
+\newcommand{\FigureAt}[4]{%
+  \pgfmathsetmacro{\FigH}{7.2*#1}%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north,inner sep=0pt,outer sep=0pt]
+      at ([xshift=#3cm,yshift=-#2cm]current page.north west)
+      {\raisebox{0pt}[\FigH cm][0pt]{\scalebox{#1}{#4}}};
+  \end{tikzpicture}}
+
+% ---------------------------------------------------------------- the deck --
+\begin{document}
+
+% ------------------------------------------------------------------ 1 -----
+\begin{frame}[t,plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[teal,rounded corners=1pt]
+      ([xshift=0.70cm,yshift=-0.52cm]current page.north west) rectangle ++(1.10cm,0.10cm);
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-1.76cm]current page.north west)
+      {\color{ink}\bfseries\fontsize{38}{42}\selectfont THE ESTIMATOR};
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-2.40cm]current page.north west)
+      {\color{graytext}\fontsize{12.5}{15}\selectfont from RFP to a range you can defend};
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-2.96cm]current page.north west)
+      {\color{graytext}\fontsize{8.5}{10}\selectfont Nguyen My Thong \textperiodcentered\ Anduin Cybernetics};
+    \node[anchor=north,inner sep=0pt,outer sep=0pt]
+      at ([xshift=7.87cm,yshift=-1.84cm]current page.north west)
+      {\scalebox{1.10}{\FigCover}};
+  \end{tikzpicture}
+  \DeckFooter{01}
+  \note{The estimator turns an RFP into a delivery range instead of a single number. It reads 240 past projects, extracts 15 features, and reports P10, P50 and P90. This deck covers the architecture, the numbers, and the limits.}
+\end{frame}
+
+% ------------------------------------------------------------------ 2 -----
+\begin{frame}[t,plain]
+  \Chrome{01 \textperiodcentered\ WHY}{A number nobody can defend.}{solve a pain I've felt $\rightarrow$ check it scales $\rightarrow$ build}{02}
+  \FigureAt{1.05}{1.629}{8.00}{\FigWhy}
+  \note{The pain is concrete: estimates nobody can defend when the date slips. I checked whether the problem repeats at scale, then built the smallest system that tests it. The baseline miss was 32.93 days for the team and 17.36 for the model.}
+\end{frame}
+
+% ------------------------------------------------------------------ 3 -----
+\begin{frame}[t,plain]
+  \Chrome{02 \textperiodcentered\ THE SPLIT}{The LLM is not allowed\\to do arithmetic.}{}{03}
+  \FigureAt{1.05}{1.471}{8.00}{\FigSplit}
+  \note{The LLM only reads and extracts; it never does arithmetic. It returns 15 tri-state features with verbatim evidence. Ridge regression, conformal intervals and 2,000 Monte Carlo draws produce the range.}
+\end{frame}
+
+% ------------------------------------------------------------------ 4 -----
+\begin{frame}[t,plain]
+  \Chrome{03 \textperiodcentered\ THE CONTRACT}{15 features. 3 states.\\1 quote each.}{}{04}
+  \FigureAt{0.921}{1.986}{8.00}{\FigContract}
+  \note{Each project is described by 15 features in five groups, each set to 1, 0 or unknown. Unknown is not zero: 2\textasciicircum 15 gives 32,768 possible combinations. Every value keeps a quote from the source text.}
+\end{frame}
+
+% ------------------------------------------------------------------ 5 -----
+\begin{frame}[t,plain]
+  \Chrome{04 \textperiodcentered\ THE MATH}{\textcolor{teal}{17.36} vs \textcolor{red}{32.93}}{}{05}
+  \FigureAt{0.772}{2.553}{7.81}{\FigRange}
+  \note{On 218 walk-forward steps the P50 misses by 17.36 days on average; the human team misses by 32.93. The P10--P90 range covers 86.7\% of outcomes, or 189 of 218. A 3-day floor keeps the range usable.}
+\end{frame}
+
+% ------------------------------------------------------------------ 6 -----
+\begin{frame}[t,plain]
+  \Chrome{05 \textperiodcentered\ THE MISTAKE}{A plausible default was\\worse than zero.}{}{06}
+  \FigureAt{0.770}{2.795}{8.26}{\FigMistake}
+  \note{The first null-prior model used a plausible global default and scored 49.64 MAE. Zero-fill scored 21.34 and the conditional model 20.48 at 85.3\% coverage. A feature is present in only 4.1\% of null cases, so the default was worse than assuming nothing.}
+\end{frame}
+
+% ------------------------------------------------------------------ 7 -----
+\begin{frame}[t,plain]
+  \Chrome{06 \textperiodcentered\ CONTEXT}{Same feature. Different repo.\\Different job.}{}{07}
+  \FigureAt{0.878}{2.332}{8.33}{\FigCodebase}
+  \note{The same feature means different things in different repos, so the model refuses to discount. It reads churn, fan-in, complexity, coverage and authorship from 29,059 real commits. PR lead time was rejected as a signal: beta of -0.892. Signals can only widen the interval.}
+\end{frame}
+
+% ------------------------------------------------------------------ 8 -----
+\begin{frame}[t,plain]
+  \Chrome{07 \textperiodcentered\ THE PROCESS}{Vibe coding, with a seatbelt.}{smallest process that makes the next change safe}{08}
+  \FigureAt{0.864}{2.369}{8.00}{\FigLoop}
+  \note{Seven steps, and a human owns decide, review and gatekeeping. Most of the system was built on a phone, one small change at a time. The goal is the smallest process that makes the next change safe.}
+\end{frame}
+
+% ------------------------------------------------------------------ 9 -----
+\begin{frame}[t,plain]
+  \Chrome{08 \textperiodcentered\ GUARDRAILS}{Speed is safe only when\\it's measured.}{}{09}
+  \FigureAt{0.813}{2.473}{8.00}{\FigGuardrails}
+  \note{242 offline tests and 31 decision entries back every change. No artifact means no claim: each number links to a run. When extraction fails, the system degrades to unknown instead of inventing a value.}
+\end{frame}
+
+% ------------------------------------------------------------------ 10 ----
+\begin{frame}[t,plain]
+  \Chrome{09 \textperiodcentered\ PROOF}{The numbers, with the caveats.}{synthetic corpus \textperiodcentered\ demo-assumed coefficients \textperiodcentered\ no auth yet}{10}
+  \FigureAt{0.900}{2.263}{8.00}{\FigProof}
+  \note{Extraction micro-F1 is 0.933 on synthetic data, and negation handling went from 43.1\% to 100\% on 214 cases. Coverage is 189 of 218 steps, and 240 emails cost about \$0.20. The corpus is synthetic and the coefficients are demo assumptions; there is no auth yet.}
+\end{frame}
+
+% ------------------------------------------------------------------ 11 ----
+\begin{frame}[t,plain]
+  \Chrome{10 \textperiodcentered\ FIT}{Business builds. Someone\\has to make it trustworthy.}{}{11}
+  \FigureAt{0.804}{2.373}{8.00}{\FigBridge}
+  \note{I can build inside the business, but production needs a technical anchor. The path is map, prototype, harden. This role is where both sides meet.}
+\end{frame}
+
+% ------------------------------------------------------------------ 12 ----
+\begin{frame}[t,plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=base west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-1.55cm]current page.north west)
+      {\color{ink}\bfseries\fontsize{23}{28}\selectfont I don't use AI to skip thinking.};
+    \node[anchor=base west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-2.71cm]current page.north west)
+      {\color{ink}\bfseries\fontsize{23}{28}\selectfont I use it to think faster --- then};
+    \node[anchor=base west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-3.87cm]current page.north west)
+      {\color{ink}\bfseries\fontsize{23}{28}\selectfont I test harder.};
+    \fill[teal,rounded corners=1pt]
+      ([xshift=0.70cm,yshift=-0.72cm]current page.north west) rectangle ++(1.10cm,0.09cm);
+    \node[anchor=north,inner sep=0pt,outer sep=0pt]
+      at ([xshift=8.00cm,yshift=-1.846cm]current page.north west)
+      {\scalebox{1.05}{\FigClose}};
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-7.30cm]current page.north west)
+      {\color{graytext}\fontsize{10}{12}\selectfont Thank you.};
+  \end{tikzpicture}
+  \DeckFooter{12}
+  \note{I use AI to move faster, then I test harder. The last ten projects after drift still hold at 31.05 MAE against the team's 52.90. Thank you.}
+\end{frame}
+
+\end{document}

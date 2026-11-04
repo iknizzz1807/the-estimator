@@ -1,0 +1,268 @@
+% ===========================================================================
+%  THE ESTIMATOR — v3, 21 slides (16:9, Beamer + TikZ)
+%  Figures: figures.tex. No speaker notes. Page number only in the footer.
+% ===========================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,backgrounds,fit,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tcolorbox}
+\usepackage{amsmath,amssymb}
+
+% ---------------------------------------------------------------- palette --
+\definecolor{ink}{HTML}{0B1F3A}
+\definecolor{teal}{HTML}{0E9F9F}
+\definecolor{teallight}{HTML}{D9F2F1}
+\definecolor{amber}{HTML}{E8A317}
+\definecolor{amberlight}{HTML}{FDF0D5}
+\definecolor{red}{HTML}{D1495B}
+\definecolor{redlight}{HTML}{F8DDE1}
+\definecolor{blue}{HTML}{3A6EA5}
+\definecolor{graytext}{HTML}{6B7280}
+\definecolor{lightsurface}{HTML}{F4F6F8}
+\definecolor{hairline}{HTML}{D9DEE5}
+
+% ----------------------------------------------------------------- beamer --
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{background canvas}{bg=white}
+\setbeamercolor{normal text}{fg=ink}
+\setbeamerfont{normal text}{family=\sffamily}
+\setbeamersize{text margin left=0.70cm,text margin right=0.70cm}
+\setlength{\parindent}{0pt}
+\pagestyle{empty}
+
+% ---------------------------------------------------------------- figures --
+\input{figures.tex}
+
+% -------------------------------------------------------------- type spec --
+\newcommand{\KickFont}{\color{teal}\bfseries\fontsize{7.5}{9}\selectfont}
+\newcommand{\KickMark}{\raisebox{0.012cm}{\color{teal}\rule{0.13cm}{0.13cm}}\hspace{0.16cm}}
+\newcommand{\HeadFont}{\color{ink}\bfseries\fontsize{23}{27}\selectfont}
+\newcommand{\SubFont}{\color{ink!65}\fontsize{10}{13}\selectfont}
+\newcommand{\TakeFont}{\color{graytext}\fontsize{9.5}{11.5}\selectfont}
+\newcommand{\FootFont}{\color{graytext}\fontsize{6.5}{8}\selectfont}
+
+% --------------------------------------------------------------- chrome ----
+% hairline + page number only (no brand text)
+\newcommand{\DeckFooter}[1]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \draw[hairline,line width=0.4pt]
+      ([xshift=0.70cm,yshift=-8.58cm]current page.north west) --
+      ([xshift=15.30cm,yshift=-8.58cm]current page.north west);
+    \node[anchor=south east,inner sep=0pt,outer sep=0pt]
+      at ([xshift=15.30cm,yshift=-8.76cm]current page.north west)
+      {\FootFont #1};
+  \end{tikzpicture}}
+
+% kicker + headline + optional trade-off line + footer
+% NOTE: the 4th argument is kept for call compatibility but is NOT rendered.
+\newcommand{\Chrome}[5]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-0.24cm]current page.north west)
+      {\KickFont\KickMark #1};
+    \node[anchor=north west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-0.74cm]current page.north west)
+      {\HeadFont #2};
+    \if\relax\detokenize{#3}\relax\else
+      \node[anchor=base west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+        at ([xshift=0.70cm,yshift=-2.02cm]current page.north west)
+        {\SubFont #3};
+    \fi
+
+  \end{tikzpicture}%
+  \DeckFooter{#5}}
+
+% figure placed by the top of its 14.6 x 7.2 canvas; \raisebox pins the
+% reference box so oversized nodes inside a figure cannot shift the picture.
+\newcommand{\FigureAt}[4]{%
+  \pgfmathsetmacro{\FigH}{7.2*#1}%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north,inner sep=0pt,outer sep=0pt]
+      at ([xshift=#3cm,yshift=-#2cm]current page.north west)
+      {\raisebox{0pt}[\FigH cm][0pt]{\scalebox{#1}{#4}}};
+  \end{tikzpicture}}
+
+% ================================================================ the deck ==
+\begin{document}
+
+% ------------------------------------------------------------------ 1 -----
+\begin{frame}[t,plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[teal,rounded corners=1pt]
+      ([xshift=0.70cm,yshift=-0.34cm]current page.north west) rectangle ++(1.10cm,0.09cm);
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-1.52cm]current page.north west)
+      {\color{ink}\bfseries\fontsize{34}{38}\selectfont THE ESTIMATOR};
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-2.20cm]current page.north west)
+      {\color{graytext}\fontsize{11.5}{14}\selectfont From a client email to a range you can defend.};
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-2.62cm]current page.north west)
+      {\color{graytext}\fontsize{8}{10}\selectfont Nguyen My Thong \textperiodcentered\ Anduin Cybernetics};
+    \node[anchor=north,inner sep=0pt,outer sep=0pt]
+      at ([xshift=7.69cm,yshift=-1.75cm]current page.north west)
+      {\scalebox{1.037}{\FigCover}};
+  \end{tikzpicture}
+  \DeckFooter{01}
+\end{frame}
+
+% ------------------------------------------------------------------ 2 -----
+\begin{frame}[t,plain]
+  \Chrome{01 \textperiodcentered\ THE PROBLEM}{A client email. One number.\\No evidence.}{}{The team's own estimates miss by 33 days on average.}{02}
+  \FigureAt{0.857}{2.224}{8.15}{\FigProblem}
+\end{frame}
+
+% ------------------------------------------------------------------ 3 -----
+\begin{frame}[t,plain]
+  \Chrome{02 \textperiodcentered\ WHY NOT LLM-ONLY}{The LLM gives an answer.\\Not a defensible one.}{}{}{03}
+  \FigureAt{0.9381}{1.989}{7.97}{\FigLLMFail}
+\end{frame}
+
+% ------------------------------------------------------------------ 4 -----
+\begin{frame}[t,plain]
+  \Chrome{03 \textperiodcentered\ THE FIRST DECISION}{What should the LLM decide?}{{\color{teal}\bfseries Audit vs speed:} only one option keeps a number we can trace.}{}{04}
+  \FigureAt{1.039}{1.876}{7.97}{\FigDecision}
+\end{frame}
+
+% ------------------------------------------------------------------ 5 -----
+\begin{frame}[t,plain]
+  \Chrome{04 \textperiodcentered\ THE SPLIT}{So we split the job in two.}{}{}{05}
+  \FigureAt{1.05}{1.425}{7.84}{\FigSplit}
+\end{frame}
+
+% ------------------------------------------------------------------ 6 -----
+\begin{frame}[t,plain]
+  \Chrome{05 \textperiodcentered\ THE CONTRACT}{15 features. 3 states.\\A quote for each.}{}{A null is not a zero. It means the email didn't say.}{06}
+  \FigureAt{0.9847}{2.070}{8.00}{\FigContract}
+\end{frame}
+
+% ------------------------------------------------------------------ 7 -----
+\begin{frame}[t,plain]
+  \Chrome{06 \textperiodcentered\ THE OUTPUT}{A range, not a point.}{}{The width is information: it shows what we don't know.}{07}
+  \FigureAt{1.05}{1.656}{8.32}{\FigRange}
+\end{frame}
+
+% ------------------------------------------------------------------ 8 -----
+\begin{frame}[t,plain]
+  \Chrome{07 \textperiodcentered\ MODEL CHOICE}{Which model do we trust?}{{\color{teal}\bfseries Coverage vs MAE:} the simplest model still wins on trust.}{At 228 projects, the simpler model wins on trust, not just MAE.}{08}
+  \FigureAt{1.043}{2.035}{8.00}{\FigModelChoice}
+\end{frame}
+
+% ------------------------------------------------------------------ 9 -----
+\begin{frame}[t,plain]
+  \Chrome{08 \textperiodcentered\ MISSING DATA}{What fills a missing feature?}{{\color{teal}\bfseries Prior vs evidence:} the mechanism decides the error, not the model.}{Measure the mechanism, not just the model.}{09}
+  \FigureAt{0.836}{2.396}{8.27}{\FigMissing}
+\end{frame}
+
+% ------------------------------------------------------------------ 10 ----
+\begin{frame}[t,plain]
+  \Chrome{09 \textperiodcentered\ THE QUESTIONS}{Ask what actually moves\\the number.}{}{Answers add information. They don't always shrink the range.}{10}
+  \FigureAt{1.04}{1.847}{7.97}{\FigQuestions}
+\end{frame}
+
+% ------------------------------------------------------------------ 11 ----
+\begin{frame}[t,plain]
+  \Chrome{10 \textperiodcentered\ THE QUOTE}{A budget turns the range\\into a decision.}{}{At 100 days, every scope is over budget. The product says so.}{11}
+  \FigureAt{0.9626}{2.153}{8.00}{\FigPackages}
+\end{frame}
+
+% ------------------------------------------------------------------ 12 ----
+\begin{frame}[t,plain]
+  \Chrome{11 \textperiodcentered\ THE LEARNING LOOP}{Every finished project\\moves the model.}{}{The model updates after one project. The team's intuition does not.}{12}
+  \FigureAt{0.8729}{2.555}{8.00}{\FigLearning}
+\end{frame}
+
+% ------------------------------------------------------------------ 13 ----
+\begin{frame}[t,plain]
+  \Chrome{12 \textperiodcentered\ THE DATA FLYWHEEL}{More history, lower error.}{}{More projects $\rightarrow$ lower error. The moat is the company's own data.}{13}
+  \FigureAt{1.038}{1.611}{7.134}{\FigFlywheel}
+\end{frame}
+
+% ------------------------------------------------------------------ 13 ----
+\begin{frame}[t,plain]
+  \Chrome{13 \textperiodcentered\ CODEBASE LAB}{Measured, assumed, labelled.}{{\color{teal}\bfseries Data vs assumption:} three links have evidence, one does not.}{Measure what you can. Label what you can't.}{14}
+  \FigureAt{0.964}{1.660}{8.00}{\FigCodebaseChain}
+\end{frame}
+
+% ------------------------------------------------------------------ 15 ----
+\begin{frame}[t,plain]
+  \Chrome{14 \textperiodcentered\ FROM SURCHARGE TO FEATURE}{When the data exists, the codebase\\becomes a feature.}{}{Instrument the pairs now; the model learns the weight.}{15}
+  \FigureAt{1.039}{2.032}{7.97}{\FigCodebaseFeature}
+\end{frame}
+
+% ------------------------------------------------------------------ 14 ----
+\begin{frame}[t,plain]
+  \Chrome{15 \textperiodcentered\ THE LOOP}{Vibe coding, with a seatbelt.}{AI is fast. The human is the gatekeeper.}{The smallest process that makes the next change safe.}{16}
+  \FigureAt{0.9115}{2.065}{8.00}{\FigLoop}
+\end{frame}
+
+% ------------------------------------------------------------------ 15 ----
+\begin{frame}[t,plain]
+  \Chrome{16 \textperiodcentered\ THE TOOL STACK}{The tool stack, kept small.}{{\color{teal}\bfseries Ceremony vs speed:} four tools, and three deliberately refused.}{Every unit of setup overhead is a unit not spent on the problem.}{17}
+  \FigureAt{1.024}{1.716}{7.97}{\FigTools}
+\end{frame}
+
+% ------------------------------------------------------------------ 16 ----
+\begin{frame}[t,plain]
+  \Chrome{17 \textperiodcentered\ THE CONSTRAINT}{No laptop. Same output.}{{\color{teal}\bfseries Phone vs laptop:} the weaker tool forced smaller, safer diffs.}{The constraint removed the option to be sloppy.}{18}
+  \FigureAt{1.05}{1.4305}{8.735}{\FigPhone}
+\end{frame}
+
+% ------------------------------------------------------------------ 17 ----
+\begin{frame}[t,plain]
+  \Chrome{18 \textperiodcentered\ ONE LOOP, END TO END}{The AI wrote plausible code.\\The review made it right.}{}{The valuable step was not generation. It was the question I asked next.}{19}
+  \FigureAt{1.05}{1.6825}{8.00}{\FigWorked}
+\end{frame}
+
+% ------------------------------------------------------------------ 18 ----
+\begin{frame}[t,plain]
+  \Chrome{19 \textperiodcentered\ REVIEW}{Six checks before merge.}{{\color{teal}\bfseries Fast vs trustworthy:} generation is cheap, review is the work.}{If I can't test it, I don't ship it.}{20}
+  \FigureAt{0.9866}{2.049}{7.97}{\FigReview}
+\end{frame}
+
+% ------------------------------------------------------------------ 19 ----
+\begin{frame}[t,plain]
+  \Chrome{20 \textperiodcentered\ SCOPE}{What we chose not to build.}{{\color{teal}\bfseries Scope vs critical path:} four features deferred, not forgotten.}{Knowing what not to build is part of the design.}{21}
+  \FigureAt{1.039}{1.928}{7.97}{\FigScope}
+\end{frame}
+
+% ------------------------------------------------------------------ 20 ----
+\begin{frame}[t,plain]
+  \Chrome{21 \textperiodcentered\ PROOF}{The numbers.}{}{}{22}
+  \FigureAt{1.00}{2.280}{8.00}{\FigProof}
+\end{frame}
+
+% ------------------------------------------------------------------ 21 ----
+\begin{frame}[t,plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-0.24cm]current page.north west)
+      {\KickFont\KickMark 22 \textperiodcentered\ WHY ANDUIN};
+    \node[anchor=north west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-0.74cm]current page.north west)
+      {\HeadFont Business builds. Someone\\has to make it trustworthy.};
+    \node[anchor=north,inner sep=0pt,outer sep=0pt]
+      at ([xshift=7.80cm,yshift=-2.115cm]current page.north west)
+      {\scalebox{0.750}{\FigBridge}};
+    \node[anchor=base west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-7.66cm]current page.north west)
+      {\color{ink}\itshape\fontsize{10.5}{13}\selectfont I don't use AI to skip thinking.};
+    \node[anchor=base west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-7.98cm]current page.north west)
+      {\color{ink}\itshape\fontsize{10.5}{13}\selectfont I use it to think faster --- then I test harder.};
+    \node[anchor=base west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-8.32cm]current page.north west)
+      {\color{graytext}\fontsize{8.5}{10}\selectfont Thank you.};
+  \end{tikzpicture}
+  \DeckFooter{23}
+\end{frame}
+
+\end{document}

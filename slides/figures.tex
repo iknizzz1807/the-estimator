@@ -1,0 +1,1325 @@
+% figures.tex -- v2 figure library for "The Estimator"
+% Requires: ink, teal, teallight, amber, amberlight, red, redlight,
+%           blue, graytext, lightsurface, hairline
+% Each macro is a complete tikzpicture on a 14.6 x 7.2 cm canvas.
+
+\tikzset{
+  fgcard/.style={rounded corners=4pt, draw=hairline, line width=0.6pt, fill=white},
+  fgchip/.style={rounded corners=2pt, draw=hairline, line width=0.6pt, fill=lightsurface},
+  fglbl/.style={font=\sffamily\fontsize{8}{9.5}\selectfont, text=graytext},
+  fgsm/.style={font=\sffamily\fontsize{7}{8.5}\selectfont, text=graytext},
+  fgxs/.style={font=\sffamily\fontsize{6.5}{7.8}\selectfont, text=graytext},
+  fgttl/.style={font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont, text=ink},
+  fgmono/.style={font=\ttfamily\fontsize{7.5}{9}\selectfont, text=ink},
+  fgquote/.style={font=\sffamily\itshape\fontsize{7.5}{9}\selectfont, text=graytext},
+  fgarr/.style={-{Latex[length=2.0mm,width=1.5mm]}, line width=1.2pt, draw=teal},
+  fgarrb/.style={-{Latex[length=2.8mm,width=2.0mm]}, line width=2pt, draw=teal}
+}
+
+\newcommand{\FgPerson}[4]{%
+  \begin{scope}[shift={(#1,#2)},scale=#3]
+    \fill[#4] (0,0.30) circle (0.14);
+    \fill[#4] (-0.30,-0.34) .. controls (-0.30,-0.08) and (-0.14,0.02) .. (0,0.02)
+              .. controls (0.14,0.02) and (0.30,-0.08) .. (0.30,-0.34) -- cycle;
+  \end{scope}}
+
+\newcommand{\FgShield}[5]{%
+  \begin{scope}[shift={(#1,#2)},scale=#3]
+    \draw[#5,line width=0.9pt,fill=#4]
+      (0,0.50) -- (0.38,0.34) -- (0.38,-0.05)
+      .. controls (0.38,-0.32) and (0.18,-0.46) .. (0,-0.55)
+      .. controls (-0.18,-0.46) and (-0.38,-0.32) .. (-0.38,-0.05)
+      -- (-0.38,0.34) -- cycle;
+  \end{scope}}
+
+% ---------------------------------------------------------------------------
+% 1. Cover
+% ---------------------------------------------------------------------------
+\newcommand{\FigCover}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+
+  % step labels
+  \node[font=\sffamily\bfseries\fontsize{7}{8}\selectfont,text=teal,anchor=west] at (0.84,6.05) {01 -- CLIENT EMAIL};
+  \node[font=\sffamily\bfseries\fontsize{7}{8}\selectfont,text=teal,anchor=west] at (5.44,6.05) {02 -- 15 FEATURES};
+  \node[font=\sffamily\bfseries\fontsize{7}{8}\selectfont,text=teal,anchor=west] at (10.54,6.05) {03 -- CALIBRATED RANGE};
+
+  % 1. email card
+  \fill[ink,opacity=0.05,rounded corners=4pt] (0.90,1.14) rectangle (4.35,5.74);
+  \draw[fgcard] (0.84,1.20) rectangle (4.29,5.80);
+  \fill[teallight] (1.12,5.42) circle (0.18);
+  \node[font=\sffamily\bfseries\fontsize{5.5}{6}\selectfont,text=teal] at (1.12,5.42) {NP};
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (1.40,5.50) {Nordwind Pay};
+  \node[fgsm,anchor=west] at (1.40,5.22) {RFP -- payments platform};
+  \draw[hairline,line width=0.5pt] (1.05,5.02) -- (4.05,5.02);
+  \node[font=\sffamily\fontsize{7.4}{9.5}\selectfont,text=ink,anchor=west] at (1.12,4.68) {Payments product};
+  \node[font=\sffamily\fontsize{7.4}{9.5}\selectfont,text=ink,anchor=west] at (1.12,4.33) {iOS + Android app};
+  \fill[amberlight,rounded corners=2pt] (1.05,3.88) rectangle (2.95,4.20);
+  \node[font=\sffamily\fontsize{7.4}{9.5}\selectfont,text=ink,anchor=west] at (1.12,3.98) {PCI-DSS + live data};
+  \node[font=\sffamily\itshape\fontsize{7}{8.5}\selectfont,text=graytext,anchor=west] at (1.12,3.38) {"How long will this take?"};
+  \fill[lightsurface,rounded corners=2pt] (1.05,1.45) rectangle (2.35,1.85);
+  \draw[hairline,line width=0.5pt,rounded corners=2pt] (1.05,1.45) rectangle (2.35,1.85);
+  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext,anchor=west] at (1.18,1.65) {RFP.pdf};
+  \node[fgsm,anchor=west] at (1.05,1.02) {unstructured text};
+
+  % 2. feature card
+  \fill[ink,opacity=0.05,rounded corners=4pt] (5.50,1.14) rectangle (9.55,5.74);
+  \draw[fgcard] (5.44,1.20) rectangle (9.49,5.80);
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (5.68,5.50) {15 features};
+  \node[fgsm,anchor=west] at (5.68,5.22) {each with a quote};
+  \draw[hairline,line width=0.5pt] (5.65,5.02) -- (9.25,5.02);
+  \foreach \yy/\name/\val/\cc in {%
+    4.50/payment\_gateway/1/teal,
+    3.80/mobile\_app/1/teal,
+    3.10/data\_migration/?/amber}
+  {
+    \fill[lightsurface,rounded corners=2pt] (5.65,\yy-0.22) rectangle (9.25,\yy+0.22);
+    \draw[hairline,line width=0.4pt,rounded corners=2pt] (5.65,\yy-0.22) rectangle (9.25,\yy+0.22);
+    \node[font=\sffamily\bfseries\fontsize{7.2}{8.5}\selectfont,text=ink,anchor=west] at (5.80,\yy) {\name};
+    \fill[\cc!15,rounded corners=1.5pt] (8.72,\yy-0.16) rectangle (9.12,\yy+0.16);
+    \node[font=\sffamily\bfseries\fontsize{8.5}{9.5}\selectfont,text=\cc] at (8.92,\yy) {\val};
+  }
+  \draw[teal!35,line width=0.6pt] (5.70,2.45) -- (5.70,2.05);
+  \node[font=\sffamily\itshape\fontsize{6.2}{7.5}\selectfont,text=graytext,anchor=west,text width=3.35cm,align=left] at (5.82,2.45) {"process payments through Stripe"};
+
+  % 3. range card
+  \fill[ink,opacity=0.05,rounded corners=4pt] (10.60,1.14) rectangle (14.35,5.74);
+  \draw[fgcard] (10.54,1.20) rectangle (14.29,5.80);
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (10.78,5.50) {P10-P90 range};
+  \node[fgsm,anchor=west] at (10.78,5.22) {in person-days};
+  \draw[hairline,line width=0.5pt] (10.75,5.02) -- (14.05,5.02);
+  \fill[teallight,rounded corners=2pt] (10.90,3.00) rectangle (14.00,3.38);
+  \draw[teal,line width=0.8pt,rounded corners=2pt] (10.90,3.00) rectangle (14.00,3.38);
+  \draw[white,line width=1.6pt] (11.35,3.00) -- (11.35,3.38);
+  \draw[white,line width=1.6pt] (12.55,3.00) -- (12.55,3.38);
+  \draw[white,line width=1.6pt] (13.65,3.00) -- (13.65,3.38);
+  \node[font=\sffamily\bfseries\fontsize{13}{14}\selectfont,text=ink] at (11.35,3.78) {79};
+  \node[font=\sffamily\bfseries\fontsize{13}{14}\selectfont,text=ink] at (12.55,3.78) {111};
+  \node[font=\sffamily\bfseries\fontsize{13}{14}\selectfont,text=ink] at (13.65,3.78) {191};
+  \node[fglbl] at (11.35,2.72) {P10};
+  \node[fglbl] at (12.55,2.72) {P50};
+  \node[fglbl] at (13.65,2.72) {P90};
+  \fill[teallight,rounded corners=2pt] (11.10,1.45) rectangle (13.70,1.85);
+  \node[font=\sffamily\bfseries\fontsize{7.4}{9}\selectfont,text=teal] at (12.40,1.65) {a range you can defend};
+
+  % arrows between the three steps
+  \draw[fgarrb] (4.45,3.55) -- (5.30,3.55);
+  \node[fgsm,anchor=south] at (4.87,3.66) {extract};
+  \draw[fgarrb] (9.60,3.55) -- (10.45,3.55);
+  \node[fgsm,anchor=south] at (10.02,3.66) {estimate};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 2. Problem -- real RFP email + sticky note
+% ---------------------------------------------------------------------------
+\newcommand{\FigProblem}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % email card
+  \fill[ink,opacity=0.05,rounded corners=4pt] (0.41,1.49) rectangle (8.61,6.61);
+  \draw[fgcard] (0.35,1.55) rectangle (8.55,6.55);
+  \fill[teallight] (0.85,6.10) circle (0.26);
+  \node[font=\sffamily\bfseries\fontsize{6.5}{7}\selectfont,text=teal] at (0.85,6.10) {NP};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (1.25,6.18) {Nordwind Pay};
+  \node[fgsm,anchor=west] at (1.25,5.90) {Subject: Payments platform RFP};
+  \node[fgxs,anchor=east] at (8.30,6.18) {09:14};
+  \draw[hairline,line width=0.6pt] (0.60,5.72) -- (8.30,5.72);
+  % highlighted ask
+  \fill[amberlight,rounded corners=3pt] (0.60,3.00) rectangle (8.25,5.55);
+  \fill[amber,rounded corners=1pt] (0.60,3.00) rectangle (0.67,5.55);
+  \node[anchor=north west,align=left,text width=7.05cm,font=\sffamily\fontsize{8.4}{11.4}\selectfont,text=ink] at (0.90,5.33) {Hi --- we need a payments product\\for a mobile app on iOS and Android.\\It requires PCI-DSS certification\\and live updates on a dashboard.\\No multi-currency for now.};
+  \node[font=\sffamily\itshape\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (0.90,2.55) {--- Elena Voss, Nordwind Pay};
+  \fill[lightsurface,rounded corners=2pt] (0.60,1.88) rectangle (2.55,2.28);
+  \draw[hairline,line width=0.5pt,rounded corners=2pt] (0.60,1.88) rectangle (2.55,2.28);
+  \draw[ink!45,line width=0.6pt] (0.75,2.02) -- (0.85,2.02) -- (0.88,2.08) -- (0.88,2.16) -- (0.75,2.16) -- cycle;
+  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext,anchor=west] at (0.98,2.08) {RFP\_2026.pdf};
+  % three facts
+  \fill[lightsurface,rounded corners=3pt] (0.35,0.60) rectangle (2.65,1.08);
+  \draw[hairline,line width=0.5pt,rounded corners=3pt] (0.35,0.60) rectangle (2.65,1.08);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=ink] at (1.50,0.84) {2 hours reading};
+  \fill[lightsurface,rounded corners=3pt] (2.85,0.60) rectangle (5.75,1.08);
+  \draw[hairline,line width=0.5pt,rounded corners=3pt] (2.85,0.60) rectangle (5.75,1.08);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=ink] at (4.30,0.84) {3 clarifying questions};
+  \fill[redlight,rounded corners=3pt] (5.95,0.60) rectangle (8.15,1.08);
+  \draw[red!40,line width=0.6pt,rounded corners=3pt] (5.95,0.60) rectangle (8.15,1.08);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=red] at (7.05,0.84) {still a guess};
+  % sticky note
+  \begin{scope}[rotate around={-2.5:(11.50,4.40)}]
+    \fill[ink,opacity=0.05,rounded corners=1pt] (9.21,2.54) rectangle (13.91,6.26);
+    \fill[amberlight,rounded corners=1pt] (9.15,2.60) rectangle (13.85,6.20);
+    \fill[amber!18] (13.25,2.60) -- (13.85,3.20) -- (13.85,2.60) -- cycle;
+    \fill[ink,opacity=0.06] (10.60,6.18) rectangle (12.40,6.48);
+    \node[font=\sffamily\bfseries\fontsize{13}{15}\selectfont,text=ink] at (11.50,5.80) {How many days?};
+    \node[font=\sffamily\bfseries\fontsize{80}{80}\selectfont,text=amber!75] at (11.50,3.40) {?};
+  \end{scope}
+  \draw[amber,line width=2pt,-{Latex[length=2.6mm,width=2.0mm]}] (8.62,4.30) -- (9.06,4.30);
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 3. LLM fail -- 258 vs 19 + failure chips
+% ---------------------------------------------------------------------------
+\newcommand{\FigLLMFail}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % card 1
+  \fill[ink,opacity=0.04,rounded corners=4pt] (0.46,2.54) rectangle (6.86,6.41);
+  \draw[fgcard] (0.40,2.60) rectangle (6.80,6.35);
+  \fill[redlight,rounded corners=3pt] (0.70,5.70) rectangle (2.35,6.12);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=red] at (1.525,5.91) {LLM-only};
+  \node[font=\sffamily\bfseries\fontsize{40}{42}\selectfont,text=red,anchor=west] at (0.72,4.70) {258};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (0.75,3.72) {days MAE};
+  \node[fgsm,anchor=west] at (0.75,3.42) {last 42 projects};
+  \fill[lightsurface,rounded corners=1pt] (0.75,2.92) rectangle (5.95,3.14);
+  \fill[red,rounded corners=1pt] (0.75,2.92) rectangle (5.95,3.14);
+  % card 2
+  \fill[ink,opacity=0.04,rounded corners=4pt] (7.86,2.54) rectangle (14.26,6.41);
+  \draw[fgcard] (7.80,2.60) rectangle (14.20,6.35);
+  \fill[teallight,rounded corners=3pt] (8.10,5.70) rectangle (10.10,6.12);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=teal] at (9.10,5.91) {The Estimator};
+  \node[font=\sffamily\bfseries\fontsize{40}{42}\selectfont,text=teal,anchor=west] at (8.12,4.70) {19};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (8.15,3.72) {days MAE};
+  \node[fgsm,anchor=west] at (8.15,3.42) {same 42 projects};
+  \fill[lightsurface,rounded corners=1pt] (8.15,2.92) rectangle (13.35,3.14);
+  \fill[teal,rounded corners=1pt] (8.15,2.92) rectangle (8.53,3.14);
+  % failure chips
+  \fill[redlight,rounded corners=3pt] (1.50,0.92) rectangle (3.90,1.48);
+  \draw[red!35,line width=0.6pt,rounded corners=3pt] (1.50,0.92) rectangle (3.90,1.48);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=red] at (2.70,1.20) {no history};
+  \fill[redlight,rounded corners=3pt] (4.20,0.92) rectangle (6.80,1.48);
+  \draw[red!35,line width=0.6pt,rounded corners=3pt] (4.20,0.92) rectangle (6.80,1.48);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=red] at (5.50,1.20) {no calibration};
+  \fill[redlight,rounded corners=3pt] (7.10,0.92) rectangle (9.40,1.48);
+  \draw[red!35,line width=0.6pt,rounded corners=3pt] (7.10,0.92) rectangle (9.40,1.48);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=red] at (8.25,1.20) {no evidence};
+  \fill[red,rounded corners=3pt] (9.70,0.92) rectangle (13.10,1.48);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=white] at (11.40,1.20) {missing info = guess};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 4. Split -- pipeline with the LLM boundary
+% ---------------------------------------------------------------------------
+\newcommand{\FigSplit}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \begin{scope}[yshift=-0.40cm]
+  % cards
+  \draw[fgcard] (0.90,3.35) rectangle (2.40,4.40);
+  \draw[fgcard] (3.10,3.35) rectangle (4.40,4.40);
+  \draw[teal,line width=0.9pt,fill=teallight,rounded corners=4pt] (5.10,3.35) rectangle (7.30,4.40);
+  \draw[blue,line width=0.9pt,fill=blue!10,rounded corners=4pt] (8.70,3.35) rectangle (11.10,4.40);
+  \draw[teal,line width=1.0pt,fill=teallight,rounded corners=4pt] (11.65,3.35) rectangle (14.00,4.40);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (1.65,3.875) {email};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (3.75,3.875) {LLM};
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=ink] at (6.20,4.03) {15 features};
+  \node[font=\sffamily\fontsize{7}{8}\selectfont,text=graytext] at (6.20,3.66) {+ quotes};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=ink] at (9.90,4.03) {Ridge + conformal};
+  \node[font=\sffamily\fontsize{7}{8}\selectfont,text=graytext] at (9.90,3.66) {+ Monte Carlo};
+  \node[font=\sffamily\bfseries\fontsize{7.2}{8.5}\selectfont,text=teal] at (12.825,3.875) {P10 / P50 / P90};
+  \draw[fgarr] (2.40,3.875) -- (3.10,3.875);
+  \draw[fgarr] (4.40,3.875) -- (5.10,3.875);
+  \draw[teal,line width=1.2pt,-{Latex[length=1.8mm,width=1.4mm]}] (7.30,3.875) -- (7.95,3.875);
+  \draw[ink,line width=1.2pt,-{Latex[length=1.8mm,width=1.4mm]}] (8.05,3.875) -- (8.70,3.875);
+  \draw[fgarr] (11.10,3.875) -- (11.65,3.875);
+  % boundary
+  \draw[ink!45,dashed,line width=0.9pt] (8.00,1.95) -- (8.00,5.30);
+  \fill[ink,rounded corners=3pt] (6.75,5.42) rectangle (9.25,5.86);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=white] at (8.00,5.64) {LLM stops here};
+  % brackets
+  \draw[teal,line width=0.8pt] (1.00,3.10) -- (1.00,3.18) -- (7.20,3.18) -- (7.20,3.10);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=teal] at (4.10,2.78) {language $\rightarrow$ structure};
+  \draw[ink!60,line width=0.8pt] (8.80,3.10) -- (8.80,3.18) -- (13.95,3.18) -- (13.95,3.10);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (11.30,2.78) {structure $\rightarrow$ range};
+  \end{scope}
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 5. Contract -- 5-row example table
+% ---------------------------------------------------------------------------
+\newcommand{\FigContract}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \node[fgxs,anchor=west] at (0.60,6.45) {FEATURE};
+  \node[fgxs,anchor=west] at (4.05,6.45) {VALUE};
+  \node[fgxs,anchor=west] at (4.95,6.45) {EVIDENCE FROM THE EMAIL};
+  \foreach \cy/\cf/\cb in {%
+    5.95/white/hairline,
+    5.23/white/hairline,
+    4.51/white/hairline,
+    3.79/white/hairline,
+    3.07/white/hairline,
+    2.35/amber!8/amber!40}
+  {
+    \fill[\cf,rounded corners=3pt] (0.35,\cy-0.31) rectangle (14.25,\cy+0.31);
+    \draw[\cb,line width=0.6pt,rounded corners=3pt] (0.35,\cy-0.31) rectangle (14.25,\cy+0.31);
+    \draw[hairline,line width=0.5pt] (4.65,\cy-0.20) -- (4.65,\cy+0.20);
+  }
+  \node[font=\ttfamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (0.60,5.95) {payment\_gateway};
+  \node[font=\ttfamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (0.60,5.23) {pci\_dss};
+  \node[font=\ttfamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (0.60,4.51) {mobile\_app};
+  \node[font=\ttfamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (0.60,3.79) {realtime\_ui};
+  \node[font=\ttfamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (0.60,3.07) {multi\_currency};
+  \node[font=\ttfamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (0.60,2.35) {data\_migration};
+  \foreach \vy in {5.95,5.23,4.51,3.79} {
+    \fill[lightsurface,rounded corners=2pt] (4.10,\vy-0.24) rectangle (4.60,\vy+0.24);
+    \draw[hairline,line width=0.5pt,rounded corners=2pt] (4.10,\vy-0.24) rectangle (4.60,\vy+0.24);
+    \node[font=\sffamily\bfseries\fontsize{11}{12}\selectfont,text=teal] at (4.35,\vy) {1};
+  }
+  \fill[lightsurface,rounded corners=2pt] (4.10,2.83) rectangle (4.60,3.31);
+  \draw[hairline,line width=0.5pt,rounded corners=2pt] (4.10,2.83) rectangle (4.60,3.31);
+  \node[font=\sffamily\bfseries\fontsize{11}{12}\selectfont,text=red] at (4.35,3.07) {0};
+  \fill[amberlight,rounded corners=2pt] (4.10,2.11) rectangle (4.60,2.59);
+  \draw[amber!55,line width=0.6pt,rounded corners=2pt] (4.10,2.11) rectangle (4.60,2.59);
+  \node[font=\sffamily\bfseries\fontsize{12}{13}\selectfont,text=amber] at (4.35,2.35) {?};
+  \node[fgquote,anchor=west] at (4.95,5.95) {``process payments through Stripe''};
+  \node[fgquote,anchor=west] at (4.95,5.23) {``requires PCI-DSS certification''};
+  \node[fgquote,anchor=west] at (4.95,4.51) {``mobile app for iOS and Android''};
+  \node[fgquote,anchor=west] at (4.95,3.79) {``live updates on a dashboard''};
+  \node[fgquote,anchor=west] at (4.95,3.07) {``no multi-currency for now''};
+  \node[fgquote,anchor=west] at (4.95,2.35) {not mentioned};
+  % legend
+  \foreach \lx/\lv/\lc/\ll in {0.60/1/teal/present, 2.60/0/red/absent, 4.60/?/amber/unknown} {
+    \fill[lightsurface,rounded corners=2pt] (\lx,1.30) rectangle (\lx+0.50,1.80);
+    \draw[hairline,line width=0.5pt,rounded corners=2pt] (\lx,1.30) rectangle (\lx+0.50,1.80);
+    \node[font=\sffamily\bfseries\fontsize{10}{11}\selectfont,text=\lc] at (\lx+0.25,1.55) {\lv};
+    \node[fglbl,anchor=west] at (\lx+0.65,1.55) {\ll};
+  }
+  \node[fgsm,anchor=east] at (14.20,1.55) {Example extraction};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 6. Range -- 79 / 111 / 191
+% ---------------------------------------------------------------------------
+\newcommand{\FigRange}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % callout
+  \fill[amberlight,rounded corners=4pt] (0.35,3.45) rectangle (2.35,4.95);
+  \draw[amber!45,line width=0.7pt,rounded corners=4pt] (0.35,3.45) rectangle (2.35,4.95);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=amber!90] at (1.35,4.62) {10 features};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=amber!90] at (1.35,4.26) {unknown};
+  \draw[amber,line width=2pt,-{Latex[length=2.6mm,width=2.0mm]}] (2.40,4.20) -- (2.95,4.20);
+  % bar
+  \fill[teallight,rounded corners=3pt] (3.00,3.89) rectangle (12.70,4.51);
+  \draw[teal,line width=1.0pt,rounded corners=3pt] (3.00,3.89) rectangle (12.70,4.51);
+  \draw[white,line width=2.2pt] (5.77,3.89) -- (5.77,4.51);
+  \node[font=\sffamily\bfseries\fontsize{34}{36}\selectfont,text=teal] at (3.00,5.35) {79};
+  \node[font=\sffamily\bfseries\fontsize{34}{36}\selectfont,text=ink] at (5.77,5.35) {111};
+  \node[font=\sffamily\bfseries\fontsize{34}{36}\selectfont,text=teal] at (12.70,5.35) {191};
+  \node[fglbl] at (3.00,3.50) {P10};
+  \node[fglbl] at (5.77,3.50) {P50};
+  \node[fglbl] at (12.70,3.50) {P90};
+  \node[fgsm] at (13.30,3.50) {days};
+  \fill[lightsurface,rounded corners=3pt] (4.95,1.25) rectangle (10.75,1.75);
+  \draw[hairline,line width=0.5pt,rounded corners=3pt] (4.95,1.25) rectangle (10.75,1.75);
+  \node[fgsm] at (7.85,1.50) {Example: Scenario A, offline run};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 7. Questions -- ranked impacts + before/after
+% ---------------------------------------------------------------------------
+\newcommand{\FigQuestions}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \begin{scope}[yshift=-0.65cm]
+  \fill[amber,rounded corners=1pt] (0.40,6.30) rectangle (0.47,6.78);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (0.62,6.54) {Migrate data from legacy systems?};
+  \foreach \cy/\cw/\cc in {5.70/4.80/amber, 4.95/4.21/teal!55, 4.20/3.16/teal!55, 3.45/2.74/teal!55, 2.70/2.43/teal!55} {
+    \fill[\cc,rounded corners=2pt] (4.35,\cy-0.16) rectangle (4.35+\cw,\cy+0.16);
+  }
+  \node[font=\ttfamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (0.40,5.70) {data\_migration};
+  \node[font=\ttfamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (0.40,4.95) {legacy\_tech\_stack};
+  \node[font=\ttfamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (0.40,4.20) {multi\_tenancy};
+  \node[font=\ttfamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (0.40,3.45) {privacy\_compliance};
+  \node[font=\ttfamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (0.40,2.70) {external\_data\_sync};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=ink,anchor=west] at (9.28,5.70) {+63.8};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (8.69,4.95) {+56.0};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (7.64,4.20) {+42.0};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (7.22,3.45) {+36.4};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (6.91,2.70) {+32.3};
+  % before / after card
+  \fill[lightsurface,rounded corners=4pt] (10.60,2.35) rectangle (14.25,5.90);
+  \draw[hairline,line width=0.6pt,rounded corners=4pt] (10.60,2.35) rectangle (14.25,5.90);
+  \node[fgxs,anchor=west] at (10.85,5.62) {RANGE CHECK};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink,anchor=west] at (10.85,5.28) {Before};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=east] at (14.00,5.28) {79--111--191};
+  \fill[hairline!55,rounded corners=1pt] (10.85,4.90) rectangle (14.00,5.00);
+  \fill[ink!40,rounded corners=1pt] (10.985,4.84) rectangle (12.665,5.06);
+  \draw[white,line width=1.0pt] (11.465,4.84) -- (11.465,5.06);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink,anchor=west] at (10.85,4.18) {No};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=east] at (14.00,4.18) {78--108--168};
+  \fill[hairline!55,rounded corners=1pt] (10.85,3.80) rectangle (14.00,3.90);
+  \fill[teal,rounded corners=1pt] (10.970,3.74) rectangle (12.320,3.96);
+  \draw[white,line width=1.0pt] (11.420,3.74) -- (11.420,3.96);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink,anchor=west] at (10.85,3.08) {Yes};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=east] at (14.00,3.08) {127--175--274};
+  \fill[hairline!55,rounded corners=1pt] (10.85,2.70) rectangle (14.00,2.80);
+  \fill[amber,rounded corners=1pt] (11.705,2.64) rectangle (13.910,2.86);
+  \draw[white,line width=1.0pt] (12.425,2.64) -- (12.425,2.86);
+  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext,anchor=east] at (14.05,2.50) {same scale};
+  \end{scope}
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 8. Packages -- 3 tiers + 100-day budget line
+% ---------------------------------------------------------------------------
+\newcommand{\FigPackages}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % cards
+  \foreach \cx in {2.40,7.30,12.20} {
+    \fill[ink,opacity=0.04,rounded corners=4pt] (\cx-2.06,2.64) rectangle (\cx+2.06,6.26);
+    \draw[fgcard] (\cx-2.00,2.70) rectangle (\cx+2.00,6.20);
+  }
+  \draw[teal,line width=2.2pt,line cap=round] (0.40,6.20) -- (4.40,6.20);
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink,anchor=west] at (0.70,5.98) {Essential};
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink,anchor=west] at (5.60,5.98) {Standard};
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink,anchor=west] at (10.50,5.98) {Full};
+  \node[font=\sffamily\bfseries\fontsize{34}{36}\selectfont,text=ink,anchor=west] at (0.70,5.05) {95};
+  \node[font=\sffamily\bfseries\fontsize{34}{36}\selectfont,text=ink,anchor=west] at (5.60,5.05) {119};
+  \node[font=\sffamily\bfseries\fontsize{34}{36}\selectfont,text=ink,anchor=west] at (10.50,5.05) {207};
+  \node[fgsm,anchor=west] at (2.40,4.84) {days};
+  \node[fgsm,anchor=west] at (7.75,4.84) {days};
+  \node[fgsm,anchor=west] at (12.65,4.84) {days};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=red,anchor=west] at (0.70,3.50) {46\% over};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=red,anchor=west] at (5.60,3.50) {63\% over};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=red,anchor=west] at (10.50,3.50) {91\% over};
+  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext,anchor=west] at (0.70,3.10) {drops};
+  \node[font=\ttfamily\fontsize{6.2}{7.2}\selectfont,text=graytext,anchor=west] at (0.70,2.84) {mobile\_app \textperiodcentered\ realtime\_ui};
+  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext,anchor=west] at (5.60,3.10) {drops};
+  \node[font=\ttfamily\fontsize{6.2}{7.2}\selectfont,text=graytext,anchor=west] at (5.60,2.84) {mobile\_app};
+  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext,anchor=west] at (10.50,3.10) {nothing dropped};
+  % day bars
+  \fill[teal,rounded corners=1pt] (3.85,2.85) rectangle (4.25,3.80);
+  \fill[amber,rounded corners=1pt] (8.75,2.85) rectangle (9.15,4.04);
+  \fill[red!80,rounded corners=1pt] (13.65,2.85) rectangle (14.05,4.92);
+  % budget line
+  \draw[red,dashed,line width=0.9pt] (0.35,3.85) -- (14.25,3.85);
+  \draw[red,dashed,line width=1.2pt] (10.55,6.55) -- (11.15,6.55);
+  \node[font=\sffamily\bfseries\fontsize{7}{8}\selectfont,text=red,anchor=west] at (11.28,6.55) {100-day budget};
+  % recommendation
+  \fill[teallight,rounded corners=4pt] (3.10,1.25) rectangle (11.50,1.82);
+  \draw[teal!45,line width=0.7pt,rounded corners=4pt] (3.10,1.25) rectangle (11.50,1.82);
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=teal,anchor=west] at (3.35,1.535) {Recommended};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=teal,anchor=west] at (5.55,1.535) {Essential};
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=graytext,anchor=west] at (7.05,1.535) {\textperiodcentered\ renegotiate budget or timeline};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 9. Learning -- predicted vs actual + weights + drift
+% ---------------------------------------------------------------------------
+\newcommand{\FigLearning}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \node[fgxs,anchor=west] at (0.40,6.60) {SCENARIO A};
+  % bars
+  \draw[ink!15,line width=0.7pt] (0.90,3.00) -- (6.10,3.00);
+  \fill[teal!80,rounded corners=1pt] (1.50,3.00) rectangle (3.10,4.79);
+  \fill[amber,rounded corners=1pt] (4.00,3.00) rectangle (5.60,5.90);
+  \node[font=\sffamily\bfseries\fontsize{26}{28}\selectfont,text=teal] at (2.30,5.40) {111};
+  \node[font=\sffamily\bfseries\fontsize{26}{28}\selectfont,text=ink] at (4.80,6.45) {180};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=graytext] at (2.30,2.70) {predicted};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (4.80,2.70) {actual};
+  % weights table
+  \node[fgxs,anchor=west] at (7.15,6.38) {WEIGHTS};
+  \node[fgxs,anchor=west] at (10.15,6.38) {BEFORE};
+  \node[fgxs,anchor=west] at (11.55,6.38) {AFTER};
+  \node[fgxs,anchor=west] at (12.75,6.38) {DELTA};
+  \foreach \cy/\cf in {5.75/payment\_gateway, 5.10/mobile\_app, 4.45/pci\_dss} {
+    \draw[fgcard] (7.10,\cy-0.24) rectangle (14.10,\cy+0.24);
+  }
+  \node[font=\ttfamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (7.30,5.75) {payment\_gateway};
+  \node[font=\ttfamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (7.30,5.10) {mobile\_app};
+  \node[font=\ttfamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (7.30,4.45) {pci\_dss};
+  \node[font=\sffamily\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (10.15,5.75) {1.49};
+  \node[font=\sffamily\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (10.15,5.10) {1.74};
+  \node[font=\sffamily\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (10.15,4.45) {1.50};
+  \draw[teal,line width=0.8pt,-{Latex[length=1.4mm,width=1.1mm]}] (10.95,5.75) -- (11.35,5.75);
+  \draw[teal,line width=0.8pt,-{Latex[length=1.4mm,width=1.1mm]}] (10.95,5.10) -- (11.35,5.10);
+  \draw[teal,line width=0.8pt,-{Latex[length=1.4mm,width=1.1mm]}] (10.95,4.45) -- (11.35,4.45);
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=teal,anchor=west] at (11.55,5.75) {1.51};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=teal,anchor=west] at (11.55,5.10) {1.76};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=teal,anchor=west] at (11.55,4.45) {1.52};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=teal,anchor=west] at (12.75,5.75) {+0.02};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=teal,anchor=west] at (12.75,5.10) {+0.02};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=teal,anchor=west] at (12.75,4.45) {+0.02};
+  % drift strip
+  \draw[hairline,line width=0.6pt] (0.40,2.38) -- (14.20,2.38);
+  \node[fgsm,anchor=west] at (0.40,2.16) {after drift \textperiodcentered\ last 10 projects};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (0.40,1.63) {system};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (0.40,1.20) {team};
+  \fill[teal,rounded corners=1pt] (2.40,1.53) rectangle (6.74,1.73);
+  \fill[ink!30,rounded corners=1pt] (2.40,1.10) rectangle (9.80,1.30);
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=teal,anchor=west] at (6.89,1.63) {31.05};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=ink!55,anchor=west] at (9.95,1.20) {52.90};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 10. Codebase -- Flask tree, signals, gauge, 207 -> 280
+% ---------------------------------------------------------------------------
+\newcommand{\FigCodebase}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % commit tag
+  \fill[lightsurface,rounded corners=3pt] (0.40,6.42) rectangle (4.85,6.90);
+  \draw[hairline,line width=0.5pt,rounded corners=3pt] (0.40,6.42) rectangle (4.85,6.90);
+  \node[font=\sffamily\fontsize{6.5}{8}\selectfont,text=graytext] at (2.625,6.66) {29,059 real commits \textperiodcentered\ Python only};
+  % repo
+  \draw[fill=amberlight,draw=amber,line width=0.9pt,rounded corners=1.5pt]
+    (0.35,5.65) -- (0.35,6.15) -- (0.95,6.15) -- (1.10,5.98) -- (2.15,5.98) -- (2.15,5.65) -- cycle;
+  \node[font=\ttfamily\fontsize{6.2}{7.5}\selectfont,text=ink] at (1.25,5.80) {pallets/flask};
+  \draw[ink!40,line width=0.6pt] (1.10,5.65) -- (1.10,2.20);
+  \foreach \yy in {5.00,4.30,3.60,2.90,2.20} {
+    \draw[ink!40,line width=0.6pt] (1.10,\yy) -- (1.45,\yy);
+    \draw[fill=lightsurface,draw=hairline,line width=0.5pt]
+      (1.45,\yy-0.17) -- (2.63,\yy-0.17) -- (2.75,\yy-0.05) -- (2.75,\yy+0.17) -- (1.45,\yy+0.17) -- cycle;
+    \draw[hairline,line width=0.5pt] (2.63,\yy-0.17) -- (2.63,\yy-0.05) -- (2.75,\yy-0.05);
+  }
+  % signal chips
+  \foreach \cy/\ct in {5.80/churn, 5.10/fan-in, 4.40/complexity, 3.70/coverage, 3.00/authors} {
+    \draw[fgchip] (3.10,\cy-0.27) rectangle (6.30,\cy+0.27);
+    \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (3.30,\cy) {\ct};
+  }
+  \fill[teal!60] (5.90,5.66) rectangle (5.97,5.90);
+  \fill[teal!60] (6.01,5.60) rectangle (6.08,5.90);
+  \fill[teal!60] (6.12,5.70) rectangle (6.19,5.90);
+  \fill[teal!60] (5.83,4.96) circle (0.035);
+  \fill[teal!60] (5.83,4.88) circle (0.035);
+  \fill[teal!60] (5.83,5.04) circle (0.035);
+  \draw[teal!60,line width=0.5pt] (5.87,4.96) -- (6.05,4.96);
+  \draw[teal!60,line width=0.5pt] (5.87,4.88) -- (6.05,4.96);
+  \draw[teal!60,line width=0.5pt] (5.87,5.04) -- (6.05,4.96);
+  \draw[teal!60,line width=0.8pt,line join=round] (5.85,4.30) -- (5.95,4.50) -- (6.05,4.30) -- (6.15,4.50);
+  \draw[teal!60,line width=0.8pt] (6.00,3.62) arc[start angle=90,end angle=-180,radius=0.13];
+  \FgPerson{5.90}{3.15}{0.42}{teal!60}
+  \FgPerson{6.08}{3.11}{0.36}{teal!40}
+  \fill[teallight,rounded corners=3pt] (3.10,1.75) rectangle (6.30,2.30);
+  \draw[teal!45,line width=0.6pt,rounded corners=3pt] (3.10,1.75) rectangle (6.30,2.30);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=teal] at (4.70,2.025) {similar changes};
+  % arrow + gauge
+  \draw[teal,line width=2pt,-{Latex[length=2.6mm,width=2.0mm]}] (6.45,4.15) -- (10.05,4.15);
+  \begin{scope}[shift={(11.70,4.20)}]
+    \draw[teal,line width=6pt,line cap=butt] (180:1.40) arc[start angle=180,end angle=90,radius=1.40];
+    \draw[amber,line width=6pt,line cap=butt] (90:1.40) arc[start angle=90,end angle=45,radius=1.40];
+    \draw[red,line width=6pt,line cap=butt] (45:1.40) arc[start angle=45,end angle=0,radius=1.40];
+    \foreach \aa in {180,135,90,45,0} {
+      \draw[ink!35,line width=0.6pt] (\aa:1.47) -- (\aa:1.61);
+    }
+    \draw[ink!25,line width=0.6pt] (-1.40,0) -- (1.40,0);
+    \draw[ink,line width=2pt,line cap=round] (0,0) -- (61:1.10);
+    \fill[ink] (0,0) circle (0.09);
+  \end{scope}
+  \node[fgsm] at (11.70,5.88) {friction};
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=ink] at (11.70,3.85) {0.66};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=amber!90] at (11.70,3.32) {medium};
+  % bottom band
+  \fill[lightsurface,rounded corners=4pt] (0.40,0.55) rectangle (14.20,1.55);
+  \node[fgsm,anchor=west] at (0.70,1.05) {base P50};
+  \node[font=\sffamily\bfseries\fontsize{16}{18}\selectfont,text=ink,anchor=west] at (1.75,1.05) {207};
+  \draw[teal,line width=1.5pt,-{Latex[length=2.0mm,width=1.5mm]}] (2.65,1.05) -- (3.45,1.05);
+  \node[fgsm,anchor=west] at (3.65,1.05) {adjusted};
+  \node[font=\sffamily\bfseries\fontsize{16}{18}\selectfont,text=teal,anchor=west] at (4.75,1.05) {280};
+  \fill[amberlight,rounded corners=3pt] (5.95,0.83) rectangle (6.95,1.27);
+  \draw[amber!45,line width=0.6pt,rounded corners=3pt] (5.95,0.83) rectangle (6.95,1.27);
+  \node[font=\sffamily\bfseries\fontsize{8}{9}\selectfont,text=amber!90] at (6.45,1.05) {+35\%};
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=teal,anchor=east] at (14.00,1.05) {widen risk, never discount};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 11. Loop -- 7-step process
+% ---------------------------------------------------------------------------
+\newcommand{\FigLoop}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \draw[teal!45,line width=1.1pt] (7.30,3.95) circle (2.30);
+  \foreach \aa in {64.285,12.855,-38.575,-90,-141.425,167.145,115.715} {
+    \pgfmathsetmacro{\bb}{\aa-90}
+    \pgfmathsetmacro{\px}{7.30+2.30*cos(\aa)}
+    \pgfmathsetmacro{\py}{3.95+2.30*sin(\aa)}
+    \begin{scope}[shift={(\px,\py)},rotate=\bb]
+      \fill[teal] (0,0.085) -- (0.18,0) -- (0,-0.085) -- cycle;
+    \end{scope}
+  }
+  \node[fill=amberlight,draw=amber!55,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.35cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (7.300,6.250) {decide};
+  \node[fill=teallight,draw=teal!45,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.35cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (9.097,5.385) {constrain};
+  \node[fill=teallight,draw=teal!45,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.35cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (9.542,3.438) {generate};
+  \node[fill=amberlight,draw=amber!55,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.35cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (8.298,1.878) {review};
+  \node[fill=teallight,draw=teal!45,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.35cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (6.302,1.878) {test};
+  \node[fill=blue!10,draw=blue!35,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.35cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (5.058,3.438) {measure};
+  \node[fill=amberlight,draw=amber!55,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.35cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (5.503,5.385) {document};
+  \FgPerson{7.30}{4.78}{1.10}{ink!75}
+  \node[font=\sffamily\bfseries\fontsize{11}{13}\selectfont,text=ink] at (7.30,4.02) {human};
+  \node[fgsm] at (7.30,3.58) {in the loop};
+  % AI column
+  \draw[fgcard] (0.30,2.95) rectangle (2.55,5.15);
+  \draw[teal,line width=2pt,line cap=round] (0.30,5.15) -- (2.55,5.15);
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=teal,anchor=west] at (0.55,4.85) {AI};
+  \fill[teal] (0.60,4.27) circle (0.05);
+  \node[fglbl,anchor=west] at (0.78,4.27) {DeepSeek};
+  \fill[teal] (0.60,3.79) circle (0.05);
+  \node[fglbl,anchor=west] at (0.78,3.79) {code assistant};
+  \fill[teal] (0.60,3.31) circle (0.05);
+  \node[fglbl,anchor=west] at (0.78,3.31) {eval scripts};
+  % Human column
+  \draw[fgcard] (12.05,2.95) rectangle (14.30,5.15);
+  \draw[amber,line width=2pt,line cap=round] (12.05,5.15) -- (14.30,5.15);
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink,anchor=west] at (12.30,4.85) {Human};
+  \fill[amber] (12.35,4.27) circle (0.05);
+  \node[fglbl,anchor=west] at (12.53,4.27) {decide};
+  \fill[amber] (12.35,3.79) circle (0.05);
+  \node[fglbl,anchor=west] at (12.53,3.79) {review};
+  \fill[amber] (12.35,3.31) circle (0.05);
+  \node[fglbl,anchor=west] at (12.53,3.31) {gatekeep};
+  % phone
+  \draw[ink,line width=0.9pt,fill=white,rounded corners=3pt] (11.55,0.82) rectangle (11.95,1.62);
+  \draw[ink!30,line width=0.5pt] (11.63,0.95) -- (11.87,0.95);
+  \fill[ink!40] (11.75,1.52) circle (0.025);
+  \node[font=\sffamily\bfseries\fontsize{7}{8}\selectfont,text=ink,anchor=west] at (12.08,1.34) {built};
+  \node[fgsm,anchor=west] at (12.08,1.08) {on a phone};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 12. Worked example -- Ask / Generate / Review / Measure / Fix
+% ---------------------------------------------------------------------------
+\newcommand{\FigWorked}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \begin{scope}[yshift=-0.35cm]
+  \draw[ink!18,line width=1.1pt] (0.90,5.45) -- (13.70,5.45);
+  \foreach \cx/\nn in {1.90/1, 4.60/2, 7.30/3, 10.00/4, 12.70/5} {
+    \fill[white] (\cx,5.45) circle (0.27);
+    \draw[teal,line width=1.2pt] (\cx,5.45) circle (0.27);
+    \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=teal] at (\cx,5.45) {\nn};
+    \draw[hairline,line width=0.7pt] (\cx,5.16) -- (\cx,4.58);
+    \draw[fgcard] (\cx-1.17,1.95) rectangle (\cx+1.17,4.58);
+  }
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink] at (1.90,6.15) {Ask};
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink] at (4.60,6.15) {Generate};
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink] at (7.30,6.15) {Review};
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink] at (10.00,6.15) {Measure};
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink] at (12.70,6.15) {Fix};
+  % 1 ask
+  \node[font=\sffamily\bfseries\fontsize{30}{32}\selectfont,text=amber!80] at (1.90,3.90) {?};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=ink] at (1.90,2.95) {unknown features};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext] at (1.90,2.62) {without guessing};
+  % 2 generate
+  \node[font=\sffamily\bfseries\fontsize{30}{32}\selectfont,text=amber] at (4.60,3.90) {25\%};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext] at (4.60,2.95) {sampled as present};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext] at (4.60,2.62) {first version};
+  % 3 review
+  \node[font=\sffamily\bfseries\fontsize{11.5}{13.5}\selectfont,text=ink] at (7.30,3.95) {why 25\%?};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=red] at (7.30,3.20) {a null $\neq$ a zero};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext] at (7.30,2.70) {ask again};
+  % 4 measure
+  \fill[redlight,rounded corners=2pt] (8.95,4.02) rectangle (9.95,4.36);
+  \node[font=\sffamily\bfseries\fontsize{6.5}{7.5}\selectfont,text=red] at (9.45,4.19) {worse};
+  \node[font=\sffamily\bfseries\fontsize{20}{22}\selectfont,text=red] at (10.00,3.55) {49.64};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext] at (10.00,2.98) {vs 21.34};
+  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext] at (10.00,2.68) {zero-fill};
+  % 5 fix
+  \node[font=\sffamily\bfseries\fontsize{17}{19}\selectfont,text=teal] at (12.70,4.25) {4.1\%};
+  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext] at (12.70,3.80) {null prior};
+  \draw[teal,line width=1.2pt,-{Latex[length=1.6mm,width=1.2mm]}] (12.70,3.60) -- (12.70,3.38);
+  \node[font=\sffamily\bfseries\fontsize{20}{22}\selectfont,text=ink] at (12.70,3.00) {20.48};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext] at (12.70,2.42) {MAE};
+  \end{scope}
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 13. Proof -- dashboard + secondary stats + caveats
+% ---------------------------------------------------------------------------
+\newcommand{\FigProof}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \begin{scope}[yshift=-0.35cm]
+  \foreach \cx in {0.225,3.825,7.425,11.025} {
+    \fill[ink,opacity=0.04,rounded corners=4pt] (\cx+0.06,3.84) rectangle (\cx+3.41,6.56);
+    \draw[fgcard] (\cx,3.90) rectangle (\cx+3.35,6.50);
+  }
+  % card 1
+  \node[font=\sffamily\bfseries\fontsize{23}{25}\selectfont,text=teal,anchor=west] at (0.45,5.85) {17.36};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (0.45,5.25) {MAE vs 32.93};
+  \fill[teal,rounded corners=1pt] (0.45,4.55) rectangle (1.85,4.73);
+  \fill[ink!25,rounded corners=1pt] (0.45,4.28) rectangle (3.10,4.46);
+  % card 2
+  \node[font=\sffamily\bfseries\fontsize{23}{25}\selectfont,text=ink,anchor=west] at (4.05,5.85) {86.7\%};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (4.05,5.25) {coverage 189/218};
+  \fill[lightsurface,rounded corners=1pt] (4.05,4.55) rectangle (7.05,4.73);
+  \fill[teal,rounded corners=1pt] (4.05,4.55) rectangle (6.65,4.73);
+  % card 3
+  \node[font=\sffamily\bfseries\fontsize{23}{25}\selectfont,text=ink,anchor=west] at (7.65,5.85) {0.933};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (7.65,5.25) {extraction F1};
+  \foreach \bx/\bh in {7.65/0.16, 7.95/0.24, 8.25/0.20, 8.55/0.30, 8.85/0.25, 9.15/0.33, 9.45/0.38, 9.75/0.34, 10.05/0.42, 10.35/0.44} {
+    \fill[teal!45,rounded corners=0.5pt] (\bx,4.28) rectangle (\bx+0.18,4.28+\bh);
+  }
+  \fill[teal,rounded corners=0.5pt] (10.35,4.28) rectangle (10.53,4.72);
+  % card 4
+  \node[font=\sffamily\bfseries\fontsize{23}{25}\selectfont,text=ink,anchor=west] at (11.25,5.85) {\$0.20};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (11.25,5.25) {for 240 emails};
+  \fill[amberlight] (13.45,4.55) circle (0.42);
+  \draw[amber,line width=0.9pt] (13.45,4.55) circle (0.42);
+  \node[font=\sffamily\bfseries\fontsize{11}{13}\selectfont,text=amber!90] at (13.45,4.55) {\$};
+  % secondary strip
+  \foreach \cx/\bn/\bt in {0.225/242/offline tests, 5.000/31/decisions, 9.775/20.48/MAE end-to-end} {
+    \draw[fgcard] (\cx,2.55) rectangle (\cx+4.60,3.30);
+  }
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=teal,anchor=west] at (0.50,2.93) {242};
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=graytext,anchor=west] at (1.55,2.93) {offline tests};
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=ink,anchor=west] at (5.25,2.93) {31};
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=graytext,anchor=west] at (6.05,2.93) {decisions};
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=ink,anchor=west] at (10.00,2.93) {20.48};
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=graytext,anchor=west] at (11.55,2.93) {MAE end-to-end};
+  \end{scope}
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 14. Bridge -- business to production + mapping table
+% ---------------------------------------------------------------------------
+\newcommand{\FigBridge}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \draw[blue!30,line width=0.6pt] plot[domain=0.60:8.50,samples=90] (\x,{1.50+0.05*sin(2*\x)});
+  \draw[blue!30,line width=0.6pt] plot[domain=0.60:8.50,samples=90] (\x,{1.68+0.05*sin(2*\x+40)});
+  \draw[blue!30,line width=0.6pt] plot[domain=0.60:8.50,samples=90] (\x,{1.86+0.05*sin(2*\x+80)});
+  \draw[ink,line width=2.2pt,line cap=round] (1.20,3.45) -- (7.60,3.45);
+  \draw[ink!35,line width=0.6pt] (1.20,3.67) -- (7.60,3.67);
+  \fill[ink,rounded corners=1pt] (2.32,3.45) rectangle (2.48,5.52);
+  \fill[ink,rounded corners=1pt] (6.32,3.45) rectangle (6.48,5.52);
+  \fill[ink,rounded corners=1pt] (2.18,5.44) rectangle (2.62,5.56);
+  \fill[ink,rounded corners=1pt] (6.18,5.44) rectangle (6.62,5.56);
+  \draw[teal,line width=1.1pt] plot[domain=2.40:6.40,samples=50] (\x,{4.15+1.30*((\x-4.4)/2.0)^2});
+  \foreach \hx in {2.80,3.20,3.60,4.00,4.40,4.80,5.20,5.60,6.00} {
+    \pgfmathsetmacro{\hy}{4.15+1.30*((\hx-4.4)/2.0)^2}
+    \draw[teal!50,line width=0.5pt] (\hx,3.45) -- (\hx,\hy);
+  }
+  \fill[ink!85,rounded corners=1pt] (4.31,1.65) rectangle (4.49,3.45);
+  \FgPerson{0.85}{4.85}{0.95}{teal!45}
+  \FgPerson{1.15}{4.77}{1.05}{teal}
+  \FgShield{8.10}{4.77}{1.20}{teallight}{teal}
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (0.95,3.92) {Business};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (8.10,3.92) {Production};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=teal] at (4.40,6.30) {Technical anchor};
+  \foreach \cx/\ct in {2.55/map, 4.40/prototype, 6.25/harden} {
+    \draw[fgchip] (\cx-0.72,0.35) rectangle (\cx+0.72,0.85);
+    \node[fgsm] at (\cx,0.60) {\ct};
+  }
+  \draw[teal,line width=1.2pt,-{Latex[length=1.8mm,width=1.4mm]}] (3.32,0.60) -- (3.63,0.60);
+  \draw[teal,line width=1.2pt,-{Latex[length=1.8mm,width=1.4mm]}] (5.17,0.60) -- (5.48,0.60);
+  % mapping table
+  \foreach \cy/\cl/\cr in {%
+    5.55/messy email/structured features,
+    4.69/deterministic math/auditable number,
+    3.83/questions/human review,
+    2.97/actuals/learning loop}
+  {
+    \draw[fgcard] (9.00,\cy-0.30) rectangle (14.25,\cy+0.30);
+    \node[font=\sffamily\fontsize{6.4}{7.8}\selectfont,text=ink,anchor=west] at (9.15,\cy) {\cl};
+    \draw[teal,line width=0.9pt,-{Latex[length=1.5mm,width=1.1mm]}] (11.30,\cy) -- (11.58,\cy);
+    \node[font=\sffamily\fontsize{6.4}{7.8}\selectfont,text=teal,anchor=west] at (11.70,\cy) {\cr};
+  }
+  \node[fgsm,anchor=west] at (9.02,6.10) {the bridge, in practice};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 15. Close -- minimal range bar
+% ---------------------------------------------------------------------------
+\newcommand{\FigClose}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \begin{scope}[yshift=-0.55cm]
+  \draw[teal,line width=1.0pt,line cap=round] (1.80,5.05) -- (12.80,5.05);
+  \draw[teal,line width=1.0pt] (1.80,4.93) -- (1.80,5.17);
+  \draw[teal,line width=1.0pt] (12.80,4.93) -- (12.80,5.17);
+  \fill[teallight,rounded corners=2pt] (2.80,3.70) rectangle (11.80,4.14);
+  \draw[teal,line width=0.8pt,rounded corners=2pt] (2.80,3.70) rectangle (11.80,4.14);
+  \draw[white,line width=1.8pt] (5.37,3.70) -- (5.37,4.14);
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=teal] at (2.80,4.60) {79};
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=ink] at (5.37,4.60) {111};
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=teal] at (11.80,4.60) {191};
+  \node[fglbl] at (2.80,3.35) {P10};
+  \node[fglbl] at (5.37,3.35) {P50};
+  \node[fglbl] at (11.80,3.35) {P90};
+  \end{scope}
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 16. Decision -- three option cards
+% ---------------------------------------------------------------------------
+\newcommand{\FigDecision}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % option A
+  \fill[ink,opacity=0.04,rounded corners=4pt] (0.46,1.74) rectangle (4.76,6.06);
+  \draw[red!35,line width=0.9pt,fill=white,rounded corners=4pt] (0.40,1.80) rectangle (4.70,6.00);
+  \fill[redlight] (0.75,5.55) circle (0.22);
+  \node[font=\sffamily\bfseries\fontsize{9}{10}\selectfont,text=red] at (0.75,5.55) {A};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=ink,anchor=west] at (1.08,5.55) {LLM end-to-end};
+  \fill[redlight] (4.40,5.55) circle (0.22);
+  \draw[red,line width=1.3pt,line cap=round] (4.30,5.45) -- (4.50,5.65);
+  \draw[red,line width=1.3pt,line cap=round] (4.30,5.65) -- (4.50,5.45);
+  \draw[hairline,line width=0.6pt] (0.70,5.18) -- (4.40,5.18);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (2.55,4.70) {reads + estimates};
+  \fill[teal!8,rounded corners=2pt] (0.90,3.92) rectangle (4.20,4.28);
+  \fill[teal] (1.05,4.10) circle (0.045);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=teal,anchor=west] at (1.18,4.10) {fast};
+  \fill[red!8,rounded corners=2pt] (0.90,3.47) rectangle (4.20,3.83);
+  \fill[red] (1.05,3.65) circle (0.045);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=red,anchor=west] at (1.18,3.65) {no audit};
+  \fill[red!8,rounded corners=2pt] (0.90,3.02) rectangle (4.20,3.38);
+  \fill[red] (1.05,3.20) circle (0.045);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=red,anchor=west] at (1.18,3.20) {no calibration};
+  \fill[redlight,rounded corners=3pt] (1.45,2.00) rectangle (3.65,2.44);
+  \draw[red!40,line width=0.6pt,rounded corners=3pt] (1.45,2.00) rectangle (3.65,2.44);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=red] at (2.55,2.22) {rejected};
+  % option B
+  \fill[ink,opacity=0.04,rounded corners=4pt] (5.21,1.74) rectangle (9.51,6.06);
+  \draw[amber!55,line width=0.9pt,fill=white,rounded corners=4pt] (5.15,1.80) rectangle (9.45,6.00);
+  \fill[amberlight] (5.50,5.55) circle (0.22);
+  \node[font=\sffamily\bfseries\fontsize{9}{10}\selectfont,text=amber!90] at (5.50,5.55) {B};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=ink,anchor=west] at (5.83,5.55) {LLM + rules};
+  \fill[amberlight] (9.15,5.55) circle (0.22);
+  \node[font=\sffamily\bfseries\fontsize{11}{12}\selectfont,text=amber!90] at (9.15,5.53) {$\sim$};
+  \draw[hairline,line width=0.6pt] (5.45,5.18) -- (9.15,5.18);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (7.30,4.70) {extract + rules};
+  \fill[teal!8,rounded corners=2pt] (5.65,3.92) rectangle (8.95,4.28);
+  \fill[teal] (5.80,4.10) circle (0.045);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=teal,anchor=west] at (5.93,4.10) {auditable};
+  \fill[amber!12,rounded corners=2pt] (5.65,3.47) rectangle (8.95,3.83);
+  \fill[amber] (5.80,3.65) circle (0.045);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=amber!90,anchor=west] at (5.93,3.65) {brittle};
+  \fill[red!8,rounded corners=2pt] (5.65,3.02) rectangle (8.95,3.38);
+  \fill[red] (5.80,3.20) circle (0.045);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=red,anchor=west] at (5.93,3.20) {no learning};
+  \fill[amberlight,rounded corners=3pt] (6.20,2.00) rectangle (8.40,2.44);
+  \draw[amber!55,line width=0.6pt,rounded corners=3pt] (6.20,2.00) rectangle (8.40,2.44);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=amber!90] at (7.30,2.22) {trade-off};
+  % option C
+  \fill[teal,opacity=0.06,rounded corners=4pt] (9.96,1.74) rectangle (14.26,6.06);
+  \draw[teal,line width=1.4pt,fill=teal!4,rounded corners=4pt] (9.90,1.80) rectangle (14.20,6.00);
+  \fill[teallight] (10.25,5.55) circle (0.22);
+  \node[font=\sffamily\bfseries\fontsize{9}{10}\selectfont,text=teal] at (10.25,5.55) {C};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=ink,anchor=west] at (10.58,5.55) {LLM + math};
+  \fill[teallight] (13.83,5.55) circle (0.22);
+  \draw[teal,line width=1.5pt,line cap=round,line join=round] (13.72,5.54) -- (13.80,5.45) -- (13.94,5.64);
+  \draw[hairline,line width=0.6pt] (10.20,5.18) -- (13.90,5.18);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (12.05,4.70) {extract only $\rightarrow$ math};
+  \fill[teal!8,rounded corners=2pt] (10.40,3.92) rectangle (13.70,4.28);
+  \fill[teal] (10.55,4.10) circle (0.045);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=teal,anchor=west] at (10.68,4.10) {auditable};
+  \fill[teal!8,rounded corners=2pt] (10.40,3.47) rectangle (13.70,3.83);
+  \fill[teal] (10.55,3.65) circle (0.045);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=teal,anchor=west] at (10.68,3.65) {calibrated};
+  \fill[teal!8,rounded corners=2pt] (10.40,3.02) rectangle (13.70,3.38);
+  \fill[teal] (10.55,3.20) circle (0.045);
+  \node[font=\sffamily\fontsize{7.5}{8.5}\selectfont,text=teal,anchor=west] at (10.68,3.20) {learns};
+  \fill[teal,rounded corners=3pt] (10.95,2.00) rectangle (13.15,2.44);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=white] at (12.05,2.22) {chosen};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 17. Model choice -- comparison table
+% ---------------------------------------------------------------------------
+\newcommand{\FigModelChoice}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \node[font=\sffamily\bfseries\fontsize{6.8}{8}\selectfont,text=graytext,anchor=west] at (0.60,6.28) {MODEL};
+  \node[font=\sffamily\bfseries\fontsize{6.8}{8}\selectfont,text=graytext,anchor=west] at (4.60,6.28) {MAE};
+  \node[font=\sffamily\bfseries\fontsize{6.8}{8}\selectfont,text=graytext,anchor=west] at (6.00,6.28) {COVERAGE};
+  \node[font=\sffamily\bfseries\fontsize{6.8}{8}\selectfont,text=graytext,anchor=west] at (8.75,6.28) {EXPLAINABLE};
+  \node[font=\sffamily\bfseries\fontsize{6.8}{8}\selectfont,text=graytext,anchor=west] at (10.75,6.28) {VERDICT};
+  \foreach \cy/\cf/\cb in {5.60/teal!8/teal, 4.85/white/hairline, 4.10/white/hairline, 3.35/white/hairline, 2.60/white/hairline} {
+    \fill[\cf,rounded corners=3pt] (0.40,\cy-0.30) rectangle (14.20,\cy+0.30);
+    \draw[\cb,line width=0.6pt,rounded corners=3pt] (0.40,\cy-0.30) rectangle (14.20,\cy+0.30);
+  }
+  \fill[teal,rounded corners=1pt] (0.40,5.30) rectangle (0.46,5.90);
+  \fill[teal] (0.65,5.60) circle (0.13);
+  \draw[white,line width=1pt,line cap=round,line join=round] (0.59,5.60) -- (0.64,5.55) -- (0.71,5.65);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=teal,anchor=west] at (0.88,5.60) {Ridge + conformal};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=teal] at (4.60,5.60) {17.36};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=teal] at (6.00,5.60) {86.7\%};
+  \fill[hairline!55,rounded corners=1pt] (6.75,5.54) rectangle (8.25,5.66);
+  \fill[teal,rounded corners=1pt] (6.75,5.54) rectangle (8.085,5.66);
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=teal] at (8.95,5.60) {yes};
+  \fill[teal,rounded corners=2pt] (10.35,5.44) rectangle (11.55,5.76);
+  \node[font=\sffamily\bfseries\fontsize{6.5}{7.5}\selectfont,text=white] at (10.95,5.60) {chosen};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=teal,anchor=west] at (11.70,5.60) {stable, inspectable};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (0.60,4.85) {Split conformal};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=ink] at (4.60,4.85) {17.25};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (6.00,4.85) {75.7\%};
+  \fill[hairline!55,rounded corners=1pt] (6.75,4.79) rectangle (8.25,4.91);
+  \fill[teal!45,rounded corners=1pt] (6.75,4.79) rectangle (7.535,4.91);
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=teal] at (8.95,4.85) {yes};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext,anchor=west] at (10.40,4.85) {similar MAE, lower coverage};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (0.60,4.10) {Gradient boosting};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=ink] at (4.60,4.10) {25.23};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (6.00,4.10) {72.9\%};
+  \fill[hairline!55,rounded corners=1pt] (6.75,4.04) rectangle (8.25,4.16);
+  \fill[teal!45,rounded corners=1pt] (6.75,4.04) rectangle (7.395,4.16);
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=red] at (8.95,4.10) {no};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext,anchor=west] at (10.40,4.10) {overfits at 228 rows};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (0.60,3.35) {Quantile GBM};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=ink] at (4.60,3.35) {25.56};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (6.00,3.35) {66.5\%};
+  \fill[hairline!55,rounded corners=1pt] (6.75,3.29) rectangle (8.25,3.41);
+  \fill[teal!45,rounded corners=1pt] (6.75,3.29) rectangle (7.075,3.41);
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=red] at (8.95,3.35) {no};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext,anchor=west] at (10.40,3.35) {worse tails};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (0.60,2.60) {Median baseline};
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=ink] at (4.60,2.60) {32.76};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (6.00,2.60) {77.1\%};
+  \fill[hairline!55,rounded corners=1pt] (6.75,2.54) rectangle (8.25,2.66);
+  \fill[teal!45,rounded corners=1pt] (6.75,2.54) rectangle (7.605,2.66);
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=graytext] at (8.95,2.60) {n/a};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext,anchor=west] at (10.40,2.60) {no learning};
+  \node[fgsm,anchor=west] at (0.60,1.75) {228 projects \textperiodcentered\ walk-forward};
+  \node[fgsm,anchor=east] at (14.00,1.75) {lower MAE is better};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 18. Missing data -- three mechanisms
+% ---------------------------------------------------------------------------
+\newcommand{\FigMissing}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \draw[ink!20,line width=0.8pt] (0.70,1.35) -- (9.80,1.35);
+  \fill[red!85,rounded corners=1pt] (1.40,1.35) rectangle (3.20,5.57);
+  \fill[ink!22,rounded corners=1pt] (4.50,1.35) rectangle (6.30,3.16);
+  \fill[teal,rounded corners=1pt] (7.60,1.35) rectangle (9.40,3.09);
+  \draw[teal,line width=1.6pt,rounded corners=1pt] (7.60,1.35) rectangle (9.40,3.09);
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=red] at (2.30,5.92) {49.64};
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=ink!55] at (5.40,3.52) {21.34};
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=teal] at (8.50,3.44) {20.48};
+  \fill[red,rounded corners=3pt] (0.95,6.30) rectangle (3.65,6.80);
+  \node[font=\sffamily\bfseries\fontsize{8}{9}\selectfont,text=white] at (2.30,6.55) {worse than zero};
+  \fill[teal,rounded corners=3pt] (7.75,3.84) rectangle (9.25,4.26);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=white] at (8.50,4.05) {chosen};
+  \fill[teal] (9.58,3.10) circle (0.16);
+  \draw[white,line width=1.2pt,line cap=round,line join=round] (9.51,3.10) -- (9.57,3.04) -- (9.66,3.16);
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=ink] at (2.30,0.98) {global prior};
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=ink] at (5.40,0.98) {zero-fill};
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=teal] at (8.50,0.98) {conditional};
+  \node[fgsm] at (2.30,0.64) {25.2\% present};
+  \node[fgsm] at (5.40,0.64) {0\% present};
+  \node[font=\sffamily\bfseries\fontsize{7}{8.5}\selectfont,text=teal] at (8.50,0.64) {4.1\% present};
+  \draw[ink!15,dashed,line width=0.6pt] (10.15,1.00) -- (10.15,6.60);
+  \fill[teallight] (12.00,4.15) circle (1.25);
+  \draw[teal,line width=1.2pt] (12.00,4.15) circle (1.25);
+  \node[font=\sffamily\bfseries\fontsize{22}{24}\selectfont,text=teal] at (12.00,4.15) {4.1\%};
+  \node[fglbl] at (12.00,2.55) {P(1 $\mid$ null)};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=teal] at (12.00,2.05) {conditional prior};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 19. Codebase chain -- measured vs assumed
+% ---------------------------------------------------------------------------
+\newcommand{\FigCodebaseChain}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % brackets
+  \draw[teal!60,line width=0.8pt] (0.40,5.45) -- (0.40,5.65) -- (10.40,5.65) -- (10.40,5.45);
+  \node[font=\sffamily\bfseries\fontsize{7}{8.5}\selectfont,text=teal] at (5.40,5.97) {29,059 real commits};
+  \draw[amber,line width=0.8pt] (11.05,5.45) -- (11.05,5.65) -- (13.95,5.65) -- (13.95,5.45);
+  \node[font=\sffamily\bfseries\fontsize{7}{8.5}\selectfont,text=amber!90] at (12.50,5.97) {no public dataset};
+  % nodes
+  \draw[fgcard] (0.40,3.95) rectangle (3.30,5.25);
+  \draw[fgcard] (3.95,3.95) rectangle (6.85,5.25);
+  \draw[fgcard] (7.50,3.95) rectangle (10.40,5.25);
+  \draw[amber!45,line width=1.0pt,fill=amber!6,rounded corners=4pt] (11.05,3.95) rectangle (13.95,5.25);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (1.85,4.95) {repo signals};
+  \node[fgsm] at (1.85,4.42) {churn \textperiodcentered\ fan-in};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (5.40,4.95) {friction};
+  \node[font=\sffamily\bfseries\fontsize{16}{18}\selectfont,text=amber!90] at (5.40,4.38) {0.66};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (8.95,4.95) {change size};
+  \node[fgsm] at (8.95,4.42) {lines \textperiodcentered\ files};
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (12.50,4.95) {person-days};
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=teal] at (12.50,4.40) {207 $\rightarrow$ 280};
+  \draw[fgarr] (3.30,4.60) -- (3.95,4.60);
+  \draw[fgarr] (6.85,4.60) -- (7.50,4.60);
+  \draw[fgarr] (10.40,4.60) -- (11.05,4.60);
+  % measured / assumed tags
+  \foreach \cx/\ct/\cf/\cb/\cc in {1.85/measured/teal!10/teal!40/teal, 5.40/measured/teal!10/teal!40/teal, 8.95/measured/teal!10/teal!40/teal, 12.50/assumed/amberlight/amber!55/amber!90} {
+    \fill[\cf,rounded corners=2pt] (\cx-0.62,3.40) rectangle (\cx+0.62,3.74);
+    \draw[\cb,line width=0.5pt,rounded corners=2pt] (\cx-0.62,3.40) rectangle (\cx+0.62,3.74);
+    \node[font=\sffamily\bfseries\fontsize{6.5}{7.5}\selectfont,text=\cc] at (\cx,3.57) {\ct};
+  }
+  % rule line
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=teal,anchor=east] at (14.00,2.68) {widen risk, never discount};
+  \node[fgsm,anchor=west] at (0.40,2.68) {Python only};
+  % Flask example band
+  \fill[lightsurface,rounded corners=4pt] (0.40,0.75) rectangle (14.20,2.45);
+  \node[font=\ttfamily\fontsize{6.5}{8}\selectfont,text=graytext,anchor=west] at (0.65,2.20) {pallets/flask};
+  \draw[fgcard] (0.60,0.95) rectangle (3.90,1.95);
+  \draw[fgcard] (4.50,0.95) rectangle (8.00,1.95);
+  \draw[fgcard] (8.60,0.95) rectangle (12.40,1.95);
+  \node[fgsm,anchor=west] at (0.80,1.72) {friction};
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=amber!90,anchor=west] at (0.80,1.28) {0.66};
+  \node[fgsm,anchor=west] at (4.70,1.72) {base P50};
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=ink,anchor=west] at (4.70,1.28) {207};
+  \node[fgsm,anchor=west] at (8.80,1.72) {adjusted};
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=teal,anchor=west] at (8.80,1.28) {280};
+  \fill[amberlight,rounded corners=3pt] (10.65,1.12) rectangle (11.75,1.56);
+  \draw[amber!45,line width=0.6pt,rounded corners=3pt] (10.65,1.12) rectangle (11.75,1.56);
+  \node[font=\sffamily\bfseries\fontsize{8}{9}\selectfont,text=amber!90] at (11.20,1.34) {+35\%};
+  \draw[fgarr] (3.90,1.45) -- (4.50,1.45);
+  \draw[fgarr] (8.00,1.45) -- (8.60,1.45);
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 20. Tools -- used vs deliberately not
+% ---------------------------------------------------------------------------
+\newcommand{\FigTools}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % used
+  \fill[ink,opacity=0.04,rounded corners=4pt] (0.46,2.49) rectangle (7.06,6.21);
+  \draw[fgcard] (0.40,2.55) rectangle (7.00,6.15);
+  \draw[teal,line width=2.2pt,line cap=round] (0.40,6.15) -- (7.00,6.15);
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=teal,anchor=west] at (0.70,5.85) {Used};
+  \foreach \cy in {5.25,4.55,3.85,3.15} {
+    \draw[hairline,line width=0.5pt] (0.70,\cy-0.30) -- (6.70,\cy-0.30);
+  }
+  \fill[teallight] (0.90,5.35) circle (0.14);
+  \draw[teal,line width=1.1pt,line cap=round,line join=round] (0.84,5.35) -- (0.89,5.29) -- (0.97,5.40);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (1.18,5.42) {DeepSeek};
+  \node[fgsm,anchor=west] at (1.18,5.12) {extraction};
+  \fill[teallight] (0.90,4.65) circle (0.14);
+  \draw[teal,line width=1.1pt,line cap=round,line join=round] (0.84,4.65) -- (0.89,4.59) -- (0.97,4.70);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (1.18,4.72) {Code assistant};
+  \node[fgsm,anchor=west] at (1.18,4.42) {boilerplate + tests};
+  \fill[teallight] (0.90,3.95) circle (0.14);
+  \draw[teal,line width=1.1pt,line cap=round,line join=round] (0.84,3.95) -- (0.89,3.89) -- (0.97,4.00);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (1.18,4.02) {Eval scripts};
+  \node[fgsm,anchor=west] at (1.18,3.72) {measurement};
+  \fill[teallight] (0.90,3.25) circle (0.14);
+  \draw[teal,line width=1.1pt,line cap=round,line join=round] (0.84,3.25) -- (0.89,3.19) -- (0.97,3.30);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (1.18,3.32) {Git history};
+  \node[fgsm,anchor=west] at (1.18,3.02) {29,059 commits};
+  % deliberately not
+  \fill[ink,opacity=0.04,rounded corners=4pt] (7.66,2.49) rectangle (14.26,6.21);
+  \draw[fgcard] (7.60,2.55) rectangle (14.20,6.15);
+  \draw[amber,line width=2.2pt,line cap=round] (7.60,6.15) -- (14.20,6.15);
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=amber!90,anchor=west] at (7.90,5.85) {Deliberately not};
+  \foreach \cy in {4.82,3.97} {
+    \draw[hairline,line width=0.5pt] (7.90,\cy) -- (13.90,\cy);
+  }
+  \fill[redlight] (8.10,5.25) circle (0.14);
+  \draw[red,line width=1.1pt,line cap=round] (8.04,5.19) -- (8.16,5.31);
+  \draw[red,line width=1.1pt,line cap=round] (8.04,5.31) -- (8.16,5.19);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (8.38,5.42) {50 MCP servers};
+  \node[fgsm,anchor=west] at (8.38,5.12) {setup for setup};
+  \fill[redlight] (8.10,4.40) circle (0.14);
+  \draw[red,line width=1.1pt,line cap=round] (8.04,4.34) -- (8.16,4.46);
+  \draw[red,line width=1.1pt,line cap=round] (8.04,4.46) -- (8.16,4.34);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (8.38,4.57) {10k-line skill files};
+  \node[fgsm,anchor=west] at (8.38,4.27) {unreadable};
+  \fill[redlight] (8.10,3.55) circle (0.14);
+  \draw[red,line width=1.1pt,line cap=round] (8.04,3.49) -- (8.16,3.61);
+  \draw[red,line width=1.1pt,line cap=round] (8.04,3.61) -- (8.16,3.49);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink,anchor=west] at (8.38,3.72) {Autonomous agent};
+  \node[fgsm,anchor=west] at (8.38,3.42) {shipping code};
+  % axis
+  \draw[ink!30,line width=0.8pt,-{Latex[length=1.8mm,width=1.3mm]}] (1.20,1.55) -- (13.40,1.55);
+  \node[fgsm,anchor=west] at (1.20,1.18) {ceremony};
+  \node[fgsm,anchor=east] at (13.40,1.18) {speed};
+  \fill[teal] (9.70,1.55) circle (0.10);
+  \draw[teal,line width=1.2pt] (9.70,1.42) -- (9.70,1.68);
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=teal] at (9.70,1.88) {smallest process};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 21. Phone -- the constraint timeline
+% ---------------------------------------------------------------------------
+\newcommand{\FigPhone}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \begin{scope}[yshift=0.45cm]
+  \draw[teal!45,line width=1.2pt,-{Latex[length=1.6mm,width=1.2mm]}] (2.20,3.70) -- (5.05,3.70);
+  \draw[teal!45,line width=1.2pt,-{Latex[length=1.6mm,width=1.2mm]}] (5.20,3.70) -- (8.35,3.70);
+  \draw[teal!45,line width=1.2pt,-{Latex[length=1.6mm,width=1.2mm]}] (8.50,3.70) -- (11.65,3.70);
+  \fill[redlight] (2.20,4.80) circle (0.50);
+  \fill[teallight] (5.20,4.80) circle (0.50);
+  \fill[amberlight] (8.50,4.80) circle (0.50);
+  \fill[teallight] (11.80,4.80) circle (0.50);
+  \draw[hairline,line width=0.6pt] (2.20,4.30) -- (2.20,3.78);
+  \draw[hairline,line width=0.6pt] (5.20,4.30) -- (5.20,3.78);
+  \draw[hairline,line width=0.6pt] (8.50,4.30) -- (8.50,3.78);
+  \draw[hairline,line width=0.6pt] (11.80,4.30) -- (11.80,3.78);
+  % laptop
+  \begin{scope}[shift={(2.20,4.80)}]
+    \draw[ink,line width=0.9pt,fill=white,rounded corners=1pt] (-0.28,-0.08) rectangle (0.28,0.34);
+    \draw[ink,line width=1.2pt,line cap=round] (-0.38,-0.12) -- (0.38,-0.12);
+    \draw[red,line width=1pt,line join=round] (-0.12,0.30) -- (-0.02,0.18) -- (-0.08,0.10) -- (0.04,0.00);
+  \end{scope}
+  % phone
+  \begin{scope}[shift={(5.20,4.80)}]
+    \draw[ink,line width=0.9pt,fill=white,rounded corners=2pt] (-0.15,-0.29) rectangle (0.15,0.29);
+    \draw[ink!30,line width=0.4pt] (-0.10,-0.24) -- (0.10,-0.24);
+    \node[font=\ttfamily\fontsize{6}{7}\selectfont,text=teal] at (0,0.02) {>};
+  \end{scope}
+  % coffee
+  \begin{scope}[shift={(8.50,4.80)}]
+    \draw[ink,line width=0.9pt,fill=white] (-0.16,-0.20) -- (0.16,-0.20) -- (0.12,0.12) -- (-0.12,0.12) -- cycle;
+    \draw[ink,line width=0.8pt] (0.16,-0.05) .. controls (0.30,-0.05) and (0.30,0.06) .. (0.12,0.06);
+    \draw[amber!70,line width=0.8pt] (-0.06,0.20) .. controls (-0.10,0.28) and (-0.02,0.32) .. (-0.06,0.40);
+    \draw[amber!70,line width=0.8pt] (0.04,0.20) .. controls (0.00,0.28) and (0.08,0.32) .. (0.04,0.40);
+  \end{scope}
+  % shipped box
+  \begin{scope}[shift={(11.80,4.80)}]
+    \draw[ink,line width=0.9pt,fill=white] (-0.18,-0.12) rectangle (0.18,0.20);
+    \draw[ink!40,line width=0.5pt] (-0.18,0.02) -- (0.18,0.02);
+    \draw[ink!40,line width=0.5pt] (0,0.20) -- (0,0.02);
+    \fill[teal] (0.16,0.18) circle (0.13);
+    \draw[white,line width=1pt,line cap=round,line join=round] (0.10,0.18) -- (0.145,0.12) -- (0.22,0.24);
+  \end{scope}
+  \fill[red] (2.20,3.70) circle (0.09);
+  \fill[teal] (5.20,3.70) circle (0.09);
+  \fill[teal] (8.50,3.70) circle (0.09);
+  \fill[teal] (11.80,3.70) circle (0.09);
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=red] at (2.20,3.25) {laptop broke};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=ink] at (5.20,3.25) {Termux + PRoot};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=ink] at (8.50,3.25) {net cafe};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=teal] at (11.80,3.25) {shipped};
+  \node[fgsm] at (2.20,2.92) {no local machine};
+  \node[fgsm] at (5.20,2.92) {full dev env};
+  \node[fgsm] at (8.50,2.92) {tests only};
+  \node[fgsm] at (11.80,2.92) {one commit};
+  % lessons
+  \node[fgsm,anchor=west] at (0.40,1.55) {what it forced};
+  \fill[teallight,rounded corners=3pt] (0.90,0.82) rectangle (4.50,1.32);
+  \draw[teal!45,line width=0.6pt,rounded corners=3pt] (0.90,0.82) rectangle (4.50,1.32);
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=teal] at (2.70,1.07) {small diffs};
+  \fill[lightsurface,rounded corners=3pt] (5.00,0.82) rectangle (8.60,1.32);
+  \draw[hairline,line width=0.6pt,rounded corners=3pt] (5.00,0.82) rectangle (8.60,1.32);
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=ink] at (6.80,1.07) {explicit contracts};
+  \fill[teallight,rounded corners=3pt] (9.10,0.82) rectangle (12.70,1.32);
+  \draw[teal!45,line width=0.6pt,rounded corners=3pt] (9.10,0.82) rectangle (12.70,1.32);
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=teal] at (10.90,1.07) {tests as the safety net};
+  \end{scope}
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 22. Review -- six-point checklist
+% ---------------------------------------------------------------------------
+\newcommand{\FigReview}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \fill[ink,opacity=0.04,rounded corners=4pt] (0.66,1.29) rectangle (14.06,6.51);
+  \draw[fgcard] (0.60,1.35) rectangle (14.00,6.45);
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=ink,anchor=west] at (0.90,6.15) {Review before merge};
+  \fill[teallight,rounded corners=3pt] (12.50,5.98) rectangle (13.75,6.30);
+  \draw[teal!45,line width=0.6pt,rounded corners=3pt] (12.50,5.98) rectangle (13.75,6.30);
+  \node[font=\sffamily\bfseries\fontsize{7}{8.5}\selectfont,text=teal] at (13.125,6.14) {6 checks};
+  \draw[hairline,line width=0.6pt] (0.80,5.90) -- (13.80,5.90);
+  \foreach \cx/\cy/\ct/\cq in {%
+    0.90/5.05/Contract/does it match the interface?,
+    7.40/5.05/Failure modes/empty{,} None{,} huge input?,
+    0.90/3.65/Determinism/same input $\rightarrow$ same output?,
+    7.40/3.65/Evidence/can I trace the number?,
+    0.90/2.25/Tests/fails when I break it?,
+    7.40/2.25/Rollback/can I revert in one commit?}
+  {
+    \fill[lightsurface,rounded corners=3pt] (\cx,\cy-0.48) rectangle (\cx+6.10,\cy+0.48);
+    \draw[hairline,line width=0.5pt,rounded corners=3pt] (\cx,\cy-0.48) rectangle (\cx+6.10,\cy+0.48);
+    \fill[teallight,rounded corners=2pt] (\cx+0.28,\cy-0.02) rectangle (\cx+0.60,\cy+0.30);
+    \draw[teal!55,line width=0.6pt,rounded corners=2pt] (\cx+0.28,\cy-0.02) rectangle (\cx+0.60,\cy+0.30);
+    \draw[teal,line width=1.2pt,line cap=round,line join=round] (\cx+0.35,\cy+0.14) -- (\cx+0.42,\cy+0.07) -- (\cx+0.53,\cy+0.21);
+    \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=ink,anchor=west] at (\cx+0.78,\cy+0.17) {\ct};
+    \node[font=\sffamily\fontsize{7.2}{8.6}\selectfont,text=graytext,anchor=west] at (\cx+0.78,\cy-0.22) {\cq};
+  }
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 23. Scope -- guardrails vs deliberately not built
+% ---------------------------------------------------------------------------
+\newcommand{\FigScope}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % guardrails
+  \fill[ink,opacity=0.04,rounded corners=4pt] (0.46,1.64) rectangle (7.06,6.26);
+  \draw[fgcard] (0.40,1.70) rectangle (7.00,6.20);
+  \draw[teal,line width=2.2pt,line cap=round] (0.40,6.20) -- (7.00,6.20);
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=teal,anchor=west] at (0.70,5.85) {Guardrails};
+  \fill[teallight] (0.85,5.15) circle (0.22);
+  \draw[teal,line width=1.3pt,line cap=round,line join=round] (0.75,5.15) -- (0.83,5.06) -- (0.96,5.24);
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (1.20,5.15) {242 offline tests};
+  \fill[teallight] (0.85,4.30) circle (0.22);
+  \begin{scope}[shift={(0.85,4.30)},scale=0.42]
+    \draw[teal,line width=1.0pt,fill=white]
+      (-0.42,0.22) .. controls (-0.24,0.34) and (-0.10,0.30) .. (0,0.18)
+      .. controls (0.10,0.30) and (0.24,0.34) .. (0.42,0.22)
+      -- (0.42,-0.28) .. controls (0.24,-0.16) and (0.10,-0.20) .. (0,-0.32)
+      .. controls (-0.10,-0.20) and (-0.24,-0.16) .. (-0.42,-0.28) -- cycle;
+    \draw[teal,line width=0.7pt] (0,0.18) -- (0,-0.32);
+  \end{scope}
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (1.20,4.30) {31 decision entries};
+  \fill[red!10] (0.85,3.45) circle (0.22);
+  \node[font=\sffamily\bfseries\fontsize{16}{16}\selectfont,text=red] at (0.85,3.43) {\textquotedblleft};
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (1.20,3.45) {no artifact $\rightarrow$ no claim};
+  \FgShield{0.85}{2.60}{0.32}{teallight}{teal}
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west] at (1.20,2.60) {graceful failure};
+  % deliberately not built
+  \fill[ink,opacity=0.04,rounded corners=4pt] (7.66,1.64) rectangle (14.26,6.26);
+  \draw[fgcard] (7.60,1.70) rectangle (14.20,6.20);
+  \draw[amber,line width=2.2pt,line cap=round] (7.60,6.20) -- (14.20,6.20);
+  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=amber!90,anchor=west] at (7.90,5.85) {Deliberately not built};
+  % lock
+  \fill[lightsurface] (8.10,5.15) circle (0.22);
+  \begin{scope}[shift={(8.10,5.13)}]
+    \draw[ink!65,line width=0.8pt,fill=white,rounded corners=1pt] (-0.11,-0.13) rectangle (0.11,0.05);
+    \draw[ink!65,line width=0.8pt] (-0.06,0.05) -- (-0.06,0.11) arc[start angle=180,end angle=0,radius=0.06] -- (0.06,0.05);
+    \fill[ink!65] (0,-0.04) circle (0.02);
+  \end{scope}
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (8.45,5.15) {auth / rate limit};
+  \fill[teal!10,rounded corners=2pt] (12.75,4.98) rectangle (13.90,5.32);
+  \draw[teal!40,line width=0.5pt,rounded corners=2pt] (12.75,4.98) rectangle (13.90,5.32);
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=teal] at (13.325,5.15) {next};
+  % database
+  \fill[lightsurface] (8.10,4.30) circle (0.22);
+  \begin{scope}[shift={(8.10,4.30)}]
+    \draw[ink!65,line width=0.8pt,fill=white] (-0.12,0.10) ellipse (0.12 and 0.04);
+    \draw[ink!65,line width=0.8pt] (-0.12,0.10) -- (-0.12,-0.12);
+    \draw[ink!65,line width=0.8pt] (0.12,0.10) -- (0.12,-0.12);
+    \draw[ink!65,line width=0.8pt] (-0.12,-0.12) arc[start angle=180,end angle=360,x radius=0.12,y radius=0.04];
+  \end{scope}
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (8.45,4.30) {extraction cache};
+  \fill[lightsurface,rounded corners=2pt] (11.35,4.13) rectangle (13.90,4.47);
+  \draw[hairline,line width=0.5pt,rounded corners=2pt] (11.35,4.13) rectangle (13.90,4.47);
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=graytext] at (12.625,4.30) {not on the critical path};
+  % globe
+  \fill[lightsurface] (8.10,3.45) circle (0.22);
+  \begin{scope}[shift={(8.10,3.45)}]
+    \draw[ink!65,line width=0.8pt] (0,0) circle (0.13);
+    \draw[ink!65,line width=0.5pt] (0,0) ellipse (0.06 and 0.13);
+    \draw[ink!65,line width=0.5pt] (-0.13,0) -- (0.13,0);
+  \end{scope}
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (8.45,3.45) {multi-language codebase};
+  \fill[teal!10,rounded corners=2pt] (12.75,3.28) rectangle (13.90,3.62);
+  \draw[teal!40,line width=0.5pt,rounded corners=2pt] (12.75,3.28) rectangle (13.90,3.62);
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=teal] at (13.325,3.45) {next};
+  % magnifier
+  \fill[lightsurface] (8.10,2.60) circle (0.22);
+  \begin{scope}[shift={(8.10,2.60)}]
+    \draw[ink!65,line width=0.8pt] (-0.02,0.03) circle (0.09);
+    \draw[ink!65,line width=1.2pt,line cap=round] (0.05,-0.04) -- (0.13,-0.12);
+  \end{scope}
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=ink,anchor=west] at (8.45,2.60) {retrieval wiring};
+  \fill[lightsurface,rounded corners=2pt] (11.35,2.43) rectangle (13.90,2.77);
+  \draw[hairline,line width=0.5pt,rounded corners=2pt] (11.35,2.43) rectangle (13.90,2.77);
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=graytext] at (12.625,2.60) {not on the critical path};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 24. Flywheel -- data compounding
+% ---------------------------------------------------------------------------
+\newcommand{\FigFlywheel}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \draw[teal!40,line width=1.1pt] (5.00,3.70) circle (2.20);
+  \foreach \aa in {54,-18,-90,-162,126} {
+    \pgfmathsetmacro{\bb}{\aa-90}
+    \pgfmathsetmacro{\px}{5.00+2.20*cos(\aa)}
+    \pgfmathsetmacro{\py}{3.70+2.20*sin(\aa)}
+    \begin{scope}[shift={(\px,\py)},rotate=\bb]
+      \fill[teal] (0,0.085) -- (0.18,0) -- (0,-0.085) -- cycle;
+    \end{scope}
+  }
+  \node[fill=teal!10,draw=teal!40,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.70cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (5.000,5.900) {project};
+  \node[fill=teal!10,draw=teal!40,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.70cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (7.092,4.380) {actual};
+  \node[fill=amber!12,draw=amber!45,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.70cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (6.293,1.920) {training row};
+  \node[fill=teal!10,draw=teal!40,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.70cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (3.707,1.920) {better model};
+  \node[fill=teal!18,draw=teal!50,line width=0.6pt,rounded corners=2pt,inner sep=0pt,minimum width=1.70cm,minimum height=0.44cm,font=\sffamily\bfseries\fontsize{7.5}{8.5}\selectfont,text=ink] at (2.908,4.380) {better range};
+  % center
+  \begin{scope}[shift={(5.00,4.02)},scale=1.0]
+    \draw[teal,line width=0.9pt,fill=teallight] (0,0.10) ellipse (0.28 and 0.08);
+    \draw[teal,line width=0.9pt] (-0.28,0.10) -- (-0.28,-0.14);
+    \draw[teal,line width=0.9pt] (0.28,0.10) -- (0.28,-0.14);
+    \draw[teal,line width=0.9pt] (-0.28,-0.14) arc[start angle=180,end angle=360,x radius=0.28,y radius=0.08];
+    \draw[teal!55,line width=0.5pt] (-0.28,0.01) arc[start angle=180,end angle=360,x radius=0.28,y radius=0.08];
+  \end{scope}
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink] at (5.00,3.48) {company data};
+  % chart
+  \fill[ink,opacity=0.04,rounded corners=4pt] (9.51,1.49) rectangle (14.21,6.01);
+  \fill[lightsurface,rounded corners=4pt] (9.45,1.55) rectangle (14.15,5.95);
+  \draw[hairline,line width=0.6pt,rounded corners=4pt] (9.45,1.55) rectangle (14.15,5.95);
+  \node[fgsm,anchor=east] at (13.05,5.68) {MAE};
+  \fill[amber!85,rounded corners=1pt] (10.25,2.45) rectangle (11.45,5.15);
+  \fill[teal,rounded corners=1pt] (12.25,2.45) rectangle (13.45,4.44);
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=amber!90] at (10.85,5.73) {23.50};
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=teal] at (12.85,5.02) {17.36};
+  \node[fgsm] at (10.85,2.12) {60 projects};
+  \node[fgsm] at (12.85,2.12) {240 projects};
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=teal] at (11.80,1.24) {same model, more history};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% 25. Codebase feature -- surcharge vs learned column
+% ---------------------------------------------------------------------------
+\newcommand{\FigCodebaseFeature}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  % left: today
+  \fill[ink,opacity=0.04,rounded corners=4pt] (0.46,1.84) rectangle (5.46,6.26);
+  \draw[fgcard] (0.40,1.90) rectangle (5.40,6.20);
+  \draw[amber,line width=2.2pt,line cap=round] (0.40,6.20) -- (5.40,6.20);
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=ink,anchor=west] at (0.70,5.85) {Today};
+  \fill[lightsurface,rounded corners=3pt] (0.70,5.00) rectangle (5.10,5.45);
+  \draw[hairline,line width=0.5pt,rounded corners=3pt] (0.70,5.00) rectangle (5.10,5.45);
+  \fill[teal!55] (0.92,5.10) rectangle (0.98,5.35);
+  \fill[teal!55] (1.02,5.15) rectangle (1.08,5.35);
+  \fill[teal!55] (1.12,5.05) rectangle (1.18,5.35);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (3.05,5.225) {repo signals};
+  \draw[teal,line width=1.5pt,-{Latex[length=1.8mm,width=1.3mm]}] (2.90,4.95) -- (2.90,4.70);
+  \fill[amberlight,rounded corners=3pt] (0.70,4.20) rectangle (5.10,4.65);
+  \draw[amber!55,line width=0.7pt,rounded corners=3pt] (0.70,4.20) rectangle (5.10,4.65);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=ink] at (2.90,4.425) {post-hoc surcharge};
+  \node[font=\sffamily\bfseries\fontsize{22}{24}\selectfont,text=amber!90] at (2.90,3.62) {+35\%};
+  \node[fgsm] at (2.90,2.82) {demo-assumed};
+  \fill[lightsurface,rounded corners=2pt] (0.70,2.05) rectangle (2.80,2.43);
+  \draw[hairline,line width=0.5pt,rounded corners=2pt] (0.70,2.05) rectangle (2.80,2.43);
+  \node[font=\sffamily\fontsize{6.8}{8}\selectfont,text=graytext] at (1.75,2.24) {one-directional};
+  \fill[lightsurface,rounded corners=2pt] (2.95,2.05) rectangle (5.10,2.43);
+  \draw[hairline,line width=0.5pt,rounded corners=2pt] (2.95,2.05) rectangle (5.10,2.43);
+  \node[font=\sffamily\fontsize{6.8}{8}\selectfont,text=graytext] at (4.025,2.24) {no learned weight};
+  % arrow between panels
+  \draw[teal,line width=2pt,-{Latex[length=2.4mm,width=1.8mm]}] (5.45,4.00) -- (6.15,4.00);
+  \node[font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=teal] at (5.80,4.32) {pairs};
+  % right: with data
+  \fill[ink,opacity=0.04,rounded corners=4pt] (6.26,1.84) rectangle (14.26,6.26);
+  \draw[fgcard] (6.20,1.90) rectangle (14.20,6.20);
+  \draw[teal,line width=2.2pt,line cap=round] (6.20,6.20) -- (14.20,6.20);
+  \node[font=\sffamily\bfseries\fontsize{10}{12}\selectfont,text=teal,anchor=west] at (6.50,5.85) {With data};
+  \fill[teallight,rounded corners=3pt] (6.50,4.95) rectangle (9.90,5.40);
+  \draw[teal!45,line width=0.6pt,rounded corners=3pt] (6.50,4.95) rectangle (9.90,5.40);
+  \node[font=\sffamily\bfseries\fontsize{7.2}{9}\selectfont,text=ink] at (8.20,5.175) {(repo signals, actual\_days)};
+  \draw[teal,line width=1.2pt,-{Latex[length=1.8mm,width=1.3mm]}] (9.98,5.175) -- (10.38,5.175);
+  \node[font=\sffamily\bfseries\fontsize{7.2}{9}\selectfont,text=ink,anchor=west] at (10.50,5.175) {columns in the Ridge matrix};
+  % matrix
+  \node[font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=graytext] at (8.91,4.42) {15 features};
+  \node[font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=teal] at (11.66,4.42) {5 repo signals};
+  \foreach \ix in {0,...,19} {
+    \pgfmathsetmacro{\cx}{6.85+(\ix+0.5)*0.275}
+    \foreach \iy in {0,...,5} {
+      \pgfmathsetmacro{\cy}{4.10-\iy*0.23}
+      \ifnum\ix>14
+        \fill[teal!14] (\cx-0.1175,\cy-0.07) rectangle (\cx+0.1175,\cy+0.07);
+        \draw[teal!35,line width=0.25pt] (\cx-0.1175,\cy-0.07) rectangle (\cx+0.1175,\cy+0.07);
+      \else
+        \fill[lightsurface] (\cx-0.1175,\cy-0.07) rectangle (\cx+0.1175,\cy+0.07);
+        \draw[hairline!70,line width=0.25pt] (\cx-0.1175,\cy-0.07) rectangle (\cx+0.1175,\cy+0.07);
+      \fi
+    }
+  }
+  \draw[teal,line width=1.0pt] (10.975,2.84) -- (10.975,4.22);
+  \node[font=\sffamily\fontsize{6}{7.5}\selectfont,text=graytext,anchor=east] at (6.70,4.10) {P001};
+  \node[font=\sffamily\fontsize{6}{7.5}\selectfont,text=graytext,anchor=east] at (6.70,3.45) {P120};
+  \node[font=\sffamily\fontsize{6}{7.5}\selectfont,text=graytext,anchor=east] at (6.70,2.95) {P240};
+  \node[font=\sffamily\fontsize{6}{7.5}\selectfont,text=graytext] at (6.70,3.92) {$\vdots$};
+  \node[font=\sffamily\fontsize{6}{7.5}\selectfont,text=graytext] at (6.70,3.22) {$\vdots$};
+  % repo feature chips
+  \foreach \cy/\ct in {4.05/churn, 3.70/fan-in, 3.35/complexity, 3.00/coverage, 2.65/invasiveness} {
+    \fill[teal!10,rounded corners=2pt] (12.55,\cy-0.15) rectangle (14.05,\cy+0.15);
+    \draw[teal!40,line width=0.5pt,rounded corners=2pt] (12.55,\cy-0.15) rectangle (14.05,\cy+0.15);
+    \node[font=\sffamily\fontsize{6.5}{8}\selectfont,text=ink] at (13.30,\cy) {\ct};
+  }
+  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=teal] at (10.00,2.35) {learned coefficient + conformal interval};
+\end{tikzpicture}}
+
