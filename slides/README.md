@@ -8,32 +8,51 @@ Footer is page number only (no brand text).
 
 | File | What it is |
 |---|---|
-| `the-estimator-deck.pdf` | **The deck** (23 slides, 16:9, white background) |
+| `the-estimator-deck.pdf` | **The technical deck** (23 slides, 16:9, white background) |
+| `the-estimator-bizops.pdf` | **The business-operations cut** (15 slides, vibe coding as the spine) |
 | `main.tex` | Slide layout, typography, per-slide content |
-| `figures.tex` | TikZ illustration macros |
+| `main-bizops.tex` | 15-slide variant for the Anduin AI Business Operations conversation |
+| `figures.tex` | TikZ illustration macros (shared) |
+| `figures-bizops.tex` | Extra figures for the business-operations cut |
+| `build.ps1` | One-command build: compile + PNG previews |
 | `BRIEF_V4.md` | Current 23-slide content/design brief |
 | `BRIEF_V3.md` | Previous 21-slide brief (archive) |
 | `BRIEF_V2.md` | Previous 14-slide brief (archive) |
 | `BRIEF.md` | Original 12-slide brief (archive) |
 | `figures-test.tex` | Standalone test page for every figure macro |
-| `preview/` | PNG renders of the slides |
+| `preview/` | PNG renders of the slides (`preview/current/` = latest build) |
 | `archive/v1/` | The rejected v1 deck, kept for reference |
 
 ## Compile
 
-Tectonic is portable and fetches packages on demand:
+One command, from `slides/`:
 
 ```powershell
-& "C:\Users\Administrator\AppData\Local\Temp\opencode\tectonic\tectonic.exe" -X compile main.tex
+.\build.ps1                 # technical deck (main.tex)
+.\build.ps1 -Target main-bizops   # 15-slide business-operations cut
 ```
 
-If Tectonic is not available, any XeLaTeX/LuaLaTeX installation works:
+Each build compiles the `.tex` to `<name>.pdf`, copies it to a named deliverable (`the-estimator-deck.pdf` / `the-estimator-bizops.pdf`), and re-renders every page to `preview/current/` or `preview/<name>/` at 110 dpi.
 
-```bash
-latexmk -xelatex main.tex
+```powershell
+.\build.ps1 -NoPreview     # PDF only, fastest while iterating on text
+.\build.ps1 -Dpi 160       # sharper previews for visual review
 ```
 
-Tectonic prints a harmless `Fontconfig error` on this Windows box and may return exit code 1; the PDF is still written. Check the PDF file, not the exit code.
+Tools, already installed on this machine:
+
+| Tool | Path | Purpose |
+|---|---|---|
+| Tectonic 0.17.0 | `%LOCALAPPDATA%\Temp\opencode\tectonic\tectonic.exe` | LaTeX engine, fetches packages on demand |
+| Poppler 26.09 | `%LOCALAPPDATA%\Temp\opencode\poppler\poppler-26.09.0\Library\bin\pdftoppm.exe` | PDF → PNG previews |
+
+`build.ps1` finds both automatically (parameters `-Tectonic` / `-PopplerBin`, or env vars `TECTONIC` / `POPPLER_BIN`, or PATH). Raw command if needed:
+
+```powershell
+& "$env:LOCALAPPDATA\Temp\opencode\tectonic\tectonic.exe" -X compile main.tex
+```
+
+Tectonic prints a harmless `Fontconfig error` on this Windows box and may return exit code 1; `build.ps1` checks that a fresh `main.pdf` was written instead of trusting the exit code.
 
 ## Editing
 

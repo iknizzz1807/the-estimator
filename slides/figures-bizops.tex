@@ -1,0 +1,213 @@
+% figures-bizops.tex -- extra figures for the AI Business Operations deck.
+% Requires figures.tex (palette + fg* styles) to be loaded first.
+% Each macro is a complete tikzpicture on a 14.6 x 7.2 cm canvas.
+
+% ---------------------------------------------------------------------------
+% A. Transfer -- the estimator loop vs a digitization queue
+%    Four aligned steps, same roles, two domains.
+% ---------------------------------------------------------------------------
+\newcommand{\FigBridgeOps}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+
+  % column guides: same step, different object
+  \foreach \cx in {1.675,5.225,8.775,12.325} {
+    \draw[hairline,line width=0.5pt,dashed] (\cx,4.50) -- (\cx,2.60);
+  }
+
+  % ---------------------------------------------------------- row 1 -------
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=teal,anchor=west]
+    at (0.35,6.72) {THE ESTIMATOR};
+  \node[fgsm,anchor=west] at (3.10,6.72) {project estimation};
+
+  \foreach \cx/\role/\main in {%
+    1.675/INPUT/{client email},
+    5.225/EXTRACT/{15 features\\+ quotes},
+    8.775/ESTIMATE/{P10-P90 range},
+    12.325/ASK/{5 ranked questions}}
+  {
+    \fill[ink,opacity=0.04,rounded corners=3pt] (\cx-1.24,4.55) rectangle (\cx+1.30,5.67);
+    \draw[teal!40,line width=0.8pt,fill=white,rounded corners=3pt]
+      (\cx-1.30,4.61) rectangle (\cx+1.24,5.61);
+    \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=teal,anchor=west]
+      at (\cx-1.12,5.38) {\role};
+    \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=ink,align=center,text width=2.20cm]
+      at (\cx-0.03,4.99) {\main};
+  }
+  \draw[fgarr] (2.97,5.11) -- (3.91,5.11);
+  \draw[fgarr] (6.52,5.11) -- (7.46,5.11);
+  \draw[fgarr] (10.07,5.11) -- (11.01,5.11);
+
+  % ---------------------------------------------------------- row 2 -------
+  \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=blue,anchor=west]
+    at (0.35,3.78) {DIGITIZATION SERVICE};
+  \node[fill=white,font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=graytext]
+    at (7.00,3.78) {same steps, same gates};
+
+  \foreach \cx/\role/\main in {%
+    1.675/INPUT/{fund document},
+    5.225/EXTRACT/{fields + quotes},
+    8.775/VALIDATE/{reviewed record},
+    12.325/REVIEW/{exception queue}}
+  {
+    \fill[ink,opacity=0.04,rounded corners=3pt] (\cx-1.24,1.49) rectangle (\cx+1.30,2.61);
+    \draw[blue!35,line width=0.8pt,fill=white,rounded corners=3pt]
+      (\cx-1.30,1.55) rectangle (\cx+1.24,2.55);
+    \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=blue,anchor=west]
+      at (\cx-1.12,2.32) {\role};
+    \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=ink,align=center,text width=2.20cm]
+      at (\cx-0.03,1.93) {\main};
+  }
+  \draw[fgarr] (2.97,2.05) -- (3.91,2.05);
+  \draw[fgarr] (6.52,2.05) -- (7.46,2.05);
+  \draw[fgarr] (10.07,2.05) -- (11.01,2.05);
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% B. First 90 days -- three phases, one gate each
+% ---------------------------------------------------------------------------
+\newcommand{\FigPlanNinety}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+
+  % 90-day rail
+  \draw[ink!25,line width=0.7pt] (0.35,6.45) -- (14.25,6.45);
+  \foreach \tx/\lbl/\an in {%
+    0.35/{day 0}/west,
+    4.70/{day 14}/center,
+    9.50/{day 45}/center,
+    14.25/{day 90}/east}
+  {
+    \draw[ink!45,line width=0.9pt] (\tx,6.37) -- (\tx,6.53);
+    \node[fgsm,anchor=\an] at (\tx,6.62) {\lbl};
+  }
+
+  % ---------------------------------------------------------- card 1 ------
+  \fill[ink,opacity=0.04,rounded corners=4pt] (0.41,1.31) rectangle (4.71,6.11);
+  \draw[fgcard] (0.35,1.25) rectangle (4.65,6.05);
+  \draw[teal,line width=2pt] (0.35,6.05) -- (4.65,6.05);
+  \node[font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=teal,anchor=west]
+    at (0.60,5.78) {01 \textperiodcentered\ DAYS 1-14};
+  \node[font=\sffamily\bfseries\fontsize{11}{13}\selectfont,text=ink,anchor=west]
+    at (0.60,5.05) {Shadow};
+  \draw[hairline,line width=0.6pt] (0.60,4.82) -- (4.40,4.82);
+  \node[font=\sffamily\fontsize{7.4}{9}\selectfont,text=ink,anchor=north west,text width=3.75cm,align=left]
+    at (0.60,4.58) {Time one workflow.\\Count rework. Inventory\\existing automations.};
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=graytext,anchor=west]
+    at (0.60,3.58) {OUTPUT};
+  \node[font=\sffamily\fontsize{7.2}{8.8}\selectfont,text=graytext,anchor=north west,text width=3.75cm,align=left]
+    at (0.60,3.36) {Baseline minutes per\\document, error rate.};
+  \fill[teallight,rounded corners=3pt] (0.55,1.45) rectangle (4.45,2.55);
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=teal,anchor=west]
+    at (0.75,2.30) {GATE};
+  \node[font=\sffamily\bfseries\fontsize{7.6}{9.2}\selectfont,text=ink,anchor=north west,text width=3.55cm,align=left]
+    at (0.75,2.08) {A number, not an opinion.};
+
+  % ---------------------------------------------------------- card 2 ------
+  \fill[ink,opacity=0.04,rounded corners=4pt] (5.21,1.31) rectangle (9.51,6.11);
+  \draw[fgcard] (5.15,1.25) rectangle (9.45,6.05);
+  \draw[teal,line width=2pt] (5.15,6.05) -- (9.45,6.05);
+  \node[font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=teal,anchor=west]
+    at (5.40,5.78) {02 \textperiodcentered\ DAYS 15-45};
+  \node[font=\sffamily\bfseries\fontsize{11}{13}\selectfont,text=ink,anchor=west]
+    at (5.40,5.05) {Ship one slice};
+  \draw[hairline,line width=0.6pt] (5.40,4.82) -- (9.20,4.82);
+  \node[font=\sffamily\fontsize{7.4}{9}\selectfont,text=ink,anchor=north west,text width=3.75cm,align=left]
+    at (5.40,4.58) {One document type, end\\to end. Every field\\keeps its evidence.};
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=graytext,anchor=west]
+    at (5.40,3.58) {OUTPUT};
+  \node[font=\sffamily\fontsize{7.2}{8.8}\selectfont,text=graytext,anchor=north west,text width=3.75cm,align=left]
+    at (5.40,3.36) {A tool the team opens\\daily; a human clears\\every record.};
+  \fill[teallight,rounded corners=3pt] (5.35,1.45) rectangle (9.25,2.55);
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=teal,anchor=west]
+    at (5.55,2.30) {GATE};
+  \node[font=\sffamily\bfseries\fontsize{7.6}{9.2}\selectfont,text=ink,anchor=north west,text width=3.55cm,align=left]
+    at (5.55,2.08) {No unreviewed record leaves the queue.};
+
+  % ---------------------------------------------------------- card 3 ------
+  \fill[ink,opacity=0.04,rounded corners=4pt] (10.01,1.31) rectangle (14.31,6.11);
+  \draw[fgcard] (9.95,1.25) rectangle (14.25,6.05);
+  \draw[amber,line width=2pt] (9.95,6.05) -- (14.25,6.05);
+  \node[font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=amber!90,anchor=west]
+    at (10.20,5.78) {03 \textperiodcentered\ DAYS 46-90};
+  \node[font=\sffamily\bfseries\fontsize{11}{13}\selectfont,text=ink,anchor=west]
+    at (10.20,5.05) {Measure or kill};
+  \draw[hairline,line width=0.6pt] (10.20,4.82) -- (14.00,4.82);
+  \node[font=\sffamily\fontsize{7.4}{9}\selectfont,text=ink,anchor=north west,text width=3.75cm,align=left]
+    at (10.20,4.58) {Re-run the week-2\\baseline. Keep what\\beats it.};
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=graytext,anchor=west]
+    at (10.20,3.58) {OUTPUT};
+  \node[font=\sffamily\fontsize{7.2}{8.8}\selectfont,text=graytext,anchor=north west,text width=3.75cm,align=left]
+    at (10.20,3.36) {Before/after numbers\\and a one-page playbook.};
+  \fill[amberlight,rounded corners=3pt] (10.15,1.45) rectangle (14.05,2.55);
+  \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=amber!90,anchor=west]
+    at (10.35,2.30) {GATE};
+  \node[font=\sffamily\bfseries\fontsize{7.6}{9.2}\selectfont,text=ink,anchor=north west,text width=3.55cm,align=left]
+    at (10.35,2.08) {Beats baseline, or it stops.};
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% D. Review capacity -- generation scales, review does not
+% ---------------------------------------------------------------------------
+\newcommand{\FigReviewCapacity}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+
+  % generation bar
+  \node[font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=graytext,anchor=west]
+    at (0.60,6.55) {AI GENERATION};
+  \fill[teal!18,rounded corners=3pt] (0.60,5.50) rectangle (12.10,6.15);
+  \draw[teal!55,line width=0.8pt,rounded corners=3pt] (0.60,5.50) rectangle (12.10,6.15);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=teal,anchor=west]
+    at (0.85,5.82) {drafts, tests, refactors};
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=teal,anchor=west]
+    at (12.30,5.82) {10$\times$};
+
+  % review bar
+  \node[font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=graytext,anchor=west]
+    at (0.60,4.80) {HUMAN REVIEW};
+  \fill[amberlight,rounded corners=3pt] (0.60,3.75) rectangle (4.15,4.40);
+  \draw[amber!70,line width=0.8pt,rounded corners=3pt] (0.60,3.75) rectangle (4.15,4.40);
+  \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=amber!90,anchor=west]
+    at (0.85,4.07) {one gate};
+  \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=amber!90,anchor=west]
+    at (4.35,4.07) {1$\times$};
+
+  % capacity cap
+  \draw[amber!80,line width=1.0pt,dashed] (4.15,3.45) -- (4.15,6.35);
+  \node[font=\sffamily\bfseries\fontsize{7}{8.5}\selectfont,text=amber!90,anchor=west]
+    at (4.30,4.95) {throughput cap};
+
+  % the equation
+  \node[font=\ttfamily\fontsize{8.5}{10}\selectfont,text=graytext]
+    at (7.30,2.95) {shipped = min(generation, review)};
+
+  % where to invest
+  \node[font=\sffamily\bfseries\fontsize{6.5}{8}\selectfont,text=graytext,anchor=west]
+    at (0.60,2.20) {WHERE I INVEST INSTEAD OF PROMPTS};
+  \foreach \lx/\ct in {0.60/{shared eval set}, 5.15/{same six checks}, 9.70/{small diffs}} {
+    \fill[lightsurface,rounded corners=3pt] (\lx,1.05) rectangle (\lx+4.05,1.70);
+    \draw[hairline,line width=0.6pt,rounded corners=3pt] (\lx,1.05) rectangle (\lx+4.05,1.70);
+    \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=ink]
+      at (\lx+2.025,1.375) {\ct};
+  }
+\end{tikzpicture}}
+
+% ---------------------------------------------------------------------------
+% C. Close -- three proof chips
+% ---------------------------------------------------------------------------
+\newcommand{\FigCloseOps}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (14.6,7.2);
+  \foreach \cx/\hA/\hB in {%
+    2.50/shipped/{one container, one URL},
+    7.30/tested/{242 offline tests},
+    12.10/honest/{5 negative results published}}
+  {
+    \fill[ink,opacity=0.04,rounded corners=4pt] (\cx-2.09,4.51) rectangle (\cx+2.09,6.11);
+    \draw[fgcard] (\cx-2.15,4.45) rectangle (\cx+2.15,6.05);
+    \draw[teal,line width=2pt,line cap=round] (\cx-2.15,6.05) -- (\cx+2.15,6.05);
+    \node[font=\sffamily\bfseries\fontsize{12}{14}\selectfont,text=ink] at (\cx,5.55) {\hA};
+    \node[font=\sffamily\fontsize{7.2}{8.8}\selectfont,text=graytext,align=center,text width=3.40cm] at (\cx,4.95) {\hB};
+  }
+\end{tikzpicture}}
