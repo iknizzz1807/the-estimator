@@ -22,7 +22,7 @@
 
   \foreach \cx/\role/\main in {%
     1.675/INPUT/{client email},
-    5.225/EXTRACT/{15 features\\+ quotes},
+    5.225/EXTRACT/{15 features + quotes},
     8.775/ESTIMATE/{P10-P90 range},
     12.325/ASK/{5 ranked questions}}
   {
@@ -31,7 +31,7 @@
       (\cx-1.30,4.61) rectangle (\cx+1.24,5.61);
     \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=teal,anchor=west]
       at (\cx-1.12,5.38) {\role};
-    \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=ink,align=center,text width=2.20cm]
+    \node[font=\sffamily\bfseries\fontsize{6.0}{7}\selectfont,text=ink,align=center,text width=2.30cm]
       at (\cx-0.03,4.99) {\main};
   }
   \draw[fgarr] (2.97,5.11) -- (3.91,5.11);
@@ -55,7 +55,7 @@
       (\cx-1.30,1.55) rectangle (\cx+1.24,2.55);
     \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=blue,anchor=west]
       at (\cx-1.12,2.32) {\role};
-    \node[font=\sffamily\bfseries\fontsize{7.5}{9}\selectfont,text=ink,align=center,text width=2.20cm]
+    \node[font=\sffamily\bfseries\fontsize{6.0}{7}\selectfont,text=ink,align=center,text width=2.30cm]
       at (\cx-0.03,1.93) {\main};
   }
   \draw[fgarr] (2.97,2.05) -- (3.91,2.05);
@@ -121,8 +121,8 @@
   \fill[teallight,rounded corners=3pt] (5.35,1.45) rectangle (9.25,2.55);
   \node[font=\sffamily\bfseries\fontsize{6}{7}\selectfont,text=teal,anchor=west]
     at (5.55,2.30) {GATE};
-  \node[font=\sffamily\bfseries\fontsize{7.6}{9.2}\selectfont,text=ink,anchor=north west,text width=3.55cm,align=left]
-    at (5.55,2.08) {No unreviewed record leaves the queue.};
+  \node[font=\sffamily\bfseries\fontsize{7.2}{9.2}\selectfont,text=ink,anchor=north west,text width=3.55cm,align=left]
+    at (5.55,2.08) {No unreviewed record\\leaves the queue.};
 
   % ---------------------------------------------------------- card 3 ------
   \fill[ink,opacity=0.04,rounded corners=4pt] (10.01,1.31) rectangle (14.31,6.11);
