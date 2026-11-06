@@ -54,8 +54,8 @@
   \draw[hairline,line width=0.5pt] (1.05,5.02) -- (4.05,5.02);
   \node[font=\sffamily\fontsize{7.4}{9.5}\selectfont,text=ink,anchor=west] at (1.12,4.68) {Payments product};
   \node[font=\sffamily\fontsize{7.4}{9.5}\selectfont,text=ink,anchor=west] at (1.12,4.33) {iOS + Android app};
-  \fill[amberlight,rounded corners=2pt] (1.05,3.88) rectangle (2.95,4.20);
-  \node[font=\sffamily\fontsize{7.4}{9.5}\selectfont,text=ink,anchor=west] at (1.12,3.98) {PCI-DSS + live data};
+  \fill[amberlight,rounded corners=2pt] (1.05,3.88) rectangle (3.70,4.20);
+  \node[font=\sffamily\fontsize{7.4}{9.5}\selectfont,text=ink,anchor=west] at (1.12,4.04) {PCI-DSS + live data};
   \node[font=\sffamily\itshape\fontsize{7}{8.5}\selectfont,text=graytext,anchor=west] at (1.12,3.38) {"How long will this take?"};
   \fill[lightsurface,rounded corners=2pt] (1.05,1.45) rectangle (2.35,1.85);
   \draw[hairline,line width=0.5pt,rounded corners=2pt] (1.05,1.45) rectangle (2.35,1.85);
@@ -99,7 +99,7 @@
   \node[fglbl] at (11.35,2.72) {P10};
   \node[fglbl] at (12.55,2.72) {P50};
   \node[fglbl] at (13.65,2.72) {P90};
-  \fill[teallight,rounded corners=2pt] (11.10,1.45) rectangle (13.70,1.85);
+  \fill[teallight,rounded corners=2pt] (10.80,1.45) rectangle (14.00,1.85);
   \node[font=\sffamily\bfseries\fontsize{7.4}{9}\selectfont,text=teal] at (12.40,1.65) {a range you can defend};
 
   % arrows between the three steps
@@ -167,7 +167,7 @@
   \fill[redlight,rounded corners=3pt] (0.70,5.70) rectangle (2.35,6.12);
   \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=red] at (1.525,5.91) {LLM-only};
   \node[font=\sffamily\bfseries\fontsize{40}{42}\selectfont,text=red,anchor=west] at (0.72,4.70) {258};
-  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (0.75,3.72) {days MAE};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (0.75,3.72) {days error};
   \node[fgsm,anchor=west] at (0.75,3.42) {last 42 projects};
   \fill[lightsurface,rounded corners=1pt] (0.75,2.92) rectangle (5.95,3.14);
   \fill[red,rounded corners=1pt] (0.75,2.92) rectangle (5.95,3.14);
@@ -177,7 +177,7 @@
   \fill[teallight,rounded corners=3pt] (8.10,5.70) rectangle (10.10,6.12);
   \node[font=\sffamily\bfseries\fontsize{8.5}{10}\selectfont,text=teal] at (9.10,5.91) {The Estimator};
   \node[font=\sffamily\bfseries\fontsize{40}{42}\selectfont,text=teal,anchor=west] at (8.12,4.70) {19};
-  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (8.15,3.72) {days MAE};
+  \node[font=\sffamily\bfseries\fontsize{9}{10.5}\selectfont,text=graytext,anchor=west] at (8.15,3.72) {days error};
   \node[fgsm,anchor=west] at (8.15,3.42) {same 42 projects};
   \fill[lightsurface,rounded corners=1pt] (8.15,2.92) rectangle (13.35,3.14);
   \fill[teal,rounded corners=1pt] (8.15,2.92) rectangle (8.53,3.14);
@@ -269,7 +269,7 @@
   \node[font=\sffamily\bfseries\fontsize{11}{12}\selectfont,text=red] at (4.35,3.07) {0};
   \fill[amberlight,rounded corners=2pt] (4.10,2.11) rectangle (4.60,2.59);
   \draw[amber!55,line width=0.6pt,rounded corners=2pt] (4.10,2.11) rectangle (4.60,2.59);
-  \node[font=\sffamily\bfseries\fontsize{12}{13}\selectfont,text=amber] at (4.35,2.35) {?};
+  \node[font=\sffamily\bfseries\fontsize{12}{13}\selectfont,text=amber] at (4.35,2.38) {?};
   \node[fgquote,anchor=west] at (4.95,5.95) {``process payments through Stripe''};
   \node[fgquote,anchor=west] at (4.95,5.23) {``requires PCI-DSS certification''};
   \node[fgquote,anchor=west] at (4.95,4.51) {``mobile app for iOS and Android''};
@@ -556,7 +556,7 @@
   \fill[teal] (0.60,4.27) circle (0.05);
   \node[fglbl,anchor=west] at (0.78,4.27) {DeepSeek};
   \fill[teal] (0.60,3.79) circle (0.05);
-  \node[fglbl,anchor=west] at (0.78,3.79) {code assistant};
+  \node[fglbl,anchor=west] at (0.78,3.79) {OpenCode};
   \fill[teal] (0.60,3.31) circle (0.05);
   \node[fglbl,anchor=west] at (0.78,3.31) {eval scripts};
   % Human column
@@ -617,10 +617,10 @@
   \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext] at (10.00,2.68) {zero-fill};
   % 5 fix
   \node[font=\sffamily\bfseries\fontsize{17}{19}\selectfont,text=teal] at (12.70,4.25) {4.1\%};
-  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext] at (12.70,3.80) {null prior};
+  \node[font=\sffamily\fontsize{6.5}{7.5}\selectfont,text=graytext] at (12.70,3.80) {unknown};
   \draw[teal,line width=1.2pt,-{Latex[length=1.6mm,width=1.2mm]}] (12.70,3.60) -- (12.70,3.38);
   \node[font=\sffamily\bfseries\fontsize{20}{22}\selectfont,text=ink] at (12.70,3.00) {20.48};
-  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext] at (12.70,2.42) {MAE};
+  \node[font=\sffamily\fontsize{7}{8.5}\selectfont,text=graytext] at (12.70,2.42) {days error};
   \end{scope}
 \end{tikzpicture}}
 
@@ -637,7 +637,7 @@
   }
   % card 1
   \node[font=\sffamily\bfseries\fontsize{23}{25}\selectfont,text=teal,anchor=west] at (0.45,5.85) {17.36};
-  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (0.45,5.25) {MAE vs 32.93};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (0.45,5.25) {days error vs 32.93};
   \fill[teal,rounded corners=1pt] (0.45,4.55) rectangle (1.85,4.73);
   \fill[ink!25,rounded corners=1pt] (0.45,4.28) rectangle (3.10,4.46);
   % card 2
@@ -647,7 +647,7 @@
   \fill[teal,rounded corners=1pt] (4.05,4.55) rectangle (6.65,4.73);
   % card 3
   \node[font=\sffamily\bfseries\fontsize{23}{25}\selectfont,text=ink,anchor=west] at (7.65,5.85) {0.933};
-  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (7.65,5.25) {extraction F1};
+  \node[font=\sffamily\fontsize{7.5}{9}\selectfont,text=graytext,anchor=west] at (7.65,5.25) {extraction quality};
   \foreach \bx/\bh in {7.65/0.16, 7.95/0.24, 8.25/0.20, 8.55/0.30, 8.85/0.25, 9.15/0.33, 9.45/0.38, 9.75/0.34, 10.05/0.42, 10.35/0.44} {
     \fill[teal!45,rounded corners=0.5pt] (\bx,4.28) rectangle (\bx+0.18,4.28+\bh);
   }
@@ -659,7 +659,7 @@
   \draw[amber,line width=0.9pt] (13.45,4.55) circle (0.42);
   \node[font=\sffamily\bfseries\fontsize{11}{13}\selectfont,text=amber!90] at (13.45,4.55) {\$};
   % secondary strip
-  \foreach \cx/\bn/\bt in {0.225/242/offline tests, 5.000/31/decisions, 9.775/20.48/MAE end-to-end} {
+  \foreach \cx/\bn/\bt in {0.225/242/offline tests, 5.000/31/decisions, 9.775/20.48/days error end-to-end} {
     \draw[fgcard] (\cx,2.55) rectangle (\cx+4.60,3.30);
   }
   \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=teal,anchor=west] at (0.50,2.93) {242};
@@ -667,7 +667,7 @@
   \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=ink,anchor=west] at (5.25,2.93) {31};
   \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=graytext,anchor=west] at (6.05,2.93) {decisions};
   \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=ink,anchor=west] at (10.00,2.93) {20.48};
-  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=graytext,anchor=west] at (11.55,2.93) {MAE end-to-end};
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=graytext,anchor=west] at (11.55,2.93) {days error end-to-end};
   \end{scope}
 \end{tikzpicture}}
 
@@ -951,11 +951,11 @@
   \draw[fgcard] (4.50,0.95) rectangle (8.00,1.95);
   \draw[fgcard] (8.60,0.95) rectangle (12.40,1.95);
   \node[fgsm,anchor=west] at (0.80,1.72) {friction};
-  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=amber!90,anchor=west] at (0.80,1.28) {0.66};
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=amber!90,anchor=west] at (0.80,1.31) {0.66};
   \node[fgsm,anchor=west] at (4.70,1.72) {base P50};
-  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=ink,anchor=west] at (4.70,1.28) {207};
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=ink,anchor=west] at (4.70,1.31) {207};
   \node[fgsm,anchor=west] at (8.80,1.72) {adjusted};
-  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=teal,anchor=west] at (8.80,1.28) {280};
+  \node[font=\sffamily\bfseries\fontsize{18}{20}\selectfont,text=teal,anchor=west] at (8.80,1.31) {280};
   \fill[amberlight,rounded corners=3pt] (10.65,1.12) rectangle (11.75,1.56);
   \draw[amber!45,line width=0.6pt,rounded corners=3pt] (10.65,1.12) rectangle (11.75,1.56);
   \node[font=\sffamily\bfseries\fontsize{8}{9}\selectfont,text=amber!90] at (11.20,1.34) {+35\%};
@@ -1240,7 +1240,7 @@
   \fill[ink,opacity=0.04,rounded corners=4pt] (9.51,1.49) rectangle (14.21,6.01);
   \fill[lightsurface,rounded corners=4pt] (9.45,1.55) rectangle (14.15,5.95);
   \draw[hairline,line width=0.6pt,rounded corners=4pt] (9.45,1.55) rectangle (14.15,5.95);
-  \node[fgsm,anchor=east] at (13.05,5.68) {MAE};
+  \node[fgsm,anchor=east] at (13.05,5.68) {days error};
   \fill[amber!85,rounded corners=1pt] (10.25,2.45) rectangle (11.45,5.15);
   \fill[teal,rounded corners=1pt] (12.25,2.45) rectangle (13.45,4.44);
   \node[font=\sffamily\bfseries\fontsize{14}{16}\selectfont,text=amber!90] at (10.85,5.73) {23.50};

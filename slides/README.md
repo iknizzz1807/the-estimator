@@ -20,6 +20,7 @@ Footer is page number only (no brand text).
 | `BRIEF_V2.md` | Previous 14-slide brief (archive) |
 | `BRIEF.md` | Original 12-slide brief (archive) |
 | `figures-test.tex` | Standalone test page for every figure macro |
+| `qr-github.png` | QR code to the repo, used on the bizops close slide |
 | `preview/` | PNG renders of the slides (`preview/current/` = latest build) |
 | `archive/v1/` | The rejected v1 deck, kept for reference |
 
@@ -53,6 +54,20 @@ Tools, already installed on this machine:
 ```
 
 Tectonic prints a harmless `Fontconfig error` on this Windows box and may return exit code 1; `build.ps1` checks that a fresh `main.pdf` was written instead of trusting the exit code.
+
+## Layout audit
+
+TikZ cards are drawn from fixed coordinates, so a label can overflow its box or sit off-centre.
+Run the geometry audit after a build — it compares every text span against its enclosing
+rectangle and reports the source line, so no one has to eyeball the slides:
+
+```powershell
+pip install pymupdf          # once
+python audit_layout.py main-bizops.pdf main.pdf
+```
+
+The audit flags horizontal/vertical overflow and off-centre short labels. Exit code is
+non-zero when it finds something, so it can run as a pre-upload check.
 
 ## Editing
 
