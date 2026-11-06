@@ -397,11 +397,11 @@
   \draw[red,dashed,line width=1.2pt] (10.55,6.55) -- (11.15,6.55);
   \node[font=\sffamily\bfseries\fontsize{7}{8}\selectfont,text=red,anchor=west] at (11.28,6.55) {100-day budget};
   % recommendation
-  \fill[teallight,rounded corners=4pt] (3.10,1.25) rectangle (11.50,1.82);
-  \draw[teal!45,line width=0.7pt,rounded corners=4pt] (3.10,1.25) rectangle (11.50,1.82);
-  \node[font=\sffamily\bfseries\fontsize{8}{9.5}\selectfont,text=teal,anchor=west] at (3.35,1.535) {Recommended};
-  \node[font=\sffamily\bfseries\fontsize{9.5}{11}\selectfont,text=teal,anchor=west] at (5.55,1.535) {Essential};
-  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=graytext,anchor=west] at (7.05,1.535) {\textperiodcentered\ renegotiate budget or timeline};
+  \node[fill=teallight,draw=teal!45,line width=0.7pt,rounded corners=4pt,
+        inner xsep=10pt,inner ysep=5pt,align=center,
+        font=\sffamily\fontsize{8.5}{10}\selectfont,text=teal]
+    at (7.30,1.535)
+    {\textbf{Essential} --- renegotiate budget or timeline.};
 \end{tikzpicture}}
 
 % ---------------------------------------------------------------------------
@@ -575,6 +575,12 @@
   \fill[ink!40] (11.75,1.52) circle (0.025);
   \node[font=\sffamily\bfseries\fontsize{7}{8}\selectfont,text=ink,anchor=west] at (12.08,1.34) {built};
   \node[fgsm,anchor=west] at (12.08,1.08) {on a phone};
+  % build log
+  \draw[hairline,line width=0.5pt] (0.40,1.35) -- (10.90,1.35);
+  \node[font=\sffamily\bfseries\fontsize{7}{8.5}\selectfont,text=graytext,anchor=west]
+    at (0.40,1.13) {BUILD LOG};
+  \node[font=\sffamily\fontsize{8}{9.5}\selectfont,text=ink,anchor=west]
+    at (0.40,0.72) {prompt $\rightarrow$ 258 days off $\rightarrow$ extract-only + quotes $\rightarrow$ six gates};
 \end{tikzpicture}}
 
 % ---------------------------------------------------------------------------
