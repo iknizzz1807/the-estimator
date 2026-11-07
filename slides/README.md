@@ -15,6 +15,7 @@ Footer is page number only (no brand text).
 | `figures.tex` | TikZ illustration macros (shared) |
 | `figures-bizops.tex` | Extra figures for the business-operations cut |
 | `build.ps1` | One-command build: compile + PNG previews |
+| `TRANSCRIPT.md` | 12 to 13 minute spoken script for the bizops deck |
 | `BRIEF_V4.md` | Current 23-slide content/design brief |
 | `BRIEF_V3.md` | Previous 21-slide brief (archive) |
 | `BRIEF_V2.md` | Previous 14-slide brief (archive) |
