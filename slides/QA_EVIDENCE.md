@@ -5,6 +5,8 @@ Vietnamese notes are preparation notes, not spoken answers.
 
 This playbook is grounded in the repository and recorded reports. The benchmarks and test suite were not rerun while preparing it. No answer guarantees an interview outcome. For personal motivation or development history, use only what is true for you.
 
+**Deck revision:** slide-number references and headline questions below refer to the previously submitted 15-slide deck. The current `the-estimator.pdf` has 13 main slides plus A1–A3; use `QA.md` section J for navigation. The old “half the team's error” headline, 10× bars, and ambiguous “4.1% unknown” label have been removed. Metric definitions below remain useful for technical follow-ups.
+
 ## How to practice
 
 - Learn the argument, not every word. First answer: 20–40 seconds. Stop and let the panel choose the next direction.

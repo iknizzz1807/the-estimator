@@ -1,0 +1,229 @@
+% ===========================================================================
+%  THE ESTIMATOR - business-operations cut, 15 slides (16:9, Beamer + TikZ)
+%  Audience: Anduin, AI Business Operations. Vibe coding is the spine.
+%  Figures: figures.tex (shared) + figures-bizops.tex (new).
+% ===========================================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,backgrounds,fit,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tcolorbox}
+\usepackage{amsmath,amssymb}
+
+% ---------------------------------------------------------------- palette --
+\definecolor{ink}{HTML}{0B1F3A}
+\definecolor{teal}{HTML}{0E9F9F}
+\definecolor{teallight}{HTML}{D9F2F1}
+\definecolor{amber}{HTML}{E8A317}
+\definecolor{amberlight}{HTML}{FDF0D5}
+\definecolor{red}{HTML}{D1495B}
+\definecolor{redlight}{HTML}{F8DDE1}
+\definecolor{blue}{HTML}{3A6EA5}
+\definecolor{graytext}{HTML}{6B7280}
+\definecolor{lightsurface}{HTML}{F4F6F8}
+\definecolor{hairline}{HTML}{D9DEE5}
+
+% ----------------------------------------------------------------- beamer --
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{background canvas}{bg=white}
+\setbeamercolor{normal text}{fg=ink}
+\setbeamerfont{normal text}{family=\sffamily}
+\setbeamersize{text margin left=0.70cm,text margin right=0.70cm}
+\setlength{\parindent}{0pt}
+\pagestyle{empty}
+
+% ---------------------------------------------------------------- figures --
+\input{figures.tex}
+\input{figures-bizops.tex}
+
+% -------------------------------------------------------------- type spec --
+\newcommand{\KickFont}{\color{teal}\bfseries\fontsize{7.5}{9}\selectfont}
+\newcommand{\KickMark}{\raisebox{0.012cm}{\color{teal}\rule{0.13cm}{0.13cm}}\hspace{0.16cm}}
+\newcommand{\HeadFont}{\color{ink}\bfseries\fontsize{23}{27}\selectfont}
+\newcommand{\SubFont}{\color{ink!65}\fontsize{10}{13}\selectfont}
+\newcommand{\FootFont}{\color{graytext}\fontsize{6.5}{8}\selectfont}
+
+% --------------------------------------------------------------- chrome ----
+\newcommand{\DeckFooter}[1]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \draw[hairline,line width=0.4pt]
+      ([xshift=0.70cm,yshift=-8.58cm]current page.north west) --
+      ([xshift=15.30cm,yshift=-8.58cm]current page.north west);
+    \node[anchor=south east,inner sep=0pt,outer sep=0pt]
+      at ([xshift=15.30cm,yshift=-8.76cm]current page.north west)
+      {\FootFont #1};
+  \end{tikzpicture}}
+
+% kicker + headline + optional subtitle + footer
+\newcommand{\Chrome}[4]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-0.24cm]current page.north west)
+      {\KickFont\KickMark #1};
+    \if\relax\detokenize{#2}\relax
+      \if\relax\detokenize{#3}\relax\else
+        \node[anchor=base west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+          at ([xshift=0.70cm,yshift=-0.86cm]current page.north west)
+          {\SubFont #3};
+      \fi
+    \else
+      \node[anchor=north west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+        at ([xshift=0.70cm,yshift=-0.74cm]current page.north west)
+        {\HeadFont #2};
+      \if\relax\detokenize{#3}\relax\else
+        \node[anchor=base west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+          at ([xshift=0.70cm,yshift=-2.02cm]current page.north west)
+          {\SubFont #3};
+      \fi
+    \fi
+  \end{tikzpicture}%
+  \DeckFooter{#4}}
+
+% figure placed by the top of its 14.6 x 7.2 canvas
+\newcommand{\FigureAt}[4]{%
+  \pgfmathsetmacro{\FigH}{7.2*#1}%
+  \pgfmathsetmacro{\FigC}{#2+3.6*#1-0.60}%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=center,inner sep=0pt,outer sep=0pt]
+      at ([xshift=#3cm,yshift=-\FigC cm]current page.north west)
+      {\raisebox{0pt}[\FigH cm][0pt]{\scalebox{#1}{#4}}};
+  \end{tikzpicture}}
+
+% ================================================================ the deck ==
+\begin{document}
+
+% ------------------------------------------------------------------ 1 -----
+\begin{frame}[t,plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[teal,rounded corners=1pt]
+      ([xshift=0.70cm,yshift=-0.34cm]current page.north west) rectangle ++(1.10cm,0.09cm);
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-1.52cm]current page.north west)
+      {\color{ink}\bfseries\fontsize{34}{38}\selectfont THE ESTIMATOR};
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt,text width=14.6cm,align=left]
+      at ([xshift=0.70cm,yshift=-2.20cm]current page.north west)
+      {\color{graytext}\fontsize{11.5}{14}\selectfont A project estimate that shows its evidence.};
+    \node[anchor=south west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-2.62cm]current page.north west)
+      {\color{graytext}\fontsize{8}{10}\selectfont Nguyen My Thong \textperiodcentered\ AI Business Operations \textperiodcentered\ Anduin};
+    \node[anchor=center,inner sep=0pt,outer sep=0pt]
+      at ([xshift=7.69cm,yshift=-5.4832cm]current page.north west)
+      {\scalebox{1.037}{\FigCover}};
+  \end{tikzpicture}
+  \DeckFooter{01}
+\end{frame}
+
+% ------------------------------------------------------------------ 2 -----
+\begin{frame}[t,plain]
+  \Chrome{01 \textperiodcentered\ THE PROBLEM}{}{}{02}
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north east,inner sep=0pt,outer sep=0pt]
+      at ([xshift=15.30cm,yshift=-0.24cm]current page.north west)
+      {\color{teal}\bfseries\fontsize{7.5}{9}\selectfont SAME PIPELINE AS DIGITIZATION SERVICE};
+  \end{tikzpicture}
+  \FigureAt{0.857}{2.224}{8.15}{\FigProblem}
+\end{frame}
+
+% ------------------------------------------------------------------ 3 -----
+\begin{frame}[t,plain]
+  \Chrome{02 \textperiodcentered\ WHY LLM-ONLY FAILS}{}{LLM-only: 258 days off. Five runs, one answer; the error is calibration.}{03}
+  \FigureAt{0.9381}{2.18}{7.97}{\FigLLMFail}
+\end{frame}
+
+% ------------------------------------------------------------------ 4 -----
+\begin{frame}[t,plain]
+  \Chrome{03 \textperiodcentered\ THE TRADE-OFF}{}{The fastest design had no audit trail. I chose the slower one.}{04}
+  \FigureAt{1.039}{1.876}{7.97}{\FigDecision}
+\end{frame}
+
+% ------------------------------------------------------------------ 5 -----
+\begin{frame}[t,plain]
+  \Chrome{04 \textperiodcentered\ THE SPLIT}{}{Every field carries a quote; silence widens the range instead of guessing.}{05}
+  \FigureAt{1.05}{1.55}{7.84}{\FigSplit}
+\end{frame}
+
+% ------------------------------------------------------------------ 6 -----
+\begin{frame}[t,plain]
+  \Chrome{05 \textperiodcentered\ THE QUOTE}{}{}{06}
+  \FigureAt{0.9626}{2.153}{8.00}{\FigPackages}
+\end{frame}
+
+% ------------------------------------------------------------------ 7 -----
+\begin{frame}[t,plain]
+  \Chrome{06 \textperiodcentered\ PROOF}{}{Walk-forward on 218 steps: half the team's error, 86.7\% coverage, five negative results published.}{07}
+  \FigureAt{1.00}{2.35}{8.00}{\FigProof}
+\end{frame}
+
+% ------------------------------------------------------------------ 8 -----
+\begin{frame}[t,plain]
+  \Chrome{07 \textperiodcentered\ THE VIBE-CODING LOOP}{}{DeepSeek extracted. OpenCode wrote code. I kept the review loop.}{08}
+  \FigureAt{0.9115}{2.20}{8.00}{\FigLoop}
+\end{frame}
+
+% ------------------------------------------------------------------ 9 -----
+\begin{frame}[t,plain]
+  \Chrome{08 \textperiodcentered\ THE SEATBELT}{}{The checks are what make another person's change defensible.}{09}
+  \FigureAt{0.9866}{2.15}{7.97}{\FigReview}
+\end{frame}
+
+% ------------------------------------------------------------------ 10 ----
+\begin{frame}[t,plain]
+  \Chrome{09 \textperiodcentered\ THE BOTTLENECK}{}{The review gate sets the real speed, so that is what I would fix.}{10}
+  \FigureAt{0.97}{2.20}{7.97}{\FigReviewCapacity}
+\end{frame}
+
+% ------------------------------------------------------------------ 11 ----
+\begin{frame}[t,plain]
+  \Chrome{10 \textperiodcentered\ THE MISTAKE}{}{}{11}
+  \FigureAt{1.05}{1.6825}{8.00}{\FigWorked}
+\end{frame}
+
+% ------------------------------------------------------------------ 12 ----
+\begin{frame}[t,plain]
+  \Chrome{11 \textperiodcentered\ COMPANY DATA}{}{Every finished project becomes a training row: 60 $\rightarrow$ 240, error 23.5 $\rightarrow$ 17.4 days.}{12}
+  \FigureAt{1.038}{1.70}{7.134}{\FigFlywheel}
+\end{frame}
+
+% ------------------------------------------------------------------ 13 ----
+\begin{frame}[t,plain]
+  \Chrome{12 \textperiodcentered\ THE TRANSFER}{}{Document in, fields with evidence, a human clears exceptions.}{13}
+  \FigureAt{1.00}{2.25}{7.97}{\FigBridgeOps}
+\end{frame}
+
+% ------------------------------------------------------------------ 14 ----
+\begin{frame}[t,plain]
+  \Chrome{13 \textperiodcentered\ FIRST 90 DAYS}{}{A baseline, one document type, and a gate at every step.}{14}
+  \FigureAt{1.00}{2.25}{7.97}{\FigPlanNinety}
+\end{frame}
+
+% ------------------------------------------------------------------ 15 ----
+\begin{frame}[t,plain]
+  \Chrome{14 \textperiodcentered\ CLOSE}{}{The review is the part I refuse to skip.}{15}
+  \FigureAt{0.96}{2.30}{7.97}{\FigCloseOps}
+  \begin{tikzpicture}[remember picture,overlay]
+    \draw[hairline,line width=0.4pt]
+      ([xshift=0.70cm,yshift=-6.30cm]current page.north west) --
+      ([xshift=15.30cm,yshift=-6.30cm]current page.north west);
+    \node[anchor=base west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-6.62cm]current page.north west)
+      {\color{ink}\bfseries\fontsize{9.5}{11.5}\selectfont Nguyen My Thong \textperiodcentered\ AI Business Operations};
+    \node[anchor=base west,inner sep=0pt,outer sep=0pt]
+      at ([xshift=0.70cm,yshift=-7.00cm]current page.north west)
+      {\color{graytext}\fontsize{8}{10}\selectfont github.com/iknizzz1807/the-estimator};
+    \node[anchor=north east,inner sep=0pt,outer sep=0pt]
+      at ([xshift=15.00cm,yshift=-6.48cm]current page.north west)
+      {\includegraphics[width=2.00cm]{qr-github.png}};
+    \node[anchor=east,inner sep=0pt,outer sep=0pt,align=right]
+      at ([xshift=12.78cm,yshift=-7.55cm]current page.north west)
+      {\color{graytext}\fontsize{6.5}{8}\selectfont scan\\for repo};
+  \end{tikzpicture}
+\end{frame}
+
+\end{document}

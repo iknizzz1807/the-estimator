@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Build a deck: <target>.tex -> <target>.pdf -> preview/<target>/slide-NN.png
+  Build the presentation: main-bizops.tex -> the-estimator.pdf + PNG previews
 
 .DESCRIPTION
   Needs two portable tools:
@@ -14,14 +14,14 @@
     4. %LOCALAPPDATA%\Temp\opencode\... (portable install used on this machine)
 
 .EXAMPLE
-  .\build.ps1                          # main.tex -> main.pdf + preview/current
-  .\build.ps1 -Target main-bizops      # main-bizops.tex -> preview/main-bizops
+  .\build.ps1                          # main-bizops.tex -> the-estimator.pdf
+  .\build.ps1 -Target main-bizops      # same source, explicitly selected
   .\build.ps1 -NoPreview               # compile only
   .\build.ps1 -Dpi 160                 # sharper previews
 #>
 [CmdletBinding()]
 param(
-  [string]$Target    = 'main',
+  [string]$Target    = 'main-bizops',
   [string]$Tectonic   = $env:TECTONIC,
   [string]$PopplerBin = $env:POPPLER_BIN,
   [int]$Dpi           = 110,
@@ -65,14 +65,16 @@ if (-not $NoPreview) {
 Push-Location $slides
 try {
   $src  = Join-Path $slides "$Target.tex"
-  $pdf  = Join-Path $slides "$Target.pdf"
-  $log  = Join-Path $slides "$Target.log"
+  $buildDir = Join-Path $temp "estimator-slides\$Target"
+  New-Item -ItemType Directory -Force -Path $buildDir | Out-Null
+  $pdf  = Join-Path $buildDir "$Target.pdf"
+  $log  = Join-Path $buildDir "$Target.log"
   if (-not (Test-Path $src)) { throw "Source not found: $src" }
 
   $before = if (Test-Path $pdf) { (Get-Item $pdf).LastWriteTimeUtc } else { [datetime]::MinValue }
 
   Write-Host "[1/2] tectonic $Target.tex" -ForegroundColor Cyan
-  & $Tectonic -X compile "$Target.tex" --keep-logs
+  & $Tectonic -X compile "$Target.tex" --outdir $buildDir --keep-logs
   $code = $LASTEXITCODE
 
   $fresh = (Test-Path $pdf) -and ((Get-Item $pdf).LastWriteTimeUtc -gt $before)
@@ -88,8 +90,8 @@ try {
   $pageInfo = if ($m) { "$($m.Matches[0].Groups[1].Value) pages" } else { 'page count unknown' }
   Write-Host "      $Target.pdf written: $([math]::Round((Get-Item $pdf).Length / 1KB)) KB, $pageInfo" -ForegroundColor Green
 
-  $deck = if ($Target -eq 'main') { 'the-estimator-deck.pdf' } else { "the-estimator-$($Target -replace '^main-','').pdf" }
-  Copy-Item -LiteralPath $pdf -Destination (Join-Path $slides $deck) -Force
+  # A single stable deliverable. Intermediates stay outside the repository.
+  Copy-Item -LiteralPath $pdf -Destination (Join-Path $slides 'the-estimator.pdf') -Force
 
   if ($NoPreview) { return }
 

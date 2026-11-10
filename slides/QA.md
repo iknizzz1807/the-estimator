@@ -14,7 +14,7 @@ Answers are spoken English; Vietnamese notes are not spoken. The Git history was
 - Use your actual personal history. Fill the worksheet in section F before the interview.
 - Accept good criticism without turning every answer into a disclaimer.
 
-**Practice first:** 1–6, 9–14, 18, 21, 25.
+**Practice first:** 1–6, 9–14, 18, 21, 25, 28. Current deck: 13 main slides + appendix A1–A3; see `TRANSCRIPT.md` for navigation.
 
 ---
 
@@ -75,6 +75,14 @@ If you can verify the session model, state its actual name and role. Don't claim
 **Nhớ:** Đây là cấu trúc công việc và artifact thật. Nó không phải nguyên văn một prompt đã được khôi phục từ Git.
 
 ## 6. Show us a concrete coding-agent task.
+
+**Primary personal example — TAWOS (recollection, paraphrased):**
+
+> I asked the agent to try evaluating the estimator on TAWOS. It pointed out that the available fields and labels didn't support the full evaluation. I asked whether, even if the whole solution couldn't be evaluated, a narrower part could still be tested. The resulting experiment used issue text, a keyword stub, and story points. It didn't beat a median baseline, but exposed vocabulary and target-scale mismatches. That's a diagnostic, not validation of the full person-day estimator.
+
+**If asked what you personally checked afterward:** describe your actual inspection and next action. The instruction is based on your recollection; the report does not establish who first found each defect.
+
+**If asked for an implementation-specific task instead:** use the concurrency reconstruction below, clearly labelled as a reconstruction.
 
 **Prepared answer — reconstruction from a committed change, not a saved prompt**
 
@@ -420,3 +428,64 @@ Ask two questions, depending on what they have already explained:
 4. **“Is there any part of my build process you'd like me to explain more concretely?”**
 
 **Core message:** I use AI to build, understand what it produced, work through failures, and remain responsible for the result.
+
+---
+
+# J. New deck: assumptions and TAWOS follow-ups
+
+## Trade-off cues in the current visual deck
+
+- **Slide 4:** separating language interpretation and calculation gives traceable, independently testable modules, but requires schema maintenance and integration work. The offline stub decouples development from live calls, but doesn't validate real-provider quality.
+- **Slide 9:** compared with zero-fill, the corrected prior's main gain is coverage (74.3% → 85.3%), not a large MAE reduction (21.34 → 20.48). The cost is maintaining a separate prior artifact; its operational value still needs validation.
+- **Demo status:** live URL returned “Service Suspended” during this revision. Prepare and verify local execution before promising an app walkthrough. No real screenshot was added because one could not be captured from that deployment.
+
+## 28. What does the TAWOS story demonstrate about how you use AI?
+
+> The agent identified a real constraint. I didn't need to reject that diagnosis; I needed to ask a more useful next question. I asked what narrower test the available data could support. The experiment still failed to show predictive gain, so the conclusion stays diagnostic. It shows how I direct the investigation without asking AI to manufacture a positive result.
+
+**Was this your exact prompt?**
+
+> No, it's a paraphrase of the interaction I remember. The repository preserves the experiment and its limitations, not the original conversation.
+
+**Did you transfer the trained person-day model unchanged?**
+
+> No. The script refit the estimation engine on story-point targets using stub-extracted features. The estimation code was reused, including a floor designed for person-days, which exposed a scale mismatch. This wasn't evidence that a trained person-day model generalized to Jira issues.
+
+**Could a live LLM improve the result?**
+
+> Possibly, but this experiment didn't test that. It used the offline stub, whose vocabulary coverage was limited. An improved extractor and appropriate target-scale handling would need their own evaluation; neither guarantees improvement.
+
+**What did you inspect and decide personally?**
+
+> [Fill from memory: report, baseline table, code, agent explanation, or other artifact you actually reviewed; then state your actual next action.]
+
+Evidence: `docs/TAWOS_VALIDATION.md`; deck slides 6–7. Five thousand eight hundred and fifty issues, 39 projects; cross-project MAE 2.482 versus median 2.477 story points. Do not call this person-day accuracy or successful transfer.
+
+## 29. Which assumptions did you make?
+
+> I scoped the challenge to a software-services workflow with human-reviewed estimates. I defined effort in person-days rather than delivery dates, chose fifteen scope features as a starting representation, and assumed learning would need consistently recorded scope and actuals. I didn't have real company history, so the controlled evaluations use synthetic data. One assumption I later changed was how to sample extraction-null features.
+
+**Are these facts about Anduin?**
+
+> No. They define my prototype scenario. I'd learn Anduin's actual workflow and data definitions with the team before proposing an implementation.
+
+**What about Codebase Lab and packages?**
+
+> Codebase-to-effort factors remain demo assumptions. Package reductions also assume some scope can be negotiated or phased; the client must agree. Neither should be treated as an automatic business decision.
+
+## Current-deck navigation (supersedes old slide numbers above)
+
+Older answers and the fact card refer to the submitted 15-slide deck. Their underlying metric definitions remain useful, but use this mapping for the revised presentation:
+
+| Topic | Current location |
+|---|---|
+| Explicit assumptions | 2 |
+| Agent implementation and integration | 4–5 |
+| Personal TAWOS interaction and experiment | 6–7 |
+| D28 coverage report | 8 |
+| D31 null-conditioned prior | 9 |
+| Evidence limits and corrected baseline | 10 |
+| Reflection and Anduin workflow | 11–12 |
+| Methods / metrics / production boundaries | A1 / A2 / A3 |
+
+The old LLM-only headline, productivity bars, quote packages, and learning curve are no longer main-talk slides. Don't rehearse defending them as current slide claims.

@@ -1,5 +1,13 @@
 # HANDOFF — The Estimator (2026-10-18)
 
+## Presentation update — 2026-11-11
+
+- **Only presentation PDF: `slides/the-estimator.pdf`.** User explicitly requested removal of old PDF versions. Do not create alternate output filenames. Source: `main-bizops.tex` + `figures-build.tex`; 13 main slides + 3 Q&A appendix slides.
+- Vector illustrations, short speaking cues, explicit assumptions and slide 4/9 trade-offs. No large bold headlines or bottom gray source notes; page numbers remain. Narrative: contracts, agent integration, TAWOS interaction, D28 bug, post-Fest D31 correction, and business-first pilot.
+- Build from `slides/`: `powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1`. Tectonic/Poppler are under `%LOCALAPPDATA%\Temp\opencode`. Intermediates go to the temp directory; only `the-estimator.pdf` is exported into the repo. Close a locked viewer before rebuilding rather than making another filename.
+- Transcript/QA match the story. Confirm personal coding-model/review details from memory. Compilation, previews and geometry checks pass; backend tests were not rerun.
+- Live `/estimate` returned **“Service Suspended”**. No screenshot was fabricated and hosting was not changed. Verify a local demo before presenting; this supersedes the old deployment status below.
+
 > **For any new agent/model picking this project up.** Read this file first, then `docs/DECISIONS.md` (every design decision, **D1–D31**) and `README.md` (product + measured results). This file is the operational state of the world; it is updated by whoever finishes a work session.
 
 ## 0. TL;DR

@@ -1,87 +1,33 @@
-# The Estimator — presentation deck
+# The Estimator — onsite presentation
 
-**23-slide, 16:9 Beamer deck** for the Anduin Cybernetics onsite presentation.
-White background, vector illustrations, concrete examples, and a problem-solving / trade-off narrative.
-Footer is page number only (no brand text).
+**One presentation PDF: [`the-estimator.pdf`](the-estimator.pdf).**
 
-## Files
+13 main slides + 3 Q&A appendix slides. Visual build-process story: assumptions, contracts, AI-assisted implementation, TAWOS, D28/D31, trade-offs, and applying the method at Anduin. Short section names and speaking cues; no large headline or bottom source notes.
 
-| File | What it is |
-|---|---|
-| `the-estimator-deck.pdf` | **The technical deck** (23 slides, 16:9, white background) |
-| `the-estimator-bizops.pdf` | **The business-operations cut** (15 slides, vibe coding as the spine) |
-| `main.tex` | Slide layout, typography, per-slide content |
-| `main-bizops.tex` | 15-slide variant for the Anduin AI Business Operations conversation |
-| `figures.tex` | TikZ illustration macros (shared) |
-| `figures-bizops.tex` | Extra figures for the business-operations cut |
-| `build.ps1` | One-command build: compile + PNG previews |
-| `TRANSCRIPT.md` | 12 to 13 minute spoken script for the bizops deck |
-| `BRIEF_V4.md` | Current 23-slide content/design brief |
-| `BRIEF_V3.md` | Previous 21-slide brief (archive) |
-| `BRIEF_V2.md` | Previous 14-slide brief (archive) |
-| `BRIEF.md` | Original 12-slide brief (archive) |
-| `figures-test.tex` | Standalone test page for every figure macro |
-| `qr-github.png` | QR code to the repo, used on the bizops close slide |
-| `preview/` | PNG renders of the slides (`preview/current/` = latest build) |
-| `archive/v1/` | The rejected v1 deck, kept for reference |
+## Edit and build
 
-## Compile
+- Source: `main-bizops.tex`
+- Vector diagrams and layout: `figures-build.tex`
+- Spoken script: `TRANSCRIPT.md`
+- Practice: `QA.md`; technical follow-ups: `QA_EVIDENCE.md`
+- Slide images: `preview/main-bizops/`
 
-One command, from `slides/`:
+From `slides/`:
 
 ```powershell
-.\build.ps1                 # technical deck (main.tex)
-.\build.ps1 -Target main-bizops   # 15-slide business-operations cut
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
 ```
 
-Each build compiles the `.tex` to `<name>.pdf`, copies it to a named deliverable (`the-estimator-deck.pdf` / `the-estimator-bizops.pdf`), and re-renders every page to `preview/current/` or `preview/<name>/` at 110 dpi.
+This overwrites **only `the-estimator.pdf`** and refreshes the preview images. Intermediate PDF/log files go to `%LOCALAPPDATA%\Temp\opencode\estimator-slides\`, not this folder. Close the PDF before rebuilding if your viewer locks it; do not export another filename.
+
+Tectonic 0.17.0 and Poppler are installed under `%LOCALAPPDATA%\Temp\opencode\`. The script resolves them automatically. `-NoPreview` skips images; `-Dpi 160` increases preview resolution.
 
 ```powershell
-.\build.ps1 -NoPreview     # PDF only, fastest while iterating on text
-.\build.ps1 -Dpi 160       # sharper previews for visual review
+py audit_layout.py the-estimator.pdf
 ```
 
-Tools, already installed on this machine:
+Other `.tex` files and briefs are source/reference material, not extra presentation PDFs. Obsolete PDF versions were removed at the presenter's request.
 
-| Tool | Path | Purpose |
-|---|---|---|
-| Tectonic 0.17.0 | `%LOCALAPPDATA%\Temp\opencode\tectonic\tectonic.exe` | LaTeX engine, fetches packages on demand |
-| Poppler 26.09 | `%LOCALAPPDATA%\Temp\opencode\poppler\poppler-26.09.0\Library\bin\pdftoppm.exe` | PDF → PNG previews |
+## Before presenting
 
-`build.ps1` finds both automatically (parameters `-Tectonic` / `-PopplerBin`, or env vars `TECTONIC` / `POPPLER_BIN`, or PATH). Raw command if needed:
-
-```powershell
-& "$env:LOCALAPPDATA\Temp\opencode\tectonic\tectonic.exe" -X compile main.tex
-```
-
-Tectonic prints a harmless `Fontconfig error` on this Windows box and may return exit code 1; `build.ps1` checks that a fresh `main.pdf` was written instead of trusting the exit code.
-
-## Layout audit
-
-TikZ cards are drawn from fixed coordinates, so a label can overflow its box or sit off-centre.
-Run the geometry audit after a build — it compares every text span against its enclosing
-rectangle and reports the source line, so no one has to eyeball the slides:
-
-```powershell
-pip install pymupdf          # once
-python audit_layout.py main-bizops.pdf main.pdf
-```
-
-The audit flags horizontal/vertical overflow and off-centre short labels. Exit code is
-non-zero when it finds something, so it can run as a pre-upload check.
-
-## Editing
-
-- Slide text and layout: `main.tex`.
-- Illustrations: `figures.tex` (each macro is a self-contained `tikzpicture` on a 14.6 × 7.2 cm canvas).
-- Palette: top of `main.tex` (`ink`, `teal`, `amber`, `red`, `blue`, `graytext`, `hairline`).
-
-## Design rules
-
-- White background, one accent palette, no bullet walls.
-- Each slide is understandable without narration: headline + concrete example/visual + short labels.
-- **No bottom takeaway/slogan lines.** The headline and the visual carry the message.
-- Limited text (~30–50 words per slide), but never zero text.
-- No speaker notes in the deck.
-- The story is problem-solving: Problem → Options → Trade-off → Decision → Evidence.
-- Footer: hairline + page number only.
+The live deployment returned “Service Suspended” during preparation. Verify a local run before relying on an app demo. Confirm actual coding models and personal review actions from memory. TAWOS dialogue is paraphrased recollection, not an exact saved prompt. D31 experiments were after Fest Night.
