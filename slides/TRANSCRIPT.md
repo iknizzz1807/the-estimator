@@ -1,238 +1,217 @@
-# Presentation transcript
+# Presentation transcript — how I built The Estimator
 
-Deck: `main-bizops.tex` (15 slides, no headlines).
-Language: spoken English. Vietnamese notes are in square brackets.
-Target: 12 to 13 minutes. Hard stop: 15:00.
+Deck: submitted `the-estimator-bizops.pdf` / `main-bizops.tex`, **unchanged**.
+Audience brief: walk through how the project was built, how AI was used, and challenges encountered.
+Language: spoken English. Square-bracketed notes are NOT spoken.
+Target: 12–13 minutes. Hard stop: 15 minutes. Times are rehearsal allocations, not measured delivery.
 
 ## Before you start
 
-- Set a timer for 12:30. Hard stop at 15:00.
-- Do not read the kicker numbers. They do not match the footer page numbers.
-- Do not read the captions. They are for the panel to read.
-- Keep the app and repo tabs open. The QR code is on the last slide.
-- This script accompanies the submitted deck; no slide changes are required.
-- Timing below is a rehearsal budget, not a measured speaking duration. Rehearse aloud.
-- Important slide clarifications: slide 3 = MAE, not accumulated error; slide 6 = probability of overrun; slide 11 = 4.1% positive among null fields, not 4.1% unknown.
-- Delivery: explain the decision, then the result. Do not read the preparation notes or turn each slide into a disclaimer. Keep the evaluation limits on slides 3 and 7 explicit.
+- The story is **contracts → bounded AI implementation → integration → failures → verified corrections**. It is not a product sales pitch or a statistical defense.
+- Protect slides 8, 9, and 11. Move quickly through packages and the learning curve.
+- Only read the quoted paragraphs. Do not read captions or preparation notes.
+- The deck's kicker numbers differ from its actual page numbers. Use actual page numbers below.
+- Open the app, Git history, `docs/API.md`, and the D28/D31 evidence for questions.
+- Verify personal details: actual coding models, one real prompt/task, and your own actions. Commits establish code changes, not every interaction or who suggested each idea.
+- Important chronology: contracts and hybrid design existed at the start on October 16. The missing-data experiments and correction were committed October 23–24, **after Fest Night**. Do not present them as pre-submission work.
+- Important labels: slide 3 numbers are MAE; slide 6 percentages are probability of exceeding an effort budget; slide 11's 4.1% means positive among null fields, not the unknown rate.
 
-## Slide 1. Cover (0:00 to 0:40)
+## Slide 1. Cover — the purpose of this walkthrough (0:00–0:35)
 
-> Thanks for having me. I'm Thong. When a client sends a request, someone has to turn it into a commitment: scope, effort, and unanswered questions.
+> Thanks for having me. I'm Thong. Today I'll walk through how I built The Estimator: how I broke down the challenge, used AI coding agents, and worked through implementation and design mistakes.
 >
-> I built The Estimator to make that conversation more structured. It turns the request into an effort range, with extracted fields and source quotes to review.
+> The app turns a client request into an effort range and follow-up questions. I'll keep the product overview brief and focus on the build, including what I improved after Fest Night.
 >
-> Today I'll focus on the decisions behind it, how I used AI to build it, and one mistake that changed my approach.
+> The thread is simple: AI helped me produce code; I remained responsible for what that code meant and whether it worked.
 
-[Point at 79 / 111 / 191, then at the ? on data_migration.]
+[Point briefly at the range and the question mark. Move on.]
 
-> The key is that question mark. Missing information should become a useful question—not disappear inside a confident number.
+## Slide 2. The problem — make the task concrete (0:35–1:15)
 
-## Slide 2. The problem (0:40 to 1:30)
-
-> Imagine handling this payments request: mobile apps, PCI compliance, live updates. Specific, but still incomplete.
+> I started with a workflow, not a chatbot: receive a request, identify scope, surface missing details, and prepare an estimate someone can review.
 >
-> Even after hours of reading and questions, you might struggle to explain the estimate. That's the scenario here.
-
-[Point at the sticky note "How many days?" and the chip "still a guess".]
-
-> So I focused on the first pass: separate what's requested, what's explicitly ruled out, and what's unknown. Then show which missing answers could change the estimate most.
+> This payments email illustrates the problem. It mentions mobile and compliance, but doesn't answer every scope question. The time and questions shown here are illustrative.
 >
-> The user gets a structured conversation, rather than an unexplained number.
+> I defined three states for each feature: present, explicitly absent, and unknown. That turned an open-ended problem into something I could specify, delegate to coding agents, and test.
 
-[Point at the tag in the top right.]
+[The Digitization Service tag is a later connection, not a claim that you had observed Anduin's internal process.]
 
-> That document-to-structured-data problem is also the connection I see to Digitization Service. I'll come back to it at the end.
+## Slide 3. Why LLM-only fails — test, don't assume (1:15–1:55)
 
-## Slide 3. Why LLM-only fails (1:30 to 2:35)
-
-> Could I just ask an LLM for the number? I tested that. Since I didn't have company effort history, I generated 240 synthetic projects. This is a controlled simulation, not evidence of real-world estimation accuracy.
+> I also benchmarked direct LLM estimates. Without company effort history, I used synthetic projects for controlled testing—not evidence of real-world accuracy.
 >
-> On the same 42 recent projects, the LLM-only baseline had a mean absolute error of 258 person-days. The estimator had 19.
-
-[Point at 258 and 19.]
-
-> The estimator used recorded features; the LLM read emails. It's not an equal-input comparison. I'll show the extraction-path result shortly.
+> These numbers are mean absolute errors on the final 42 projects: 258 person-days for LLM-only and 19 for the recorded-feature estimator. The inputs differ: one reads incomplete emails, the other uses recorded features.
 >
-> Five repeats on one email also gave the same answer. It was stable on that sample, but stability wasn't enough. I wanted a calculation anchored to project history, with assumptions I could inspect.
+> Five repeats on one email gave the same answer. Stability alone wasn't enough. These tests helped me examine the design; they weren't the origin of every architectural decision.
 
-## Slide 4. The trade-off (2:35 to 3:15)
+[Don't narrate “first prompt failed by 258, then I invented the split.” The earliest committed specification already contains the split.]
 
-> That led to the central design decision: what should the LLM be responsible for?
+## Slide 4. The trade-off — decide the boundary before delegating (1:55–2:35)
+
+> The hybrid design was already in my initial specification. I wanted a clear boundary between interpreting text and calculating effort.
 >
-> Three options: A, let the LLM estimate directly—fast, but hard to justify. B, extract into fixed rules—inspectable, but manually maintained. C, extract into a statistical estimator that learns from completed work.
+> Direct LLM estimates were fast to implement. Fixed rules were inspectable but manually maintained. I chose extraction followed by a statistical estimator that could update from history.
 >
-> I chose C: more implementation work for a traceable calculation and a feedback loop.
+> That meant more integration work, but gave the coding agents separate responsibilities and gave me clearer places to investigate when something failed.
 
-[Point at rejected, trade-off, chosen in that order.]
+[Point across the three options. Describe the trade-off, not a sequence of three fully built products.]
 
-## Slide 5. The split (3:15 to 4:05)
+## Slide 5. The split — turn design into an implementation contract (2:35–3:20)
 
-> The LLM's authority stops at this line.
-
-[Point at "LLM stops here".]
-
-> On the left, the LLM handles language. It extracts 15 features and is asked to quote the supporting text. The service checks those quotes against the email and flags mismatches for review.
+> I translated that boundary into contracts before the core implementation. Extraction returns fifteen named features with true, false, or null values, plus supporting quotes. Explicit negation and an unmentioned requirement must behave differently.
 >
-> On the right, the calculation handles effort. Ridge learns relationships from history. Residual-based intervals represent prediction error. Monte Carlo carries unresolved features into the range.
+> The calculator returns effort quantiles. Ridge estimates effort, residual-based intervals represent prediction error, and Monte Carlo handles unresolved inputs.
 >
-> If the email doesn't mention a feature, it stays unknown rather than automatically becoming absent. The system models that uncertainty and ranks follow-up questions.
+> Those interfaces let me test calculation without a live LLM, and extraction without the frontend. The important development choice was making the boundaries explicit rather than asking an agent to generate one large, loosely defined application.
+
+[Quote verification flags mismatches; it is not a hard gate that blocks every unsupported feature. Explain that if asked.]
+
+## Slide 6. The quote — show the output, briefly (3:20–3:40)
+
+> This is the user-facing result: scope scenarios against a 100-person-day budget. The percentages mean estimated probability of exceeding that effort budget, not percentage extra effort or calendar delay.
 >
-> When something goes wrong, I can investigate separately: misunderstood request, missing information, or estimation error?
+> Any scope reduction still needs client agreement. Now, how did I verify the system behind this screen?
 
-## Slide 6. The quote (4:05 to 4:55)
+[Point at Essential and 46%. Don't read all three cards.]
 
-> Now the salesperson has a budget of 100 person-days—engineering effort, not a delivery date. The three scope options have median estimates of 95, 119, and 207.
+## Slide 7. Proof — checks that guide the build (3:40–4:25)
+
+> I used offline tests for behavior, real provider calls for extraction, and chronological replay for estimation. Each of the 218 replay predictions trained on earlier rows.
 >
-> Essential looks affordable at the median. But 46% means estimated probability of exceeding budget, not extra effort. The other risks are 63% and 91%. All exceed the configured 25% threshold.
-
-[Point at the 100-day budget line and at 46 / 63 / 91 percent.]
-
-> Could mobile be phased later? Is there contingency? The client must agree to scope changes. The tool exposes the trade-off; the user owns the commitment.
-
-## Slide 7. Proof (4:55 to 6:10)
-
-> Of the 240 synthetic projects, 228 were completed. Starting with ten for training gave 218 walk-forward predictions, each using only earlier rows.
+> Testing the extraction path mattered: its error is 20.48, compared with 17.36 using recorded features. Also, the raw synthetic team baseline is deliberately biased. Corrected, it's 18.26, so the headline doesn't establish superiority over human estimators.
 >
-> With recorded features, mean absolute error was 17.36 person-days. The interval contained 86.7% of outcomes. That's measured coverage on this simulation.
+> What mattered for development was that these comparisons exposed weaknesses. The app could run and still contain a wrong assumption. Here's how I managed the build and responded to that evidence.
+
+[Point at 20.48. Leave F1, coverage formulas, and cost methodology for questions.]
+
+## Slide 8. The vibe-coding loop — how I used agents (4:25–6:15)
+
+> I used AI in two roles. DeepSeek performs extraction inside the app. OpenCode was the environment for coding agents that helped draft implementations, tests, and revisions. I defined the scope and acceptance boundaries.
 >
-> The “half the error” comparison uses a synthetic team baseline deliberately biased low. After correcting that bias, its error is 18.26 rather than 32.93.
-
-[Point at 20.48 in the lower band. Keep recorded-feature and extracted-feature results separate.]
-
-> And with extracted features, the system's error is 20.48, with 85.3% coverage. So I don't claim it beats human estimators: it doesn't beat even the corrected synthetic baseline here.
+> The first commit already contains the specification and API contract. The data generator, database layer, and core services follow. The decision log records parallel implementation with separate file ownership, then API wiring and frontend integration.
 >
-> Extraction micro-F1 was 0.933 on 236 evaluated emails; four failed. Estimated batch cost was about twenty cents. These measurements let me locate weaknesses. To establish business value, the next test is a real workflow pilot measuring time, review effort, and quality.
-
-## Slide 8. The vibe-coding loop (6:10 to 7:15)
-
-> How did I build with AI? OpenCode helped write most of the code; DeepSeek runs inside the product. I defined the tasks, constraints, and acceptance criteria.
-
-[Point at the AI and Human panels, then follow the loop. Do not narrate the build log as a literal first-prompt chronology.]
-
-> I split the work around documented contracts: extraction returns fields, estimation returns ranges, and the API connects them to the UI. Coding agents got bounded tasks, not one instruction to build everything.
+> That structure mattered. An extraction task had a schema and null rules. An API task had a response shape. Agents could work on bounded pieces without independently inventing incompatible interfaces.
 >
-> Then I checked the joins: did the API return what the UI expected? Did a failed repository analysis preserve the estimate? Did the deployed container include what worked locally? The decision log records those integration fixes, not just successful outputs.
+> I used QA agents for different review areas: backend edge cases, frontend integration, and repository hygiene. The resulting fixes included concurrent estimates colliding on IDs, non-finite effort values, and missing deployment dependencies. Generated code needed integration review, not just more generation.
 >
-> Most was built on a phone, so small steps mattered: define, generate, inspect, test, measure, document. AI accelerated implementation; I kept responsibility.
-
-## Slide 9. Six checks (7:15 to 7:50)
-
-> These six checks made review concrete.
+> Deployment also changed the design. I consolidated the frontend and API into one service. Then a cloud build failed because it lacked the Git metadata available locally. The fix made that dependency conditional; later a fallback clone restored the optional self-analysis feature.
 >
-> Contract, failure modes, reproducibility, evidence, tests, rollback. Does it match the interface? Handle missing inputs? Catch broken behavior? Leave a traceable result and a clean way back?
+> Most of this was built on a phone. A frontend build failed on Android's shared filesystem, so the documented workaround was to build inside the Linux root filesystem and copy the artifacts back. The lesson was to adapt the environment while keeping the checks, not skip verification because the setup was difficult.
 
-[Point at Evidence and Determinism.]
+[Don't read the bottom build log as a literal first-prompt timeline. Sources: c0f5cef, D5, D7, D16, e0a83d3, ab6519c, 8f1cd42.]
 
-> For reproducibility, I fix the calculation's inputs and random seeds. For external model behavior, I use evaluation. That distinction helps me know what a passing test actually tells me.
+## Slide 9. Six checks — a concrete review failure (6:15–7:40)
 
-## Slide 10. The bottleneck (7:50 to 8:20)
-
-> These bars illustrate the bottleneck: drafting accelerates faster than review. Faster generation helps only if I can check what I'm shipping.
+> These six checks are easier to explain through a bug than a checklist.
 >
-> That's why I invest in shared evaluation sets, repeatable checks, and small diffs—not just better prompts.
-
-[Point at throughput cap and the equation shipped = min(generation, review).]
-
-> Optimize the whole workflow, including review and rework. Here's where evaluation changed an implementation I thought was reasonable.
-
-## Slide 11. The mistake (8:20 to 9:35)
-
-> My first Monte Carlo version used a simple assumption: if a feature is unknown, sample it using how often it appears in history—about 25% overall.
+> The optional repository analyzer used code coverage as one risk signal. Local and cloud verification produced different scores for the same project. I needed to understand the mismatch rather than accept whichever number looked better.
 >
-> A random-masking experiment looked encouraging. But when I evaluated actual extracted features, error was 49.64 days. Simply filling unknowns with zero gave 21.34. My more elaborate approach was making things worse.
-
-[Point at 25%, then 49.64 versus 21.34. The failed version was marginal sampling, NOT zero-fill.]
-
-> So I stopped tuning and checked what “unknown” meant. The extractor left a field null when the email didn't mention it. Among those null fields, only 4.1% were actually positive. That's the meaning of 4.1% here: present despite being unmentioned.
+> The search had found a coverage report from a generated demo repository nested inside the checkout. It was valid XML, but evidence about the wrong repository. That fixture wasn't present in the cloud.
 >
-> Sampling at 25% was inventing too much scope. I changed the sampler to use the rate among null fields, estimated from earlier rows in the replay. Error fell to 20.48, and coverage rose from 55.5% to 85.3%.
+> The correction checked whether the report referenced files in the analyzed checkout. Otherwise coverage became unknown. The commit includes a regression test recreating the unrelated-report case, and records matching local and cloud scores after the fix.
 >
-> That's the most useful lesson from the build: before asking AI to improve the code, check whether you've given it the right problem. The fix was a better assumption about the data, not a more powerful model.
+> That's what the evidence check meant in practice: trace the output to its source, fix the boundary, and preserve a test. A valid file and a successful parse weren't enough to make the result trustworthy.
 
-## Slide 12. Company data (9:35 to 10:15)
+[Evidence: d72eec7; `test_coverage_from_another_repo_is_ignored`. Don't claim the implemented file-existence check is a complete provenance guarantee.]
 
-> That brings me to the data loop. In the simulation, expanding from 60 to 240 total projects reduced aggregate replay error from 23.50 to 17.36. These are separate corpus evaluations, so I treat this as an illustration of the feedback loop, rather than a guaranteed learning curve.
+## Slide 10. The bottleneck — what AI didn't remove (7:40–8:10)
+
+> These bars are illustrative, not a measured ten-times speedup. The practical lesson was that drafting accelerated faster than I could review and integrate.
 >
-> Record the request, reviewed features, estimate, and actual effort when work finishes.
-
-[Point at "same model, more history" and at 60 to 240.]
-
-> The company-specific asset is reliable history. Consistent effort definitions and reviewed outcomes give the next estimate something better to learn from.
-
-## Slide 13. The transfer (10:15 to 11:00)
-
-> What transfers to Digitization Service? The pattern: extract structured fields, retain source references, validate, and route exceptions to a reviewer.
+> So I needed bounded changes, shared contracts, and repeatable checks. More agents weren't automatically better if I couldn't inspect their combined output.
 >
-> For a fund document, the fields and business rules would be different. I'd define those with the team, along with the risk thresholds, approved data handling, and integrations.
+> But the next challenge wasn't just an implementation bug. The specification itself needed to change.
+
+## Slide 11. The mistake — revise the assumption (8:10–9:55)
+
+> After Fest Night, I investigated the handling of unknown features more deeply. The October 23 experiment randomly hid features; that made the original Monte Carlo approach look encouraging.
 >
-> I'd reuse the separation of responsibilities, not deploy this estimator unchanged.
-
-[Point at the vertical dashed guides between the two rows.]
-
-> The goal is a tool that helps people finish the work with less manual effort and rework, while keeping quality under control. Here's how I'd start finding that opportunity.
-
-## Slide 14. First 90 days (11:00 to 12:00)
-
-> I'd agree the priorities with the team, then work in three stages.
+> The next day's replay used actual LLM-extracted features. Error was 49.64 days, compared with 21.34 for simply filling unknowns with zero. The more elaborate approach was making things worse.
 >
-> First two weeks: sit with the people doing the work. Follow one workflow, understand existing tools, and measure total handling time, rework, and critical errors. Choose one recurring problem with a clear owner.
+> External review challenged the assumption. The question became: why was a field unknown? Randomly hidden features and requirements the email didn't mention weren't the same population.
 >
-> Days 15 to 45: build one small slice with those users and pilot it alongside the current process. Keep source evidence and human approval in place. Use AI where it helps; use rules or a simpler tool where that's enough.
+> Overall, about 25% of feature cells were positive. But among extraction-null cells, only 4.1% were positive. That's what 4.1% means here. The old sampler was inventing too much scope.
 >
-> Days 46 to 90: compare the whole workflow against the baseline, including review and maintenance. If it helps without compromising quality, document it and expand carefully. If it doesn't, change direction or stop.
+> The fix used feature-specific probabilities conditioned on extraction leaving a field null. I compared the old sampler, zero-fill, and the conditional sampler on the same chronological replay, estimating the new prior from earlier rows. Error fell to 20.48, and coverage improved to 85.3%.
 >
-> The deliverable isn't just an app. It's a useful workflow the team can operate and maintain.
+> I recorded the failed approach and the correction. This is the most important lesson from the build: an agent can implement the requested behavior while the assumption behind it is wrong. Ownership includes accepting review, changing the assumption, and verifying the correction—not just asking AI for another patch.
 
-[Point at the three GATE bands.]
+[Evidence: 3d89142 → 531d8de → f94f78d; D31 explicitly credits external review. These are later improvements, not claimed pre-Fest results.]
 
-## Slide 15. Close (12:00 to 12:30)
+## Slide 12. Company data — preserve the next debugging opportunity (9:55–10:20)
 
-> The Estimator is shipped, with 242 offline tests and a documented record of what worked and what didn't—including five negative results.
+> This also reinforced the value of preserving useful history: the request, reviewed features, estimate, and actual effort.
 >
-> What I'd bring to Anduin is that ownership: understand the business problem, use AI to build quickly, and stay responsible for whether the result actually helps the team.
->
-> The repo is behind the QR code. Thank you. I'm happy to walk through a build decision, a failed experiment, or how I'd apply this approach with your team.
+> The slide compares separate synthetic corpus evaluations, not a guaranteed learning curve. The build lesson is to keep the inputs and outcomes needed to evaluate the next iteration rather than rely on memory.
 
-[Stop. Invite questions.]
+[Move on.]
+
+## Slide 13. The transfer — reuse the method (10:20–11:00)
+
+> What I'd bring to Digitization Service is this way of working: understand the document workflow, define the output and review boundary, and give AI bounded implementation tasks.
+>
+> Your fields, business rules, data policies, and integrations would need to be learned with the team. I'd reuse the evidence and review pattern, not assume this estimator fits fund documents unchanged.
+>
+> The transferable experience is turning messy input into a reviewable first pass, then investigating where it breaks.
+
+[Point across the two rows. Do not claim you know their volume, current tools, or ROI.]
+
+## Slide 14. First 90 days — start with the people doing the work (11:00–11:50)
+
+> I'd agree priorities with the team and start by following one real workflow: existing tools, normal cases, exceptions, and where people spend time correcting things.
+>
+> Then I'd build one small slice with those users and pilot it with approval still in place. It might need AI, a script, or just better validation rules.
+>
+> We'd compare total handling time and quality, including review and rework. Keep what helps, document how to operate it, and change direction if the benefit isn't there.
+>
+> The deliverable is something the team can use and maintain, not just something I can demonstrate.
+
+## Slide 15. Close — what I want you to remember (11:50–12:30)
+
+> The result is a shipped app, a recorded suite of 242 offline tests, and a decision log that includes failures as well as improvements.
+>
+> More importantly, you've seen how I build: define the task, use AI to accelerate implementation, inspect the integration, and change direction when evidence contradicts an assumption.
+>
+> That's the ownership I'd bring to your team. Thank you. I'm happy to open the code or go deeper on any build challenge.
+
+[Stop. Don't fill the silence with additional caveats.]
 
 ---
 
-# Cue card
+## Cue card
 
-| Slide | Time | One line to remember |
+| Slide | End time | One line |
 |---|---|---|
-| 1 | 0:40 | Turn a request into a commitment; unknowns become questions. |
-| 2 | 1:30 | Illustrative scenario; structured first pass. |
-| 3 | 2:35 | Synthetic; 258 vs 19 MAE; unequal inputs. |
-| 4 | 3:15 | Separate interpretation from calculation. |
-| 5 | 4:05 | Separate language from calculation so failures are traceable. |
-| 6 | 4:55 | Person-days; probability of overrun; discuss scope. |
-| 7 | 6:10 | Recorded 17.36; extracted 20.48; no human-superiority claim. |
-| 8 | 7:15 | Bounded AI tasks; contracts first; verify integration. |
-| 9 | 7:50 | Six concrete checks; reproducible calculation, evaluated LLM. |
-| 10 | 8:20 | Faster drafts need review capacity; optimize the whole workflow. |
-| 11 | 9:35 | Wrong 25% prior; 4.1% positive among nulls; fix and remeasure. |
-| 12 | 10:15 | Capture reviewed actuals; reliable history is the asset. |
-| 13 | 11:00 | Transfer the pattern; discover rules and data constraints. |
-| 14 | 12:00 | Shadow, pilot, measure total workflow value. |
-| 15 | 12:30 | Build quickly; stay responsible for business usefulness. |
+| 1 | 0:35 | Build walkthrough, including later improvements. |
+| 2 | 1:15 | Workflow → three states → a bounded task. |
+| 3 | 1:55 | Benchmark tested the design; it didn't invent the timeline. |
+| 4 | 2:35 | Define the LLM boundary before delegating. |
+| 5 | 3:20 | Contracts make modules testable and integration inspectable. |
+| 6 | 3:40 | Output briefly; risk probability, not extra days. |
+| 7 | 4:25 | Evaluation locates weaknesses; qualify synthetic comparison. |
+| 8 | 6:15 | Parallel agents, QA, deployment, environment constraints. |
+| 9 | 7:40 | Wrong repository's report → boundary fix → regression. |
+| 10 | 8:10 | Review and integration remain the bottleneck. |
+| 11 | 9:55 | Post-Fest experiment → review → wrong prior → verified fix. |
+| 12 | 10:20 | Preserve evidence for the next iteration. |
+| 13 | 11:00 | Transfer the building method, not the app unchanged. |
+| 14 | 11:50 | Learn with users, pilot one slice, measure and document. |
+| 15 | 12:30 | Clear tasks, verified integration, ownership. |
 
-## 10-minute cut
+## If you need a 10-minute cut
 
-Skip slides 6 and 12 (saves about 90 seconds). Summarize slide 9 in one sentence and slide 10 in one sentence (saves about 40 seconds). Keep the synthetic-data disclosure, the slide 7 comparison limits, and the slide 11 failure story. Rehearse the cut aloud rather than relying on these estimated savings.
+- Pass over slides 6 and 12 with one short sentence each.
+- Shorten slides 3–5 by explaining the architecture once rather than repeating it.
+- On slide 8, omit the phone-build detail and keep the contracts, agent coordination, and deployment example.
+- Shorten slides 13–14; don't cut the concrete stories on slides 9 and 11.
+- Keep synthetic disclosure, correct metric meanings, and post-Fest chronology.
+- Rehearse aloud. Word counts and allocations do not measure your actual delivery.
 
-## Q&A preparation — not part of the spoken script
+## Preparation, not spoken
 
-Keep these details available; do not add every caveat to the presentation.
-
-- **What does the synthetic evaluation establish?** Pipeline behavior under a controlled data-generating process, not real-world accuracy. Actual effort was generated from multiplicative feature effects, interactions, drift, and noise; log-Ridge is well matched to the main-effects structure. The synthetic team baseline was deliberately biased low.
-- **Does it outperform humans?** Not established. Recorded-feature MAE is 17.36; extracted-feature MAE is 20.48; the corrected synthetic-team baseline is 18.26. Workflow benefits such as time savings and consistency need a real pilot.
-- **Why 19 on slide 3 but 17.36 on slide 7?** 19.25 is the recorded-feature MAE on the final 42 replay steps; 17.36 is on all 218. The 258.12 LLM-only number is also MAE on those same 42, not a sum or a single failed prompt.
-- **Are the quotes a hard evidence gate?** No. The service uses fuzzy quote matching (threshold 85%). A mismatch removes the quote and reduces confidence, but retains the feature value. A stricter production gate would require support or review before using an unsupported value. A matching quote also needs semantic validation.
-- **Is this true split conformal with a formal coverage guarantee?** The deployed method uses out-of-fold residual quantiles and a tuned 1.10 tail widening. Describe it as residual-based or conformal-style. The reported coverage is empirical; do not claim a formal guarantee under drift. See `docs/BASELINE_COMPARISON.md`.
-- **Where does overrun probability come from?** A lognormal approximation fitted from the estimated interval. It is a model-based risk estimate, not an independently validated real-world probability. The 25% recommendation threshold is a configured policy, not a discovered business requirement.
-- **What exactly is 4.1%?** In the extraction cache, 100 of 2,436 null cells were actually positive. About 71.2% of feature cells were unresolved; 4.1% is not the unknown rate. The evaluation estimates feature-specific null priors from earlier rows. The deployed demo loads a prior file built from completed history, so distinguish deployment from historical replay.
-- **What does extraction F1 measure?** Micro-F1 for positive-feature detection against recorded labels on 236 evaluated synthetic emails. Four failed after retry. It is not overall field accuracy, quote accuracy, or validation on fund documents. Cost is a rough token-based estimate, not an invoice.
-- **What changed in the learning curve?** The corpus expanded from 60 to 240 total projects; 240 does not mean 240 completed training examples. Aggregate replay scores on different corpora do not isolate a fixed-test-set data-size effect.
-- **Which code was AI-generated, and what did you personally decide?** Explain only steps you remember or can substantiate. Use the documented contracts, integration fixes, and missing-prior evaluation as evidence. Do not invent a literal prompt, chat exchange, commit, or development chronology.
-- **Where can the panel inspect evidence?** `docs/AB_MEASUREMENT.md`, `docs/ENDTOEND_REPLAY.md`, `docs/BASELINE_COMPARISON.md`, `docs/EXTRACTION_EVAL.md`, and `docs/DECISIONS.md` (especially D16–D17, D21, D28, and D31). The 242 figure refers to the recorded offline suite, not a new verification run during script editing.
+- Read `slides/VIBE_CODING_STORY.md` for the fuller Git-grounded narrative.
+- Practice `slides/QA.md` first; use `slides/QA_EVIDENCE.md` only for deeper technical follow-ups.
+- Fill one real coding-agent task example: instruction → context → constraints → generated output → your inspection → verification.
+- Confirm actual coding models and personal actions from memory or saved sessions. Do not infer them from commit authorship.
+- Keep two stories ready: D28 for an implementation/integration mistake; D31 for a wrong specification assumption.
+- Do not imply the reviewer contribution diminishes yours. Acting on valid feedback and verifying the correction is part of ownership.
