@@ -48,9 +48,11 @@ Answers are spoken English; Vietnamese notes are not spoken. The Git history was
 
 > I used OpenCode as the development environment for coding agents. DeepSeek is the extraction provider inside the application. Those are separate roles. The app also supports other providers and an offline stub, so most behavior can be tested without depending on a live API.
 
-**You must fill this from actual experience:**
+**If you cannot verify the exact coding model:**
 
-> Inside OpenCode, I used [actual model or models] for [actual tasks], because [actual reason].
+> I can confirm OpenCode was the coding environment and DeepSeek was the application's extraction provider. For the exact model used in a particular coding session, I'd check the session record rather than guess. The part I can demonstrate here is the task boundary, the resulting change, and its verification.
+
+If you can verify the session model, state its actual name and role. Don't claim the fallback wording if you do know the answer.
 
 **Nhớ:** Không suy ra coding model từ provider runtime. Không tự nhận đã benchmark coding models nếu chưa làm.
 
@@ -72,17 +74,49 @@ Answers are spoken English; Vietnamese notes are not spoken. The Git history was
 
 **Nhớ:** Đây là cấu trúc công việc và artifact thật. Nó không phải nguyên văn một prompt đã được khôi phục từ Git.
 
-## 6. Show us one actual instruction you gave an agent.
+## 6. Show us a concrete coding-agent task.
 
-**Prepare a genuine example; do not read unfilled placeholders aloud.**
+**Prepared answer — reconstruction from a committed change, not a saved prompt**
 
-> One task was [actual task]. I supplied [actual context] and constrained [actual boundary]. The agent produced [actual output]. I checked [specific behavior], changed [actual issue], and verified it through [actual test or run].
+> I don't have the original prompt here, but I can reconstruct a concrete task from the committed fix. Concurrent estimates could allocate the same project ID and fail on the database constraint. The task is to make allocation and persistence atomic without changing the API contract, and add a regression case for concurrent calls. The patch uses an immediate SQLite transaction with rollback on error. The test launches eight parallel persistence calls and checks unique IDs and the stored count. I can show the diff in commit 1718a8e.
 
-If the exact prompt is unavailable:
+**Task brief to explain or show — explicitly reconstructed, NOT a historical quote**
 
-> I can paraphrase the task, but I don't have the verbatim prompt here. Let me show the contract and the resulting implementation rather than reconstruct a quote.
+```text
+Fix the project-ID collision in estimate persistence.
 
-**Possible artifacts to jog your memory, not fabricated prompts:** initial module implementation; `1718a8e` QA fixes; `ab6519c` Docker fix; `d72eec7` report-ownership fix; `f94f78d` prior correction.
+Context:
+- backend/app/api/state.py: persist_estimate and next_project_id
+- backend/tests/test_api.py: persistence/API regression tests
+- Concurrent calls can allocate the same P0nn ID before insertion.
+
+Constraints:
+- Preserve the existing API response and project-ID format.
+- Keep the fix within the current SQLite persistence design.
+- Make ID allocation and the associated inserts atomic.
+- Roll back on failure and close the connection.
+- Do not change estimation or extraction behavior.
+
+Acceptance:
+- Add a regression case with eight parallel persistence calls.
+- Assert eight distinct IDs and eight stored projects.
+- Check that ordinary persistence behavior still works.
+- Explain the transaction boundary and remaining limitations.
+```
+
+**Follow-up: “Why is that a good AI task?”**
+
+> It names the failure, the relevant code, what must remain stable, and the observable acceptance condition. That makes the change inspectable instead of accepting a broad refactor because the agent says it fixed concurrency.
+
+**Follow-up: “Why an immediate transaction?”**
+
+> Allocation depends on database state. The transaction acquires the write reservation before choosing the next ID, rather than letting competing writers choose it independently. That addresses the observed allocation race; it isn't a claim that every concurrency issue is solved.
+
+**Follow-up: “Did you personally write that exact prompt or run that exact test?”**
+
+> This is a reconstruction of the task from the committed change, not a recovered conversation. The commit contains the implementation and regression test. For the exact original wording or division of work, I would use my actual recollection or saved session rather than infer it from Git.
+
+**Nhớ:** Ví dụ này đầy đủ để giải thích cách giao việc và kiểm tra. Không đổi nhãn “reconstructed” thành “this was my exact prompt”. Nếu nhớ được task thật, thay phần tái dựng bằng lời kể thật của bạn.
 
 ## 7. How did multiple agents coordinate?
 
@@ -314,8 +348,8 @@ If the exact prompt is unavailable:
 
 Git cannot reliably fill these for you. Short truthful bullets are sufficient.
 
-1. **Actual coding models inside OpenCode:** ______
-2. **One real agent task:**
+1. **Actual coding models inside OpenCode:** verify from saved sessions if available; otherwise use the factual fallback in question 3, not an invented model name.
+2. **One real agent task:** question 6 now contains a Git-grounded reconstruction you can explain. Only present it as historical wording if you can independently confirm that wording.
    - Instruction and context: ______
    - Constraints: ______
    - Produced output: ______
